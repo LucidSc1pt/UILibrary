@@ -953,8 +953,18 @@ function OrionLib:MakeWindow(WindowConfig)
 			}), "Text")
 		})
 
-		if GetIcon(TabConfig.Icon) ~= nil then
-			TabFrame.Ico.Image = GetIcon(TabConfig.Icon)
+		if TabConfig.Icon ~= nil then
+			if typeof(TabConfig.Icon) == 'string' and Icons then
+				local asset = getIcon(TabConfig.Icon)
+
+				TabFrame.Ico.Image = 'rbxassetid://'..asset.id
+				TabFrame.Ico.ImageRectOffset = asset.imageRectOffset
+				TabFrame.Ico.ImageRectSize = asset.imageRectSize
+			else
+				TabFrame.Ico.Image = getAssetUri(TabConfig.Icom)
+			end
+		else
+			TabFrame.Ico.Image = "rbxassetid://" .. 0
 		end	
 
 		local Container = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 5), {
