@@ -1,8 +1,11 @@
-for _, orion in pairs(game.CoreGui:GetDescendants()) do
-    if orion:FindFirstChild("Orion") and orion:IsA("ScreenGui") then
-        orion:Destroy()
-	end
-end
+pcall(function()
+    local core = gethui and gethui() or game:GetService("CoreGui")
+    for _, orion in pairs(core:GetChildren()) do
+        if orion.Name == "Orion" then
+            orion:Destroy()
+        end
+    end
+end)
 
 -- Service
 local UserInputService = game:GetService("UserInputService")
