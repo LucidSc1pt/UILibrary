@@ -439,20 +439,6 @@ CreateElement("Image", function(ImageID)
 		BackgroundTransparency = 1
 	})
 
-	if getIcon(ImageID) ~= nil then
-		if typeof(ImageID) == 'string' and Icons then
-			local asset = getIcon(ImageID)
-
-			ImageNew.Image = 'rbxassetid://'..asset.id
-			ImageNew.ImageRectOffset = asset.imageRectOffset
-			ImageNew.ImageRectSize = asset.imageRectSize
-		else
-			ImageNew.Image = getAssetUri(ImageID)
-		end
-	else
-		NotificationFrame.Icon.Image = "rbxassetid://" .. 0
-	end	
-
 	return ImageNew
 end)
 
