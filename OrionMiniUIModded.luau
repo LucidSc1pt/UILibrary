@@ -154,14 +154,6 @@ local function getAssetUri(id: any): string
 	return assetUri
 end
 
-local function GetIcon(IconName)
-	if Icons[IconName] ~= nil then
-		return Icons[IconName]
-	else
-		return nil
-	end
-end   
-
 local Orion = Instance.new("ScreenGui")
 Orion.Name = "Orion"
 if syn then
@@ -447,8 +439,18 @@ CreateElement("Image", function(ImageID)
 		BackgroundTransparency = 1
 	})
 
-	if GetIcon(ImageID) ~= nil then
-		ImageNew.Image = GetIcon(ImageID)
+	if getIcon(ImageID) ~= nil then
+		if typeof(ImageID) == 'string' and Icons then
+			local asset = getIcon(ImageID)
+
+			ImageNew.Image = 'rbxassetid://'..asset.id
+			ImageNew.ImageRectOffset = asset.imageRectOffset
+			ImageNew.ImageRectSize = asset.imageRectSize
+		else
+			ImageNew.Image = getAssetUri(ImageID)
+		end
+	else
+		NotificationFrame.Icon.Image = "rbxassetid://" .. 0
 	end	
 
 	return ImageNew
@@ -550,7 +552,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 			})
 		})
 
-        if NotificationConfig.Image then
+        if NotificationConfig.Image ~= nil then
 			if typeof(NotificationConfig.Image) == 'string' and Icons then
 				local asset = getIcon(NotificationConfig.Image)
 
@@ -961,7 +963,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				TabFrame.Ico.ImageRectOffset = asset.imageRectOffset
 				TabFrame.Ico.ImageRectSize = asset.imageRectSize
 			else
-				TabFrame.Ico.Image = getAssetUri(TabConfig.Icom)
+				TabFrame.Ico.Image = getAssetUri(TabConfig.Icon)
 			end
 		else
 			TabFrame.Ico.Image = "rbxassetid://" .. 0
