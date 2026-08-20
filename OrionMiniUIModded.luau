@@ -159,11 +159,19 @@ end
 
 local Orion = Instance.new("ScreenGui")
 Orion.Name = "Orion"
-if syn then
-	syn.protect_gui(Orion)
-	Orion.Parent = game.CoreGui
+
+if syn and syn.protect_gui then
+    syn.protect_gui(Orion)
+    Orion.Parent = game:GetService("CoreGui")
+elseif gethui then
+    Orion.Parent = gethui()
 else
-	Orion.Parent = gethui() or game.CoreGui
+    local success = pcall(function()
+        Orion.Parent = game:GetService("CoreGui")
+    end)
+    if not success then
+        Orion.Parent = LocalPlayer:WaitForChild("RobloxGui")
+    end
 end
 
 function OrionLib:IsRunning()
