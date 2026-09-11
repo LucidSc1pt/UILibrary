@@ -162,7 +162,7 @@ local theme = {
 }
 
 function Lerp(a, b, c)
-    return a + ((b - a) * c)
+	return a + ((b - a) * c)
 end
 
 -- // Service \\ --
@@ -227,6 +227,8 @@ local function protect_gui(obj)
 		obj.Parent = game.CoreGui
 	elseif PROTOSMASHER_LOADED then
 		obj.Parent = get_hidden_gui()
+	elseif gethui then
+		obj.Parent = gethui()
 	else
 		obj.Parent = game.CoreGui
 	end
@@ -368,6 +370,8 @@ end
 function library:Window(WinConfig)
 	WinConfig = WinConfig or {}
     WinConfig.Name = WinConfig.Name or "Window"
+    WinConfig.Size = WinConfig.Size or UDim2.new(0, 217, 0, 33)
+    WinConfig.Scrolling = WinConfig.Scrolling or false
 
     windowCount = windowCount + 1
     local winCount = windowCount
@@ -379,7 +383,7 @@ function library:Window(WinConfig)
     UiWindow.BackgroundColor3 = Color3.fromRGB(0, 151, 230)
     UiWindow.BorderColor3 = Color3.fromRGB(0, 151, 230)
     UiWindow.Position = UDim2.new(0, xOffset, 0, 20)
-    UiWindow.Size = UDim2.new(0, 217, 0, 33)
+    UiWindow.Size = WinConfig
     UiWindow.ZIndex = 4 + zindex
     UiWindow.Active = true
 	
@@ -415,8 +419,18 @@ function library:Window(WinConfig)
     Window.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
     Window.BorderColor3 = Color3.fromRGB(47, 54, 64)
     Window.Position = UDim2.new(0, 0, 0, 0)
-    Window.Size = UDim2.new(0, 217, 0, 33)
+    Window.Size = UDim2.new(1, 0, 0, 33)
     Window.ZIndex = 1 + zindex
+    
+    if not WinConfig.Scrolling then
+		local winLayout = Instance.new("UIListLayout")
+		winLayout.FillDirection = Enum.FillDirection.Horizontal
+		winLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+		winLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+		winLayout.Padding = UDim.new(0, 8)
+		winLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		winLayout.Parent = Window
+	end
 
     local Minimise = Instance.new("TextButton")
     Minimise.Name = "Minimise"
@@ -424,7 +438,7 @@ function library:Window(WinConfig)
     Minimise.BackgroundColor3 = Color3.fromRGB(0, 168, 255)
 	Minimise.BackgroundTransparency = 1
     Minimise.BorderColor3 = Color3.fromRGB(0, 168, 255)
-    Minimise.Position = UDim2.new(0, 195, 0, 2)
+    Minimise.Position = UDim2.new(1, -25, 0, 2)
     Minimise.Size = UDim2.new(0, 22, 0, 22)
     Minimise.ZIndex = 7 + zindex
     Minimise.Font = Enum.Font.SourceSansBold
@@ -440,6 +454,14 @@ function library:Window(WinConfig)
           Minimise.Text = "+"
        end
     end)
+    
+    local WindowScroll
+    
+    if WinConfig.Scrolling then
+    	
+    end
+	
+	local contentParent = WinConfig.Scrolling and WindowScroll or Window
 
 	local DropdownParent = Instance.new("Frame")
 	DropdownParent.Name = "DropdownParent"
@@ -455,6 +477,14 @@ function library:Window(WinConfig)
     local functions = {}
     sizes[winCount] = 33
     listOffset[winCount] = 10
+    
+	local function autoSizeWin(winC, sizeWin, listO)
+		if not WinConfig.Scrolling then
+			sizes[winCount] = sizes[winCount] + winC
+			Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + sizeWin)
+			listOffset[winCount] = listOffset[winCount] + listO
+		end
+	end
 
 	  -- // Button Function \\ --
     function functions:Button(ButConfig)
