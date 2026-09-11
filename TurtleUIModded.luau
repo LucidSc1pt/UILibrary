@@ -479,11 +479,11 @@ function library:Window(WinConfig)
 
 	local DropdownParent = Instance.new("Frame")
 	DropdownParent.Name = "DropdownParent"
-    DropdownParent.Parent = Window
+    DropdownParent.Parent = Header
     DropdownParent.Active = false
     DropdownParent.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
     DropdownParent.BorderColor3 = Color3.fromRGB(53, 59, 72)
-    DropdownParent.Position = UDim2.new(1, 15, 0, 36)
+    DropdownParent.Position = UDim2.new(1, 15, 1, 0)
     DropdownParent.Size = UDim2.new(0, 192, 0, 0)
     DropdownParent.Visible = true
     DropdownParent.BackgroundTransparency = 1
@@ -618,7 +618,7 @@ function library:Window(WinConfig)
         ToggleButton.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
 		ToggleButton.BackgroundTransparency = 1
         ToggleButton.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        ToggleButton.Position = UDim2.new(1.2061069, 0, 0.0769230798, 0)
+        ToggleButton.Position = UDim2.new(1, 0, 0.0769230798, 0)
         ToggleButton.Size = UDim2.new(0, 22, 0, 22)
         ToggleButton.Font = Enum.Font.SourceSans
         ToggleButton.Text = ""
@@ -801,14 +801,10 @@ function library:Window(WinConfig)
         SliConfig.Name = SliConfig.Name or "Slider"
         SliConfig.Min = SliConfig.Min or 1
         SliConfig.Max = SliConfig.Max or 100
-        SliConfig.Default = SliConfig.Default or SliConfig.Max/2
-        SliConfig.Callback = SliConfig.Callback or function() end
+        SliConfig.Default = math.clamp(SliConfig.Default, SliConfig.Min, SliConfig.Max)
+		SliConfig.Callback = SliConfig.Callback or function() end
         local offset = 70
-        if SliConfig.Default > SliConfig.Max then
-            SliConfig.Default = SliConfig.Max
-        elseif SliConfig.Default < SliConfig.Min then
-            SliConfig.Default = SliConfig.Min
-        end
+        local defaultAlpha = (SliConfig.Default - SliConfig.Min) / (SliConfig.Max - SliConfig.Min)
 
         if pastSliders[winCount] then
             offset = 60
@@ -830,7 +826,7 @@ function library:Window(WinConfig)
         local Current = Instance.new("TextLabel")
         local Min = Instance.new("TextLabel")
         local Max = Instance.new("TextLabel")
-
+--[[
         function SliderMovement(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 isdragging = true;
@@ -840,6 +836,7 @@ function library:Window(WinConfig)
                     local con;
                     con = stepped:Connect(function()
                         if isdragging then
+                        	local sliderWidth = Slider.AbsoluteSize.X
                             local xOffset = mouse.X - delta1 - 3
                             if xOffset > 185 then
                                 xOffset = 185
@@ -848,7 +845,7 @@ function library:Window(WinConfig)
                             end
                             SliderButton.Position = UDim2.new(0, xOffset , -1.33333337, 0);
                             SilderFiller.Size = UDim2.new(0, xOffset, 0, 6)
-                            local value = Lerp(SliConfig.Min, SliConfig.Max, SliderButton.Position.X.Offset/(Slider.Size.X.Offset-5))
+                            local value = Lerp(SliConfig.Min, SliConfig.Max, SliderButton.Position.X.Offset/(sliderWidth-5))
                             Current.Text = tostring(math.round(value))
                         else
                             con:Disconnect();
@@ -863,10 +860,58 @@ function library:Window(WinConfig)
         end
         function SliderEnd(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            local value = Lerp(SliConfig.Min, SliConfig.Max, SliderButton.Position.X.Offset/(Slider.Size.X.Offset))
+          	local sliderWidth = Slider.AbsoluteSize.X
+            local value = Lerp(SliConfig.Min, SliConfig.Max, SliderButton.Position.X.Offset/(sliderWidth))
             SliConfig.Callback(math.round(value))
             end
         end
+        ]]
+		
+		function SliderMovement(input)
+    		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        		isdragging = true;
+        		minitial = input.Position.X;
+        		initial = SliderButton.Position.X.Offset;
+        		local delta1 = SliderButton.AbsolutePosition.X - initial
+        		local con;
+        		con = stepped:Connect(function()
+            		if isdragging then
+                		local sliderWidth = Slider.AbsoluteSize.X
+                		local xOffset = mouse.X - delta1 - 3
+                
+                		-- Batasi offset gerakan tombol slider
+                		xOffset = math.clamp(xOffset, 0, sliderWidth)
+
+                		SliderButton.Position = UDim2.new(0, xOffset, -1.33333337, 0);
+                		SilderFiller.Size = UDim2.new(0, xOffset, 0, 6)
+                
+                		-- Hitung persentase (alpha) antara 0 sampai 1
+                		local alpha = math.clamp(xOffset / sliderWidth, 0, 1)
+                		local value = Lerp(SliConfig.Min, SliConfig.Max, alpha)
+                
+                		Current.Text = tostring(math.round(value))
+            		else
+                		con:Disconnect();
+            		end;
+        		end);
+        		input.Changed:Connect(function()
+            		if input.UserInputState == Enum.UserInputState.End then
+                		isdragging = false;
+            		end;
+        		end);
+    		end;
+		end
+
+		function SliderEnd(input)
+    		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        		local sliderWidth = Slider.AbsoluteSize.X
+        		local alpha = math.clamp(SliderButton.Position.X.Offset / sliderWidth, 0, 1)
+        		local value = Lerp(SliConfig.Min, SliConfig.Max, alpha)
+        
+        		SliConfig.Callback(math.round(value))
+    		end
+		end
+		
 
         Slider.Name = "Slider"
         Slider.Parent = sliFrame
@@ -879,8 +924,8 @@ function library:Window(WinConfig)
         Slider.InputBegan:Connect(SliderMovement) 
         Slider.InputEnded:Connect(SliderEnd)      
 
-        SliderButton.Position = UDim2.new(0, (Slider.Size.X.Offset) * ((SliConfig.Default - SliConfig.Min)/(SliConfig.Max-SliConfig.Min)), -1.333337, 0)
-        SliderButton.Name = "SliderButton"
+        SliderButton.Position = UDim2.new(defaultAlpha, 0, -1.333337, 0)
+		SliderButton.Name = "SliderButton"
 		SliderButton.Active = true
         SliderButton.Parent = Slider
         SliderButton.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
@@ -901,14 +946,15 @@ function library:Window(WinConfig)
         Current.TextSize = 14.000  
         Current.ZIndex = 2 + zindex
 
+		Description.AnchorPoint = Vector2.new(0.5, 0)
         Description.Name = "Description"
         Description.Parent = Slider
         Description.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         Description.BackgroundTransparency = 1.000
-        Description.Position = UDim2.new(0, -10, 0, -35)
+        Description.Position = UDim2.new(0, 0, 0, -35)
         Description.Size = UDim2.new(0, 200, 0, 21)
         Description.Font = Enum.Font.SourceSans
-        Description.Text = SliConfig.Name
+        Description.Text = SliConfig.Name .. ": " .. tostring(SliConfig.Min) .. " - " .. tostring(SliConfig.Max)
         Description.TextColor3 = Color3.fromRGB(245, 246, 250)
         Description.TextSize = 16.000
         Description.ZIndex = 2 + zindex
@@ -917,7 +963,7 @@ function library:Window(WinConfig)
         SilderFiller.Parent = Slider
         SilderFiller.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
         SilderFiller.BorderColor3 = Color3.fromRGB(47, 54, 64)
-        SilderFiller.Size = UDim2.new(0, (Slider.Size.X.Offset) * ((SliConfig.Default - SliConfig.Min)/(SliConfig.Max-SliConfig.Min)), 0, 6)
+        SilderFiller.Size = UDim2.new(defaultAlpha, 0, 1, 0)
         SilderFiller.ZIndex = 2 + zindex
         SilderFiller.BorderMode = Enum.BorderMode.Inset
 
