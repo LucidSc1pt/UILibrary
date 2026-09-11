@@ -421,7 +421,7 @@ function library:Window(WinConfig)
     Window.Parent = Header
     Window.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
     Window.BorderColor3 = Color3.fromRGB(47, 54, 64)
-    Window.Position = UDim2.new(0, 0, 1, 0)
+    Window.Position = UDim2.new(0, 0, 0, 33)
     Window.Size = UDim2.new(1, 0, 0, 33)
     Window.ZIndex = 1 + zindex
     
