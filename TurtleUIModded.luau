@@ -376,6 +376,9 @@ function library:Window(WinConfig)
     windowCount = windowCount + 1
     local winCount = windowCount
     local zindex = winCount * 7
+    
+    local winPaddingLayout
+    local winLayout
   
 	local UiWindow = Instance.new("Frame")
     UiWindow.Name = "UiWindow"
@@ -418,12 +421,19 @@ function library:Window(WinConfig)
     Window.Parent = Header
     Window.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
     Window.BorderColor3 = Color3.fromRGB(47, 54, 64)
-    Window.Position = UDim2.new(0, 0, 0, 0)
+    Window.Position = UDim2.new(0, 0, 1, 0)
     Window.Size = UDim2.new(1, 0, 0, 33)
     Window.ZIndex = 1 + zindex
     
     if not WinConfig.Scrolling then
-		local winLayout = Instance.new("UIListLayout")
+    	winPaddingLayout = Instance.new("UIPadding")
+		winPaddingLayout.PaddingBottom = UDim.new(0, 5)
+		winPaddingLayout.PaddingTop = UDim.new(0, 5)
+		winPaddingLayout.PaddingRight = UDim.new(0, 5)
+		winPaddingLayout.PaddingLeft = UDim.new(0, 5)
+		winPaddingLayout.Parent = Window
+
+		winLayout = Instance.new("UIListLayout")
 		winLayout.FillDirection = Enum.FillDirection.Vertical
 		winLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 		winLayout.VerticalAlignment = Enum.VerticalAlignment.Center
@@ -456,10 +466,13 @@ function library:Window(WinConfig)
     end)
     
     local WindowScroll
-    
-    if WinConfig.Scrolling then
-    	
-    end
+	
+	if WinConfig.Scrolling then
+		if winPaddingLayout and winLayout then
+			winLayout:Destroy()
+			winPaddingLayout:Destroy()
+		end
+	end
 	
 	local contentParent = WinConfig.Scrolling and WindowScroll or Window
 
@@ -495,14 +508,20 @@ function library:Window(WinConfig)
         sizes[winCount] = sizes[winCount] + 32
         Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
 
+		local btnFrame = Instance.new("Frame")
+		btnFrame.Parent = Window
+		btnFrame.Size = UDim2.new(1, 0, 0, 32)
+		btnFrame.BackgroundTransparency = 1
+		btnFrame.Name = "ButtonHolder_" .. tostring(winCount)
+		
         local Button = Instance.new("TextButton")
         listOffset[winCount] = listOffset[winCount] + 32
-        Button.Name = "Button"
-        Button.Parent = Window
+        Button.Name = "THEBUTTON"
+        Button.Parent = btnFrame
         Button.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         Button.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        Button.Position = UDim2.new(0, 12, 0, listOffset[winCount])
-        Button.Size = UDim2.new(0, 192, 0, 26)
+        --Button.Position = UDim2.new(0, 12, 0, listOffset[winCount])
+        Button.Size = UDim2.new(1, 0, 0, 26)
         Button.ZIndex = 2 + zindex
         Button.Selected = true
         Button.Font = Enum.Font.SourceSans
@@ -558,6 +577,7 @@ function library:Window(WinConfig)
 		TogConfig = TogConfig or {}
         TogConfig.Name = TogConfig.Name or "Toggle"
         TogConfig.Default = TogConfig.Default or false
+        TogConfig.Loop = TogConfig.Loop or false
         TogConfig.Callback = TogConfig.Callback or function() end
 
         sizes[winCount] = sizes[winCount] + 32
@@ -601,6 +621,18 @@ function library:Window(WinConfig)
             ToggleFiller.Visible = not ToggleFiller.Visible
             TogConfig.Callback(ToggleFiller.Visible)
         end)
+        
+		if TogConfig.Loop then
+			local BetterLoopOperator = false
+
+			game:GetService("RunService").RenderStepped:Connect(function()
+				if ToogleFiller.Visible and BetterLoopOperator == false then
+					BetterLoopOperator = true
+					TogConfig.Callback(ToogleFiller.Visible)
+					BetterLoopOperator = false
+				end
+			end)
+        end
 
 		ToggleButton_stroke.Parent = ToggleButton
 		ToggleButton_stroke.Color = Color3.fromRGB(113, 128, 147)
