@@ -424,7 +424,7 @@ function library:Window(WinConfig)
     
     if not WinConfig.Scrolling then
 		local winLayout = Instance.new("UIListLayout")
-		winLayout.FillDirection = Enum.FillDirection.Horizontal
+		winLayout.FillDirection = Enum.FillDirection.Vertical
 		winLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 		winLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 		winLayout.Padding = UDim.new(0, 8)
