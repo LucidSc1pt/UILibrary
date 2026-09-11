@@ -54,6 +54,7 @@ Window:Button({
 Window:Toggle({
     Name = "Toggle",
     Default = false,
+    Loop = false,
     Callback = function(value)
         -- script here
     end
@@ -83,8 +84,8 @@ Window:Slider({
    Default = 20,
    Callback = function(value)
    -- // Put your code here \\ --
-   print(value)
-end
+		print(value)
+	end
 })
 
 Window:Label({
@@ -515,12 +516,10 @@ function library:Window(WinConfig)
 		btnFrame.Name = "ButtonHolder_" .. tostring(winCount)
 		
         local Button = Instance.new("TextButton")
-        listOffset[winCount] = listOffset[winCount] + 32
         Button.Name = "THEBUTTON"
         Button.Parent = btnFrame
         Button.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         Button.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        --Button.Position = UDim2.new(0, 12, 0, listOffset[winCount])
         Button.Size = UDim2.new(1, 0, 0, 26)
         Button.ZIndex = 2 + zindex
         Button.Selected = true
@@ -544,15 +543,20 @@ function library:Window(WinConfig)
         sizes[winCount] = sizes[winCount] + 32
         Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
 
-        listOffset[winCount] = listOffset[winCount] + 32
+        local labelFrame = Instance.new("Frame")
+		labelFrame.Parent = Window
+		labelFrame.Size = UDim2.new(1, 0, 0, 32)
+		labelFrame.BackgroundTransparency = 1
+		labelFrame.Name = "LabelHolder_" .. tostring(winCount)
+        
         local Label = Instance.new("TextLabel")
-        Label.Name = "Label"
-        Label.Parent = Window
+        Label.Name = "LABEL"
+        Label.Parent = labelFrame
         Label.BackgroundColor3 = Color3.fromRGB(220, 221, 225)
         Label.BackgroundTransparency = 1.000
         Label.BorderColor3 = Color3.fromRGB(27, 42, 53)
-        Label.Position = UDim2.new(0, 0, 0, listOffset[winCount])
-        Label.Size = UDim2.new(0, 217, 0, 29)
+        Label.Position = UDim2.new(0, 0, 0, 0)
+        Label.Size = UDim2.new(1, 0, 0, 29)
         Label.Font = Enum.Font.SourceSans
         Label.Text = LabConfig.Name
         Label.TextSize = 16.000
@@ -583,7 +587,11 @@ function library:Window(WinConfig)
         sizes[winCount] = sizes[winCount] + 32
         Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
 
-        listOffset[winCount] = listOffset[winCount] + 32
+        local togFrame = Instance.new("Frame")
+		togFrame.Parent = Window
+		togFrame.Size = UDim2.new(1, 0, 0, 32)
+		togFrame.BackgroundTransparency = 1
+		togFrame.Name = "ToggleHolder_" .. tostring(winCount)
 
         local ToggleDescription = Instance.new("TextLabel")
         local ToggleButton = Instance.new("TextButton")
@@ -591,11 +599,11 @@ function library:Window(WinConfig)
         local ToggleFiller = Instance.new("Frame")
 
         ToggleDescription.Name = "ToggleDescription"
-        ToggleDescription.Parent = Window
+        ToggleDescription.Parent = togFrame
         ToggleDescription.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ToggleDescription.BackgroundTransparency = 1.000
-        ToggleDescription.Position = UDim2.new(0, 14, 0, listOffset[winCount])
-        ToggleDescription.Size = UDim2.new(0, 139, 0, 26)
+        ToggleDescription.Position = UDim2.new(0, 0, 0, 0)
+        ToggleDescription.Size = UDim2.new(1, 0, 0, 26)
         ToggleDescription.Font = Enum.Font.SourceSans
         ToggleDescription.Text = TogConfig.Name
         ToggleDescription.TextColor3 = Color3.fromRGB(245, 246, 250)
@@ -736,13 +744,18 @@ function library:Window(WinConfig)
         sizes[winCount] = sizes[winCount] + 32
         Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
 
-        listOffset[winCount] = listOffset[winCount] + 32
+        local boxFrame = Instance.new("Frame")
+		boxFrame.Parent = Window
+		boxFrame.Size = UDim2.new(1, 0, 0, 32)
+		boxFrame.BackgroundTransparency = 1
+		boxFrame.Name = "BoxHolder_" .. tostring(winCount)
+        
         local TextBox = Instance.new("TextBox")
         local BoxDescription = Instance.new("TextLabel")
-        TextBox.Parent = Window
+        TextBox.Parent = boxFrame
         TextBox.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         TextBox.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        TextBox.Position = UDim2.new(0, 109, 0, listOffset[winCount])
+        TextBox.Position = UDim2.new(1, 0, 0, 0)
         TextBox.Size = UDim2.new(0, 95, 0, 26)
         TextBox.Font = Enum.Font.SourceSans
         TextBox.PlaceholderColor3 = Color3.fromRGB(220, 221, 225)
@@ -802,8 +815,12 @@ function library:Window(WinConfig)
         sizes[winCount] = sizes[winCount] + offset
         Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
 
-        listOffset[winCount] = listOffset[winCount] + offset
-
+        local sliFrame = Instance.new("Frame")
+		sliFrame.Parent = Window
+		sliFrame.Size = UDim2.new(1, 0, 0, 32)
+		sliFrame.BackgroundTransparency = 1
+		sliFrame.Name = "SliderHolder_" .. tostring(winCount)
+        
         local Slider = Instance.new("Frame")
         local SliderButton = Instance.new("Frame")
         local Description = Instance.new("TextLabel")
@@ -850,11 +867,11 @@ function library:Window(WinConfig)
         end
 
         Slider.Name = "Slider"
-        Slider.Parent = Window
+        Slider.Parent = sliFrame
 		Slider.Active = true
         Slider.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         Slider.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        Slider.Position = UDim2.new(0, 13, 0, listOffset[winCount])
+        Slider.Position = UDim2.new(0, 13, 0, 0)
         Slider.Size = UDim2.new(0, 190, 0, 6)
         Slider.ZIndex = 2 + zindex
         Slider.InputBegan:Connect(SliderMovement) 
