@@ -951,10 +951,10 @@ function library:Window(WinConfig)
         Description.Parent = Slider
         Description.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         Description.BackgroundTransparency = 1.000
-        Description.Position = UDim2.new(0, 0, 0, -35)
+        Description.Position = UDim2.new(0.5, 0, 0, -35)
         Description.Size = UDim2.new(0, 200, 0, 21)
         Description.Font = Enum.Font.SourceSans
-        Description.Text = SliConfig.Name .. ": " .. tostring(SliConfig.Min) .. " - " .. tostring(SliConfig.Max)
+        Description.Text = SliConfig.Name
         Description.TextColor3 = Color3.fromRGB(245, 246, 250)
         Description.TextSize = 16.000
         Description.ZIndex = 2 + zindex
@@ -1002,6 +1002,12 @@ function library:Window(WinConfig)
         DropConfig.Items = DropConfig.Items or {}
         DropConfig.Callback = DropConfig.Callback or function() end
 
+		local droFrame = Instance.new("Frame")
+		droFrame.Parent = Window
+		droFrame.Size = UDim2.new(1, 0, 0, 32)
+		droFrame.BackgroundTransparency = 1
+		droFrame.Name = "DropdownHolder_" .. tostring(winCount)
+
         local Dropdown = Instance.new("TextButton")
         local DownSign = Instance.new("TextLabel")
         local DropdownFrame = Instance.new("ScrollingFrame")
@@ -1009,14 +1015,12 @@ function library:Window(WinConfig)
         sizes[winCount] = sizes[winCount] + 32
         Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
 
-        listOffset[winCount] = listOffset[winCount] + 32
-
         Dropdown.Name = "Dropdown_" .. DropConfig.Name
         Dropdown.Parent = Window
         Dropdown.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         Dropdown.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        Dropdown.Position = UDim2.new(0, 12, 0, listOffset[winCount])
-        Dropdown.Size = UDim2.new(0, 192, 0, 26)
+        Dropdown.Position = UDim2.new(0, 0, 0, 0)
+        Dropdown.Size = UDim2.new(1, 0, 0, 26)
         Dropdown.Selected = true
         Dropdown.Font = Enum.Font.SourceSans
         Dropdown.Text = tostring(DropConfig.Name)
@@ -1040,11 +1044,12 @@ function library:Window(WinConfig)
             DropdownFrame.Visible = not DropdownFrame.Visible
         end)
 
+		DownSign.AnchorPoint = Vector2.new(1,0.5)
         DownSign.Name = "DownSign"
         DownSign.Parent = Dropdown
         DownSign.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         DownSign.BackgroundTransparency = 1.000
-        DownSign.Position = UDim2.new(0, 165, 0, 2)
+        DownSign.Position = UDim2.new(1, -10, 0.5, 0)
         DownSign.Size = UDim2.new(0, 27, 0, 22)
         DownSign.Font = Enum.Font.SourceSans
         DownSign.Text = "^"
@@ -1166,6 +1171,12 @@ function library:Window(WinConfig)
         ColConfig.Name = ColConfig.Name or "Color picker"
         ColConfig.Default = ColConfig.Default or Color3.fromRGB(255, 0, 0)
         ColConfig.Callback = ColConfig.Callback or function() end
+        
+        local colFrame = Instance.new("Frame")
+		colFrame.Parent = Window
+		colFrame.Size = UDim2.new(1, 0, 0, 32)
+		colFrame.BackgroundTransparency = 1
+		colFrame.Name = "ColorPickerHolder_" .. tostring(winCount)
 
         local ColorPicker = Instance.new("TextButton")
         local PickerCorner = Instance.new("UICorner")
@@ -1189,11 +1200,10 @@ function library:Window(WinConfig)
         sizes[winCount] = sizes[winCount] + 32
         Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
 
-        listOffset[winCount] = listOffset[winCount] + 32
-
+		ColorPicker.AnchorPoint = Vector2.new(1,0.5)
         ColorPicker.Name = "ColorPicker"
-        ColorPicker.Parent = Window
-        ColorPicker.Position = UDim2.new(0, 147, 0, listOffset[winCount])
+        ColorPicker.Parent = colFrame
+        ColorPicker.Position = UDim2.new(1, 0, 0.5, 0)
         ColorPicker.Size = UDim2.new(0, 57, 0, 26)
         ColorPicker.Font = Enum.Font.SourceSans
         ColorPicker.Text = ""
@@ -1211,11 +1221,12 @@ function library:Window(WinConfig)
         PickerCorner.Name = "PickerCorner"
         PickerCorner.CornerRadius = UDim.new(0,2)
 
+		PickerDescription.AnchorPoint = Vector2.new(0,0.5)
         PickerDescription.Name = "PickerDescription"
-        PickerDescription.Parent = ColorPicker
+        PickerDescription.Parent = colFrame
         PickerDescription.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         PickerDescription.BackgroundTransparency = 1.000
-        PickerDescription.Position = UDim2.new(-2.15789509, -10, 0, 0)
+        PickerDescription.Position = UDim2.new(0, 0, 0.5, 0)
         PickerDescription.Size = UDim2.new(0, 116, 0, 26)
         PickerDescription.Font = Enum.Font.SourceSans
         PickerDescription.Text = ColConfig.Name
