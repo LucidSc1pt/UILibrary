@@ -612,8 +612,9 @@ function library:Window(WinConfig)
         ToggleDescription.TextXAlignment = Enum.TextXAlignment.Left
         ToggleDescription.ZIndex = 2 + zindex
 
+		ToggleButton.AnchorPoint = Vector2.new(1, 0)
         ToggleButton.Name = "ToggleButton"
-        ToggleButton.Parent = ToggleDescription
+        ToggleButton.Parent = togFrame
         ToggleButton.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
 		ToggleButton.BackgroundTransparency = 1
         ToggleButton.BorderColor3 = Color3.fromRGB(113, 128, 147)
@@ -752,6 +753,7 @@ function library:Window(WinConfig)
         
         local TextBox = Instance.new("TextBox")
         local BoxDescription = Instance.new("TextLabel")
+        TextBox.AnchorPoint = Vector2.new(1, 0)
         TextBox.Parent = boxFrame
         TextBox.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         TextBox.BorderColor3 = Color3.fromRGB(113, 128, 147)
@@ -777,12 +779,12 @@ function library:Window(WinConfig)
         TextBox.FocusLost:Connect(function()
             BoxConfig.Callback(TextBox.Text, true)
         end)
-
+        
         BoxDescription.Name = "BoxDescription"
-        BoxDescription.Parent = TextBox
+        BoxDescription.Parent = boxFrame
         BoxDescription.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         BoxDescription.BackgroundTransparency = 1.000
-        BoxDescription.Position = UDim2.new(-0.894736826, -10, 0, 0)
+        BoxDescription.Position = UDim2.new(0, 0, 0, 0)
         BoxDescription.Size = UDim2.new(0, 75, 0, 26)
         BoxDescription.Font = Enum.Font.SourceSans
         BoxDescription.Text = BoxConfig.Name
@@ -817,7 +819,7 @@ function library:Window(WinConfig)
 
         local sliFrame = Instance.new("Frame")
 		sliFrame.Parent = Window
-		sliFrame.Size = UDim2.new(1, 0, 0, 32)
+		sliFrame.Size = UDim2.new(1, 0, 0, 62)
 		sliFrame.BackgroundTransparency = 1
 		sliFrame.Name = "SliderHolder_" .. tostring(winCount)
         
@@ -871,8 +873,8 @@ function library:Window(WinConfig)
 		Slider.Active = true
         Slider.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         Slider.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        Slider.Position = UDim2.new(0, 13, 0, 0)
-        Slider.Size = UDim2.new(0, 190, 0, 6)
+        Slider.Position = UDim2.new(0, 0, 0.5, 0)
+        Slider.Size = UDim2.new(1, 0, 0, 6)
         Slider.ZIndex = 2 + zindex
         Slider.InputBegan:Connect(SliderMovement) 
         Slider.InputEnded:Connect(SliderEnd)      
