@@ -922,6 +922,7 @@ function library:Window(WinConfig)
         DropConfig = DropConfig or {}
         DropConfig.Name = DropConfig.Name or "Dropdown"
         DropConfig.Items = DropConfig.Items or {}
+        DropConfig.MultiSelect = DropConfig.MultiSelect or false
         DropConfig.Callback = DropConfig.Callback or function() end
 
 		local droFrame = Instance.new("Frame")
@@ -936,7 +937,7 @@ function library:Window(WinConfig)
 		droLayout.FillDirection = Enum.FillDirection.Vertical
 		droLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		droLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-		droLayout.Padding = UDim.new(0, 1)
+		droLayout.Padding = UDim.new(0, 5)
 		droLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		droLayout.Parent = droFrame
 
@@ -979,7 +980,7 @@ function library:Window(WinConfig)
         DownSign.TextYAlignment = Enum.TextYAlignment.Bottom
 
         DropdownFrame.Name = "DropdownFrame"
-        DropdownFrame.Parent = TurtleUiLib
+        DropdownFrame.Parent = droFrame
         DropdownFrame.Active = true
         DropdownFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         DropdownFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
@@ -995,12 +996,34 @@ function library:Window(WinConfig)
         
         local listLayout = Instance.new("UIListLayout")
     	listLayout.Parent = DropdownFrame
+    	listLayout.FillDirection = Enum.FillDirection.Vertical
+		listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    	listLayout.Padding = UDim.new(0, 1)
+    	listLayout.Padding = UDim.new(0, 2)
 
         table.insert(dropdowns, DropdownFrame)
         local dropFunctions = {}
+        local selectedItems = {}
+        
         local canvasSize = 0
+        
+        local function updateDropdownText()
+        	if DropConfig.MultiSelect then
+        	    local chosenList = {}
+            	for name, isSelected in pairs(selectedItems) do
+                	if isSelected then
+                    	table.insert(chosenList, name)
+                	end
+            	end
+            
+            	if #chosenList > 0 then
+                	Dropdown.Text = table.concat(chosenList, ", ")
+            	else
+                	Dropdown.Text = tostring(DropConfig.Name)
+            	end
+        	end
+    	end
         local function updateDropdownSize()
         	local contentHeight = listLayout.AbsoluteContentSize.Y
         	DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
@@ -1051,10 +1074,31 @@ function library:Window(WinConfig)
 			btn_2_stroke.Thickness = 1
 			btn_2_stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             Button_2.MouseButton1Click:Connect(function()
-                DropConfig.Callback(name)
-                Dropdown.Text = name
-	        	dropFunctions:Close()
-            end)
+            	if DropConfig.MultiSelect then
+					selectedItems[name] = not selectedItems[name]
+
+					if selectedItems[name] then
+                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 209, 55) -- Warna hijau saat aktif
+                	else
+                    	Button_2.BackgroundColor3 = Color3.fromRGB(53, 59, 72) -- Warna default
+                	end
+
+                	updateDropdownText()
+
+					local activeTable = {}
+                	for itemName, isSelected in pairs(selectedItems) do
+                    	if isSelected then
+                        table.insert(activeTable, itemName)
+                    	end
+                	end
+                	DropConfig.Callback(activeTable)
+            	else
+                	-- Mode Single Select
+                	DropConfig.Callback(name)
+                	Dropdown.Text = name
+                	dropFunctions:Close()
+            	end
+        	end)
         end
         function dropFunctions:Remove(name)
             local foundIt
