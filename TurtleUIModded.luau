@@ -424,6 +424,7 @@ function library:Window(WinConfig)
     Window.BorderColor3 = Color3.fromRGB(47, 54, 64)
     Window.Position = UDim2.new(0, 0, 1, 9)
     Window.Size = UDim2.new(1, 0, 0, 33)
+    Window.Active = true
     Window.ZIndex = 1 + zindex
     
     local WindowScroll
@@ -549,9 +550,8 @@ function library:Window(WinConfig)
         LabConfig.Name = LabConfig.Name or "Label"
         LabConfig.Color = LabConfig.Color or Color3.fromRGB(220, 221, 225)
 
-        sizes[winCount] = sizes[winCount] + 32
-        Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
-
+        autoSizeWin(32, 10)
+        
         local labelFrame = Instance.new("Frame")
 		labelFrame.Parent = Window
 		labelFrame.Size = UDim2.new(1, 0, 0, 32)
@@ -596,9 +596,8 @@ function library:Window(WinConfig)
         TogConfig.Loop = TogConfig.Loop or false
         TogConfig.Callback = TogConfig.Callback or function() end
 
-        sizes[winCount] = sizes[winCount] + 32
-        Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
-
+        autoSizeWin(32, 10)
+        
         local togFrame = Instance.new("Frame")
 		togFrame.Parent = Window
 		togFrame.Size = UDim2.new(1, 0, 0, 32)
@@ -757,9 +756,8 @@ function library:Window(WinConfig)
         BoxConfig.Name = BoxConfig.Name or "Box"
         BoxConfig.Callback = BoxConfig.Callback or function() end
 
-        sizes[winCount] = sizes[winCount] + 32
-        Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
-
+        autoSizeWin(32, 10)
+        
         local boxFrame = Instance.new("Frame")
 		boxFrame.Parent = Window
 		boxFrame.Size = UDim2.new(1, 0, 0, 32)
@@ -829,12 +827,11 @@ function library:Window(WinConfig)
             offset = 60
         end
 
-        sizes[winCount] = sizes[winCount] + offset
-        Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
-
+        autoSizeWin(50, 10)
+        
         local sliFrame = Instance.new("Frame")
 		sliFrame.Parent = Window
-		sliFrame.Size = UDim2.new(1, 0, 0, 60)
+		sliFrame.Size = UDim2.new(1, 0, 0, 50)
 		sliFrame.BackgroundTransparency = 1
 		sliFrame.Name = tostring(windowContentCount) .. "_SliderHolder_"
 		windowContentCount = windowContentCount + 1
@@ -866,8 +863,8 @@ function library:Window(WinConfig)
             	local con
             	con = stepped:Connect(function()
                 	if isdragging then
-                    	local sliderWidth = Slider.AbsoluteSize.X
-                    	local mousePosX = mouse.X - Slider.AbsolutePosition.X
+                    	local sliderWidth = Slider.AbsoluteSize.X - 10
+                    	local mousePosX = mouse.X - Slider.AbsolutePosition.X - 10
                     	local alpha = math.clamp(mousePosX / sliderWidth, 0, 1)
                     
                     	local rawValue = Lerp(SliConfig.Min, SliConfig.Max, alpha)
@@ -923,7 +920,7 @@ function library:Window(WinConfig)
     	Current.Parent = Slider
     	Current.BackgroundColor3 = Color3.fromRGB(35, 40, 48)
 		Current.BorderColor3 = Color3.fromRGB(113, 128, 147)
-    	Current.Position = UDim2.new(1, 0, 0, -35)
+    	Current.Position = UDim2.new(1, 0, 0, -33)
     	Current.Size = UDim2.new(0, 45, 0, 20)
     	Current.Font = Enum.Font.SourceSans
     	Current.Text = tostring(SliConfig.Default)
@@ -943,12 +940,12 @@ function library:Window(WinConfig)
         	end
     	end)
 
-		Description.AnchorPoint = Vector2.new(0.5, 0)
+		Description.AnchorPoint = Vector2.new(0, 0)
         Description.Name = "Description"
         Description.Parent = Slider
         Description.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         Description.BackgroundTransparency = 1.000
-        Description.Position = UDim2.new(0.5, 0, 0, -35)
+        Description.Position = UDim2.new(0, 0, 0, -35)
         Description.Size = UDim2.new(0, 200, 0, 21)
         Description.Font = Enum.Font.SourceSans
         Description.Text = SliConfig.Name
@@ -985,9 +982,8 @@ function library:Window(WinConfig)
         local DownSign = Instance.new("TextLabel")
         local DropdownFrame = Instance.new("ScrollingFrame")
 
-        sizes[winCount] = sizes[winCount] + 32
-        Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
-
+        autoSizeWin(32, 10)
+        
 		Dropdown.AnchorPoint = Vector2.new(0,0.5)
         Dropdown.Name = "Dropdown_" .. DropConfig.Name
         Dropdown.Parent = droFrame
@@ -1172,9 +1168,8 @@ function library:Window(WinConfig)
         local ColorCorner = Instance.new("UICorner")
         local BlackOverlay = Instance.new("ImageLabel")
 
-        sizes[winCount] = sizes[winCount] + 32
-        Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
-
+        autoSizeWin(32, 10)
+        
 		ColorPicker.AnchorPoint = Vector2.new(1,0.5)
         ColorPicker.Name = "ColorPicker"
         ColorPicker.Parent = colFrame
