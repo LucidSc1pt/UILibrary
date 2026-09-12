@@ -1220,7 +1220,11 @@ function library:Window(WinConfig)
             for i, v in pairs(colorPickers) do
                 v.Visible = false
             end
-            ColorPickerFrame.Visible = not ColorPickerFrame.Visible
+            if ColorPickerFrame.Visible then
+            	ColorPickerFrame.Visible = false
+            else
+            	ColorPickerFrame.Visible = true
+            end
         end)
 
         PickerCorner.Parent = ColorPicker
@@ -1352,8 +1356,8 @@ function library:Window(WinConfig)
         Canvas.Name = "Canvas"
         Canvas.Parent = ColorPickerFrame
         Canvas.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Canvas.Position = UDim2.new(0, 5, 0, 34)
-        Canvas.Size = UDim2.new(0, 148, 0, 64)
+        Canvas.Position = UDim2.new(0, 5, 0, 5)
+        Canvas.Size = UDim2.new(1, -10, 0, 64)
         Canvas.ZIndex = 4 + zindex
 
         CanvasGradient.Color = ColorSequence.new{
@@ -1396,7 +1400,7 @@ function library:Window(WinConfig)
         Color.Parent = ColorPickerFrame
         Color.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         Color.Position = UDim2.new(0, 5, 0, 105)
-        Color.Size = UDim2.new(0, 148, 0, 14)
+        Color.Size = UDim2.new(1, -10, 0, 14)
         Color.BorderMode = Enum.BorderMode.Inset
         Color.ZIndex = 4 + zindex
 
@@ -1454,6 +1458,7 @@ function library:Window(WinConfig)
         ColorSlider.Parent = Color
         ColorSlider.BackgroundColor3 = Color3.fromRGB(245, 246, 250)
         ColorSlider.BorderColor3 = Color3.fromRGB(245, 246, 250)
+        ColorSlider.Position = UDim2.new(0, 0, 0, -1)
         ColorSlider.Size = UDim2.new(0, 2, 0, 14)
         ColorSlider.ZIndex = 5 + zindex
 
