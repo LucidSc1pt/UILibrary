@@ -1217,9 +1217,6 @@ function library:Window(WinConfig)
         ColorPicker.TextSize = 14.000
         ColorPicker.ZIndex = 2 + zindex
         ColorPicker.MouseButton1Click:Connect(function()
-            for i, v in pairs(colorPickers) do
-                v.Visible = false
-            end
             if ColorPickerFrame.Visible then
             	ColorPickerFrame.Visible = false
             else
@@ -1259,7 +1256,7 @@ function library:Window(WinConfig)
         ToggleRGB.Parent = ColorPickerFrame
         ToggleRGB.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ToggleRGB.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        ToggleRGB.Position = UDim2.new(0, 125, 0, 127)
+        ToggleRGB.Position = UDim2.new(0, 125, 0, 97)
         ToggleRGB.Size = UDim2.new(0, 22, 0, 22)
         ToggleRGB.Font = Enum.Font.SourceSans
         ToggleRGB.Text = ""
@@ -1399,7 +1396,7 @@ function library:Window(WinConfig)
         Color.Name = "Color"
         Color.Parent = ColorPickerFrame
         Color.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Color.Position = UDim2.new(0, 5, 0, 105)
+        Color.Position = UDim2.new(0, 5, 0, 75)
         Color.Size = UDim2.new(1, -10, 0, 14)
         Color.BorderMode = Enum.BorderMode.Inset
         Color.ZIndex = 4 + zindex
