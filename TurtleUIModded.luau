@@ -226,7 +226,7 @@ local function protect_gui(obj)
 	if syn and syn.protect_gui then
 		syn.protect_gui(obj)
 		obj.Parent = game.CoreGui
-	elseif PROTOSMASHER_LOADED then
+	elseif PROTOSMASHER_LOADED or get_hidden_gui then
 		obj.Parent = get_hidden_gui()
 	elseif gethui then
 		obj.Parent = gethui()
@@ -440,7 +440,7 @@ function library:Window(WinConfig)
 		winLayout.FillDirection = Enum.FillDirection.Vertical
 		winLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		winLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-		winLayout.Padding = UDim.new(0, 8)
+		winLayout.Padding = UDim.new(0, 5)
 		winLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		winLayout.Parent = Window
 	else
@@ -501,7 +501,7 @@ function library:Window(WinConfig)
 		if WinConfig.Scrolling and windowContentCount <= 6 then
 			sizes[winCount] = sizes[winCount] + winC
 			Window.Size = UDim2.new(1,0,0,sizes[winCount] + sizeWin)
-		else
+		elseif not WinConfig.Scrolling then
 			sizes[winCount] = sizes[winCount] + winC
 			Window.Size = UDim2.new(1,0,0,sizes[winCount] + sizeWin)
 		end
@@ -513,16 +513,13 @@ function library:Window(WinConfig)
         ButConfig.Name = ButConfig.Name or "Button"
         ButConfig.Callback = ButConfig.Callback or function() end
 
-		--autoSizeWin(32, 10)
+		autoSizeWin(32, 10)
 		
-		sizes[winCount] = sizes[winCount] + 32
-        Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
-
 		local btnFrame = Instance.new("Frame")
 		btnFrame.Parent = Window
 		btnFrame.Size = UDim2.new(1, 0, 0, 32)
 		btnFrame.BackgroundTransparency = 1
-		btnFrame.Name = "ButtonHolder_" .. tostring(windowContentCount)
+		btnFrame.Name = tostring(windowContentCount) .. "_ButtonHolder_"
 		windowContentCount = windowContentCount + 1
 		
         local Button = Instance.new("TextButton")
@@ -559,7 +556,7 @@ function library:Window(WinConfig)
 		labelFrame.Parent = Window
 		labelFrame.Size = UDim2.new(1, 0, 0, 32)
 		labelFrame.BackgroundTransparency = 1
-		labelFrame.Name = "LabelHolder_" .. tostring(windowContentCount)
+		labelFrame.Name = tostring(windowContentCount) .. "_LabelHolder_"
 		windowContentCount = windowContentCount + 1
         
         local Label = Instance.new("TextLabel")
@@ -606,7 +603,7 @@ function library:Window(WinConfig)
 		togFrame.Parent = Window
 		togFrame.Size = UDim2.new(1, 0, 0, 32)
 		togFrame.BackgroundTransparency = 1
-		togFrame.Name = "ToggleHolder_" .. tostring(windowContentCount)
+		togFrame.Name = tostring(windowContentCount) .. "_ToggleHolder_"
 		windowContentCount = windowContentCount + 1
 
         local ToggleDescription = Instance.new("TextLabel")
@@ -767,7 +764,7 @@ function library:Window(WinConfig)
 		boxFrame.Parent = Window
 		boxFrame.Size = UDim2.new(1, 0, 0, 32)
 		boxFrame.BackgroundTransparency = 1
-		boxFrame.Name = "BoxHolder_" .. tostring(windowContentCount)
+		boxFrame.Name = tostring(windowContentCount) .. "_BoxHolder_"
 		windowContentCount = windowContentCount + 1
         
         local TextBox = Instance.new("TextBox")
@@ -822,6 +819,7 @@ function library:Window(WinConfig)
         SliConfig.Name = SliConfig.Name or "Slider"
         SliConfig.Min = SliConfig.Min or 1
         SliConfig.Max = SliConfig.Max or 100
+        SliConfig.Increment = SliConfig.Increment or 1
         SliConfig.Default = math.clamp(SliConfig.Default, SliConfig.Min, SliConfig.Max)
 		SliConfig.Callback = SliConfig.Callback or function() end
         local offset = 70
@@ -836,64 +834,67 @@ function library:Window(WinConfig)
 
         local sliFrame = Instance.new("Frame")
 		sliFrame.Parent = Window
-		sliFrame.Size = UDim2.new(1, 0, 0, 62)
+		sliFrame.Size = UDim2.new(1, 0, 0, 60)
 		sliFrame.BackgroundTransparency = 1
-		sliFrame.Name = "SliderHolder_" .. tostring(windowContentCount)
+		sliFrame.Name = tostring(windowContentCount) .. "_SliderHolder_"
 		windowContentCount = windowContentCount + 1
         
         local Slider = Instance.new("Frame")
         local SliderButton = Instance.new("Frame")
         local Description = Instance.new("TextLabel")
         local SilderFiller = Instance.new("Frame")
-        local Current = Instance.new("TextLabel")
-        local Min = Instance.new("TextLabel")
-        local Max = Instance.new("TextLabel")
+        local Current = Instance.new("TextBox")
+        
+        local function snapToIncrement(val)
+        	local stepped = math.round((val - SliConfig.Min) / SliConfig.Increment) * SliConfig.Increment + SliConfig.Min
+        	return math.clamp(stepped, SliConfig.Min, SliConfig.Max)
+        end
+	
+		local function updateSliderFromValue(val)
+        	local snappedValue = snapToIncrement(val)
+        	local alpha = (snappedValue - SliConfig.Min) / (SliConfig.Max - SliConfig.Min)
+        
+        	SliderButton.Position = UDim2.new(alpha, 0, -1.33333337, 0)
+        	SilderFiller.Size = UDim2.new(alpha, 0, 1, 0)
+        	Current.Text = tostring(snappedValue)
+        	return snappedValue
+		end
 		
 		function SliderMovement(input)
-    		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        		isdragging = true;
-        		minitial = input.Position.X;
-        		initial = SliderButton.Position.X.Offset;
-        		local delta1 = SliderButton.AbsolutePosition.X - initial
-        		local con;
-        		con = stepped:Connect(function()
-            		if isdragging then
-                		local sliderWidth = Slider.AbsoluteSize.X
-                		local xOffset = mouse.X - delta1 - 3
-                
-                		-- Batasi offset gerakan tombol slider
-                		xOffset = math.clamp(xOffset, 0, sliderWidth)
+        	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            	isdragging = true
+            	local con
+            	con = stepped:Connect(function()
+                	if isdragging then
+                    	local sliderWidth = Slider.AbsoluteSize.X
+                    	local mousePosX = mouse.X - Slider.AbsolutePosition.X
+                    	local alpha = math.clamp(mousePosX / sliderWidth, 0, 1)
+                    
+                    	local rawValue = Lerp(SliConfig.Min, SliConfig.Max, alpha)
+                    	local snappedValue = snapToIncrement(rawValue)
+                    
+                    	local snappedAlpha = (snappedValue - SliConfig.Min) / (SliConfig.Max - SliConfig.Min)
+                    	SliderButton.Position = UDim2.new(snappedAlpha, 0, -1.33333337, 0)
+                    	SilderFiller.Size = UDim2.new(snappedAlpha, 0, 1, 0)
+                    	Current.Text = tostring(snappedValue)
+                	else
+                    	con:Disconnect()
+                	end
+            	end)
+            	input.Changed:Connect(function()
+                	if input.UserInputState == Enum.UserInputState.End then
+                    	isdragging = false
+                	end
+            	end)
+        	end
+    	end
 
-                		SliderButton.Position = UDim2.new(0, xOffset, -1.33333337, 0);
-                		SilderFiller.Size = UDim2.new(0, xOffset, 0, 6)
-                
-                		-- Hitung persentase (alpha) antara 0 sampai 1
-                		local alpha = math.clamp(xOffset / sliderWidth, 0, 1)
-                		local value = Lerp(SliConfig.Min, SliConfig.Max, alpha)
-                
-                		Current.Text = tostring(math.round(value))
-            		else
-                		con:Disconnect();
-            		end;
-        		end);
-        		input.Changed:Connect(function()
-            		if input.UserInputState == Enum.UserInputState.End then
-                		isdragging = false;
-            		end;
-        		end);
-    		end;
-		end
-
-		function SliderEnd(input)
-    		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        		local sliderWidth = Slider.AbsoluteSize.X
-        		local alpha = math.clamp(SliderButton.Position.X.Offset / sliderWidth, 0, 1)
-        		local value = Lerp(SliConfig.Min, SliConfig.Max, alpha)
-        
-        		SliConfig.Callback(math.round(value))
-    		end
-		end
-		
+    	function SliderEnd(input)
+        	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            	local val = tonumber(Current.Text) or SliConfig.Default
+            	SliConfig.Callback(val)
+        	end
+    	end
 
         Slider.Name = "Slider"
         Slider.Parent = sliFrame
@@ -916,17 +917,31 @@ function library:Window(WinConfig)
         SliderButton.ZIndex = 3 + zindex
         SliderButton.InputBegan:Connect(SliderMovement)
         SliderButton.InputEnded:Connect(SliderEnd)    
-
+        
+        Current.AnchorPoint = Vector2.new(1,0)
         Current.Name = "Current"
-        Current.Parent = SliderButton
-        Current.BackgroundTransparency = 1.000
-        Current.Position = UDim2.new(0, 3, 0, 22   )
-        Current.Size = UDim2.new(0, 0, 0, 18)
-        Current.Font = Enum.Font.SourceSans
-        Current.Text = tostring(SliConfig.Default)
-        Current.TextColor3 = Color3.fromRGB(220, 221, 225)
-        Current.TextSize = 10.000  
-        Current.ZIndex = 2 + zindex
+    	Current.Parent = Slider
+    	Current.BackgroundColor3 = Color3.fromRGB(35, 40, 48)
+		Current.BorderColor3 = Color3.fromRGB(113, 128, 147)
+    	Current.Position = UDim2.new(1, 0, 0, -35)
+    	Current.Size = UDim2.new(0, 45, 0, 20)
+    	Current.Font = Enum.Font.SourceSans
+    	Current.Text = tostring(SliConfig.Default)
+    	Current.TextColor3 = Color3.fromRGB(220, 221, 225)
+    	Current.TextSize = 14.000  
+    	Current.ZIndex = 2 + zindex
+    	Current.ClearTextOnFocus = false
+        
+        Current.FocusLost:Connect(function(enterPressed)
+        	local inputNum = tonumber(Current.Text)
+        	if inputNum then
+            	local finalVal = updateSliderFromValue(inputNum)
+            	SliConfig.Callback(finalVal)
+        	else
+            	-- Kembalikan teks ke nilai slider saat ini jika input bukan angka valid
+            	Current.Text = tostring(snapToIncrement(Lerp(SliConfig.Min, SliConfig.Max, SliderButton.Position.X.Scale)))
+        	end
+    	end)
 
 		Description.AnchorPoint = Vector2.new(0.5, 0)
         Description.Name = "Description"
@@ -948,32 +963,6 @@ function library:Window(WinConfig)
         SilderFiller.Size = UDim2.new(defaultAlpha, 0, 1, 0)
         SilderFiller.ZIndex = 2 + zindex
         SilderFiller.BorderMode = Enum.BorderMode.Inset
-
-        Min.Name = "Min"
-        Min.Parent = Slider
-        Min.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Min.BackgroundTransparency = 1.000
-        Min.Position = UDim2.new(-0.00555555569, 0, -7.33333397, 0)
-        Min.Size = UDim2.new(0, 77, 0, 50)
-        Min.Font = Enum.Font.SourceSans
-        Min.Text = tostring(SliConfig.Min)
-        Min.TextColor3 = Color3.fromRGB(220, 221, 225)
-        Min.TextSize = 14.000
-        Min.TextXAlignment = Enum.TextXAlignment.Left
-        Min.ZIndex = 2 + zindex
-
-        Max.Name = "Max"
-        Max.Parent = Slider
-        Max.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Max.BackgroundTransparency = 1.000
-        Max.Position = UDim2.new(0.577777743, 0, -7.33333397, 0)
-        Max.Size = UDim2.new(0, 77, 0, 50)
-        Max.Font = Enum.Font.SourceSans
-        Max.Text = tostring(SliConfig.Max)
-        Max.TextColor3 = Color3.fromRGB(220, 221, 225)
-        Max.TextSize = 14.000
-        Max.TextXAlignment = Enum.TextXAlignment.Right
-        Max.ZIndex = 2 + zindex
         
         pastSliders[winCount] = true
     end
@@ -989,7 +978,7 @@ function library:Window(WinConfig)
 		droFrame.Parent = Window
 		droFrame.Size = UDim2.new(1, 0, 0, 32)
 		droFrame.BackgroundTransparency = 1
-		droFrame.Name = "DropdownHolder_" .. tostring(windowContentCount)
+		droFrame.Name = tostring(windowContentCount) .. "_DropdownHolder_"
 		windowContentCount = windowContentCount + 1
 
         local Dropdown = Instance.new("TextButton")
@@ -1161,7 +1150,7 @@ function library:Window(WinConfig)
 		colFrame.Parent = Window
 		colFrame.Size = UDim2.new(1, 0, 0, 32)
 		colFrame.BackgroundTransparency = 1
-		colFrame.Name = "ColorPickerHolder_" .. tostring(windowContentCount)
+		colFrame.Name = tostring(windowContentCount) .. "_ColorPickerHolder_"
 		windowContentCount = windowContentCount + 1
 
         local ColorPicker = Instance.new("TextButton")
