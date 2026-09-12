@@ -6,8 +6,9 @@
 
 [+] <- Added a new function
 [-] <- Remove a function
-[!] <- On development or fixed a function
-[★] <- Change a function or Improving a function
+[!] <- On development, fixed a function or feature
+[★] <- Change a function, Improving a function or feature
+[!!!] <- Update a function or feature
 
 
 -- // Change Log \\ --
@@ -30,6 +31,12 @@
 
 - / September, 12, Saturday, 2026 \ -
 [★] -  Fixing some Issue
+[!!!] - updated to Scrolling Ui
+[-] - Remove Toogle feature
+[+] - Added Loop setting on Toggle function
+[+] - Added MultiSelect setting on Dropdown function
+[+] - Added X Size setting on Window function
+[+] - Added Position setting on Window function
 
 
 -- // How To Use This Library \\ --
@@ -375,7 +382,7 @@ end
 function library:Window(WinConfig)
 	WinConfig = WinConfig or {}
     WinConfig.Name = WinConfig.Name or "Window"
-    WinConfig.Size = WinConfig.Size or UDim2.new(0, 217, 0, 33)
+    WinConfig.Size = WinConfig.Size or 217
     WinConfig.Scrolling = WinConfig.Scrolling or false
     WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
 
@@ -392,7 +399,7 @@ function library:Window(WinConfig)
     UiWindow.BackgroundColor3 = Color3.fromRGB(0, 151, 230)
     UiWindow.BorderColor3 = Color3.fromRGB(0, 151, 230)
     UiWindow.Position = WinConfig.Position
-    UiWindow.Size = WinConfig.Size
+    UiWindow.Size = UDim2.new(0,WinConfig.Size,0,33)
     UiWindow.ZIndex = 4 + zindex
     UiWindow.Active = true
 	
@@ -429,61 +436,37 @@ function library:Window(WinConfig)
     Window.BorderColor3 = Color3.fromRGB(47, 54, 64)
     Window.Position = UDim2.new(0, 0, 1, 9)
     Window.Size = UDim2.new(1, 0, 0, 33)
-    Window.Active = true
+    Window.Active = false
     Window.ZIndex = 1 + zindex
     
     local WindowScroll
-    
-    if not WinConfig.Scrolling then
-    	winPaddingLayout = Instance.new("UIPadding")
-		winPaddingLayout.PaddingBottom = UDim.new(0, 5)
-		winPaddingLayout.PaddingTop = UDim.new(0, 5)
-		winPaddingLayout.PaddingRight = UDim.new(0, 5)
-		winPaddingLayout.PaddingLeft = UDim.new(0, 5)
-		winPaddingLayout.Parent = Window
-
-		winLayout = Instance.new("UIListLayout")
-		winLayout.FillDirection = Enum.FillDirection.Vertical
-		winLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		winLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-		winLayout.Padding = UDim.new(0, 5)
-		winLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		winLayout.Parent = Window
-	else
-		if winPaddingLayout and winLayout then
-			winLayout:Destroy()
-			winPaddingLayout:Destroy()
-		end
-		WindowScroll = Instance.new("ScrollingFrame")
-		WindowScroll.Parent = Window
-		WindowScroll.Size = UDim2.new(1,0,1,0)
-		WindowScroll.BackgroundTransparency = 1
-		WindowScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-		WindowScroll.CanvasSize = UDim2.new(0,0,0,0)
-		WindowScroll.ScrollBarThickness = 0
-		WindowScroll.Active = true
-        WindowScroll.Position = UDim2.new(0, 0, 0, 0)
-        WindowScroll.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
-        WindowScroll.ZIndex = 1 + zindex
-        WindowScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+	WindowScroll = Instance.new("ScrollingFrame")
+	WindowScroll.Parent = Window
+	WindowScroll.Size = UDim2.new(1,0,1,0)
+	WindowScroll.BackgroundTransparency = 1
+	WindowScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	WindowScroll.CanvasSize = UDim2.new(0,0,0,0)
+	WindowScroll.ScrollBarThickness = 0
+	WindowScroll.Active = true
+    WindowScroll.Position = UDim2.new(0, 0, 0, 0)
+    WindowScroll.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
+    WindowScroll.ZIndex = 1 + zindex
+    WindowScroll.ScrollingDirection = Enum.ScrollingDirection.Y
         
-		winPaddingLayout = Instance.new("UIPadding")
-		winPaddingLayout.PaddingBottom = UDim.new(0, 5)
-		winPaddingLayout.PaddingTop = UDim.new(0, 5)
-		winPaddingLayout.PaddingRight = UDim.new(0, 5)
-		winPaddingLayout.PaddingLeft = UDim.new(0, 5)
-		winPaddingLayout.Parent = WindowScroll
+	winPaddingLayout = Instance.new("UIPadding")
+	winPaddingLayout.PaddingBottom = UDim.new(0, 5)
+	winPaddingLayout.PaddingTop = UDim.new(0, 5)
+	winPaddingLayout.PaddingRight = UDim.new(0, 5)
+	winPaddingLayout.PaddingLeft = UDim.new(0, 5)
+	winPaddingLayout.Parent = WindowScroll
 
-		winLayout = Instance.new("UIListLayout")
-		winLayout.FillDirection = Enum.FillDirection.Vertical
-		winLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		winLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-		winLayout.Padding = UDim.new(0, 5)
-		winLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		winLayout.Parent = WindowScroll
-		
-		Window.Active = false
-	end
+	winLayout = Instance.new("UIListLayout")
+	winLayout.FillDirection = Enum.FillDirection.Vertical
+	winLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	winLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	winLayout.Padding = UDim.new(0, 5)
+	winLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	winLayout.Parent = WindowScroll
 
     local Minimise = Instance.new("TextButton")
     Minimise.Name = "Minimise"
@@ -508,7 +491,7 @@ function library:Window(WinConfig)
        end
     end)
     
-	local contentParent = WinConfig.Scrolling and WindowScroll or Window
+	local contentParent = WindowScroll
 
 	local DropdownParent = Instance.new("Frame")
 	DropdownParent.Name = "DropdownParent"
@@ -1005,12 +988,12 @@ function library:Window(WinConfig)
         table.insert(dropdowns, DropdownFrame)
         local dropFunctions = {}
         local selectedItems = {}
-        
-        local canvasSize = 0
-        
-        local function updateDropdownText()
+    	local selectedSingle = nil
+    	local itemButtons = {}
+
+    	local function updateDropdownText()
         	if DropConfig.MultiSelect then
-        	    local chosenList = {}
+            	local chosenList = {}
             	for name, isSelected in pairs(selectedItems) do
                 	if isSelected then
                     	table.insert(chosenList, name)
@@ -1019,6 +1002,12 @@ function library:Window(WinConfig)
             
             	if #chosenList > 0 then
                 	Dropdown.Text = table.concat(chosenList, ", ")
+            	else
+                	Dropdown.Text = tostring(DropConfig.Name)
+            	end
+        	else
+				if selectedSingle then
+                	Dropdown.Text = selectedSingle
             	else
                 	Dropdown.Text = tostring(DropConfig.Name)
             	end
@@ -1068,35 +1057,51 @@ function library:Window(WinConfig)
             Button_2.ZIndex = 1001
             Button_2.Text = name
             Button_2.TextWrapped = true
+            Button_2.TextTruncate = Enum.TextTruncate.AtEnd
+        
 			local btn_2_stroke = Instance.new("UIStroke")
 			btn_2_stroke.Parent = Button_2
 			btn_2_stroke.Color = Color3.fromRGB(113, 128, 147)
 			btn_2_stroke.Thickness = 1
 			btn_2_stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            Button_2.MouseButton1Click:Connect(function()
+            
+            itemButtons[name] = Button_2
+
+        	Button_2.MouseButton1Click:Connect(function()
             	if DropConfig.MultiSelect then
 					selectedItems[name] = not selectedItems[name]
 
-					if selectedItems[name] then
-                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 209, 55) -- Warna hijau saat aktif
+                	if selectedItems[name] then
+                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
                 	else
-                    	Button_2.BackgroundColor3 = Color3.fromRGB(53, 59, 72) -- Warna default
+                    	Button_2.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
                 	end
 
                 	updateDropdownText()
 
-					local activeTable = {}
+                	local activeTable = {}
                 	for itemName, isSelected in pairs(selectedItems) do
                     	if isSelected then
-                        table.insert(activeTable, itemName)
+                        	table.insert(activeTable, itemName)
                     	end
                 	end
                 	DropConfig.Callback(activeTable)
             	else
-                	-- Mode Single Select
-                	DropConfig.Callback(name)
-                	Dropdown.Text = name
-                	dropFunctions:Close()
+					if selectedSingle == name then
+						selectedSingle = nil
+                    	Button_2.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+                    	updateDropdownText()
+                    	DropConfig.Callback(nil)
+                	else
+						if selectedSingle and itemButtons[selectedSingle] then
+                        	itemButtons[selectedSingle].BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+                    	end
+
+						selectedSingle = name
+                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
+                    	updateDropdownText()
+                    	DropConfig.Callback(name)
+                	end
             	end
         	end)
         end
@@ -1159,8 +1164,17 @@ function library:Window(WinConfig)
 		colFrame.Parent = contentParent
 		colFrame.Size = UDim2.new(1, 0, 0, 32)
 		colFrame.BackgroundTransparency = 1
+		colFrame.AutomaticSize = Enum.AutomaticSize.Y
 		colFrame.Name = tostring(windowContentCount) .. "_ColorPickerHolder_"
 		windowContentCount = windowContentCount + 1
+		
+		local colLayout = Instance.new("UIListLayout")
+		colLayout.FillDirection = Enum.FillDirection.Vertical
+		colLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		colLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+		colLayout.Padding = UDim.new(0, 5)
+		colLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		colLayout.Parent = colFrame
 
         local ColorPicker = Instance.new("TextButton")
         local PickerCorner = Instance.new("UICorner")
@@ -1169,14 +1183,12 @@ function library:Window(WinConfig)
         local ToggleRGB = Instance.new("TextButton")
         local ToggleFiller_2 = Instance.new("Frame")
         local TextLabel = Instance.new("TextLabel")
-        local ClosePicker = Instance.new("TextButton")
         local Canvas = Instance.new("Frame")
         local CanvasGradient = Instance.new("UIGradient")
         local Cursor = Instance.new("ImageLabel")
         local Color = Instance.new("Frame")
         local ColorGradient = Instance.new("UIGradient")
         local ColorSlider = Instance.new("Frame")
-        local Title = Instance.new("TextLabel")
         local UICorner = Instance.new("UICorner")
         local ColorCorner = Instance.new("UICorner")
         local BlackOverlay = Instance.new("ImageLabel")
@@ -1219,11 +1231,11 @@ function library:Window(WinConfig)
         PickerDescription.ZIndex = 2 + zindex
 
         ColorPickerFrame.Name = "ColorPickerFrame"
-        ColorPickerFrame.Parent = ColorPicker
+        ColorPickerFrame.Parent = colFrame
         ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.BorderColor3 = Color3.fromRGB(47, 54, 64)
-        ColorPickerFrame.Position = UDim2.new(1.40350854, 0, -2.84615374, 0)
-        ColorPickerFrame.Size = UDim2.new(0, 158, 0, 155)
+        ColorPickerFrame.Position = UDim2.new(0, 0, 0, 0)
+        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 155)
         ColorPickerFrame.ZIndex = 3 + zindex
         ColorPickerFrame.Active = true
         ColorPickerFrame.Visible = false
@@ -1260,21 +1272,6 @@ function library:Window(WinConfig)
         TextLabel.TextSize = 16.000
         TextLabel.TextXAlignment = Enum.TextXAlignment.Left
         TextLabel.ZIndex = 4 + zindex
-
-        ClosePicker.Name = "ClosePicker"
-        ClosePicker.Parent = ColorPickerFrame
-        ClosePicker.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
-        ClosePicker.BorderColor3 = Color3.fromRGB(47, 54, 64)
-        ClosePicker.Position = UDim2.new(0, 132, 0, 5)
-        ClosePicker.Size = UDim2.new(0, 21, 0, 21)
-        ClosePicker.Font = Enum.Font.SourceSans
-        ClosePicker.Text = "X"
-        ClosePicker.TextColor3 = Color3.fromRGB(245, 246, 250)
-        ClosePicker.TextSize = 18.000
-        ClosePicker.ZIndex = 4 + zindex
-        ClosePicker.MouseButton1Down:Connect(function()
-            ColorPickerFrame.Visible = not ColorPickerFrame.Visible
-        end)
 
         CanvasGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 0)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))}
         CanvasGradient.Name = "CanvasGradient"
@@ -1448,19 +1445,7 @@ function library:Window(WinConfig)
         ColorSlider.BorderColor3 = Color3.fromRGB(245, 246, 250)
         ColorSlider.Size = UDim2.new(0, 2, 0, 14)
         ColorSlider.ZIndex = 5 + zindex
-    
-        Title.Name = "Title"
-        Title.Parent = ColorPickerFrame
-        Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Title.BackgroundTransparency = 1.000
-        Title.Position = UDim2.new(0, 10, 0, 5)
-        Title.Size = UDim2.new(0, 118, 0, 21)
-        Title.Font = Enum.Font.SourceSans
-        Title.Text = ColConfig.Name
-        Title.TextColor3 = Color3.fromRGB(245, 246, 250)
-        Title.TextSize = 16.000
-        Title.TextXAlignment = Enum.TextXAlignment.Left
-		Title.ZIndex = 4 + zindex
+
 		table.insert(colorPickers, ColorPickerFrame)
 
 		local colorFuncs = {}
