@@ -457,6 +457,21 @@ function library:Window(WinConfig)
 		WindowScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 		WindowScroll.CanvasSize = UDim2.new(0,0,0,0)
 		WindowScroll.ScrollBarThickness = 0
+		
+		winPaddingLayout = Instance.new("UIPadding")
+		winPaddingLayout.PaddingBottom = UDim.new(0, 5)
+		winPaddingLayout.PaddingTop = UDim.new(0, 5)
+		winPaddingLayout.PaddingRight = UDim.new(0, 5)
+		winPaddingLayout.PaddingLeft = UDim.new(0, 5)
+		winPaddingLayout.Parent = WindowScroll
+
+		winLayout = Instance.new("UIListLayout")
+		winLayout.FillDirection = Enum.FillDirection.Vertical
+		winLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		winLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+		winLayout.Padding = UDim.new(0, 5)
+		winLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		winLayout.Parent = WindowScroll
 	end
 
     local Minimise = Instance.new("TextButton")
@@ -650,9 +665,9 @@ function library:Window(WinConfig)
 			local BetterLoopOperator = false
 
 			game:GetService("RunService").RenderStepped:Connect(function()
-				if ToogleFiller.Visible and BetterLoopOperator == false then
+				if ToggleFiller.Visible and BetterLoopOperator == false then
 					BetterLoopOperator = true
-					TogConfig.Callback(ToogleFiller.Visible)
+					TogConfig.Callback(ToggleFiller.Visible)
 					BetterLoopOperator = false
 				end
 			end)
