@@ -498,7 +498,7 @@ function library:Window(WinConfig)
     local windowContentCount = 0
     
 	local function autoSizeWin(winC, sizeWin)
-		if WinConfig.Scrolling and windowContentCount =< 6 then
+		if WinConfig.Scrolling and windowContentCount <= 6 then
 			sizes[winCount] = sizes[winCount] + winC
 			Window.Size = UDim2.new(1,0,0,sizes[winCount] + sizeWin)
 		else
@@ -513,13 +513,17 @@ function library:Window(WinConfig)
         ButConfig.Name = ButConfig.Name or "Button"
         ButConfig.Callback = ButConfig.Callback or function() end
 
-		autoSizeWin(32, 10)
+		--autoSizeWin(32, 10)
+		
+		sizes[winCount] = sizes[winCount] + 32
+        Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
 
 		local btnFrame = Instance.new("Frame")
 		btnFrame.Parent = Window
 		btnFrame.Size = UDim2.new(1, 0, 0, 32)
 		btnFrame.BackgroundTransparency = 1
 		btnFrame.Name = "ButtonHolder_" .. tostring(windowContentCount)
+		windowContentCount = windowContentCount + 1
 		
         local Button = Instance.new("TextButton")
         Button.AnchorPoint = Vector2.new(0,0.5)
@@ -538,7 +542,6 @@ function library:Window(WinConfig)
         Button.Text = ButConfig.Name
         Button.MouseButton1Click:Connect(ButConfig.Callback)
 
-		windowContentCount = windowContentCount + 1
         pastSliders[winCount] = false
     end
 
@@ -556,6 +559,7 @@ function library:Window(WinConfig)
 		labelFrame.Size = UDim2.new(1, 0, 0, 32)
 		labelFrame.BackgroundTransparency = 1
 		labelFrame.Name = "LabelHolder_" .. tostring(windowContentCount)
+		windowContentCount = windowContentCount + 1
         
         local Label = Instance.new("TextLabel")
         Label.Name = "LABEL"
@@ -582,7 +586,6 @@ function library:Window(WinConfig)
             Label.TextColor3 = LabConfig.Color
         end
         
-        windowContentCount = windowContentCount + 1
         pastSliders[winCount] = false
     end
  
@@ -602,6 +605,7 @@ function library:Window(WinConfig)
 		togFrame.Size = UDim2.new(1, 0, 0, 32)
 		togFrame.BackgroundTransparency = 1
 		togFrame.Name = "ToggleHolder_" .. tostring(windowContentCount)
+		windowContentCount = windowContentCount + 1
 
         local ToggleDescription = Instance.new("TextLabel")
         local ToggleButton = Instance.new("TextButton")
@@ -668,7 +672,6 @@ function library:Window(WinConfig)
         ToggleFiller.Visible = TogConfig.Default
         ToggleFiller.ZIndex = 2 + zindex
         
-        windowContentCount = windowContentCount + 1
         pastSliders[winCount] = false
     end
 
@@ -761,7 +764,8 @@ function library:Window(WinConfig)
 		boxFrame.Parent = Window
 		boxFrame.Size = UDim2.new(1, 0, 0, 32)
 		boxFrame.BackgroundTransparency = 1
-		boxFrame.Name = "BoxHolder_" .. tostring(windowContentCount)
+		boxFrame.Name = "BoxHolder_" .. tostring
+		windowContentCount = windowContentCount + 1
         
         local TextBox = Instance.new("TextBox")
         local BoxDescription = Instance.new("TextLabel")
@@ -805,7 +809,6 @@ function library:Window(WinConfig)
         BoxDescription.TextXAlignment = Enum.TextXAlignment.Left
         BoxDescription.ZIndex = 2 + zindex
         
-        windowContentCount = windowContentCount + 1
         pastSliders[winCount] = false
     end
 
@@ -832,6 +835,7 @@ function library:Window(WinConfig)
 		sliFrame.Size = UDim2.new(1, 0, 0, 62)
 		sliFrame.BackgroundTransparency = 1
 		sliFrame.Name = "SliderHolder_" .. tostring(windowContentCount)
+		windowContentCount = windowContentCount + 1
         
         local Slider = Instance.new("Frame")
         local SliderButton = Instance.new("Frame")
@@ -967,7 +971,6 @@ function library:Window(WinConfig)
         Max.TextXAlignment = Enum.TextXAlignment.Right
         Max.ZIndex = 2 + zindex
         
-        windowContentCount = windowContentCount + 1
         pastSliders[winCount] = true
     end
 
@@ -983,6 +986,7 @@ function library:Window(WinConfig)
 		droFrame.Size = UDim2.new(1, 0, 0, 32)
 		droFrame.BackgroundTransparency = 1
 		droFrame.Name = "DropdownHolder_" .. tostring(windowContentCount)
+		windowContentCount = windowContentCount + 1
 
         local Dropdown = Instance.new("TextButton")
         local DownSign = Instance.new("TextLabel")
@@ -1139,8 +1143,7 @@ function library:Window(WinConfig)
     		end
 		end
 
-		windowContentCount = windowContentCount + 1
-        return dropFunctions
+		return dropFunctions
     end
 
 	-- // ColorPicker Function \\ --
@@ -1155,6 +1158,7 @@ function library:Window(WinConfig)
 		colFrame.Size = UDim2.new(1, 0, 0, 32)
 		colFrame.BackgroundTransparency = 1
 		colFrame.Name = "ColorPickerHolder_" .. tostring(windowContentCount)
+		windowContentCount = windowContentCount + 1
 
         local ColorPicker = Instance.new("TextButton")
         local PickerCorner = Instance.new("UICorner")
@@ -1478,7 +1482,6 @@ function library:Window(WinConfig)
 	        end
         end
     
-		windowContentCount = windowContentCount + 1
 		return colorFuncs
     end
 
