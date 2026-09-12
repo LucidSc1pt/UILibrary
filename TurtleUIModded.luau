@@ -534,7 +534,7 @@ function library:Window(WinConfig)
 		autoSizeWin(32, 10)
 		
 		local btnFrame = Instance.new("Frame")
-		btnFrame.Parent = Window
+		btnFrame.Parent = contentParent
 		btnFrame.Size = UDim2.new(1, 0, 0, 32)
 		btnFrame.BackgroundTransparency = 1
 		btnFrame.Name = tostring(windowContentCount) .. "_ButtonHolder_"
@@ -570,7 +570,7 @@ function library:Window(WinConfig)
         autoSizeWin(32, 10)
         
         local labelFrame = Instance.new("Frame")
-		labelFrame.Parent = Window
+		labelFrame.Parent = contentParent
 		labelFrame.Size = UDim2.new(1, 0, 0, 32)
 		labelFrame.BackgroundTransparency = 1
 		labelFrame.Name = tostring(windowContentCount) .. "_LabelHolder_"
@@ -616,7 +616,7 @@ function library:Window(WinConfig)
         autoSizeWin(32, 10)
         
         local togFrame = Instance.new("Frame")
-		togFrame.Parent = Window
+		togFrame.Parent = contentParent
 		togFrame.Size = UDim2.new(1, 0, 0, 32)
 		togFrame.BackgroundTransparency = 1
 		togFrame.Name = tostring(windowContentCount) .. "_ToggleHolder_"
@@ -700,7 +700,7 @@ function library:Window(WinConfig)
         autoSizeWin(32, 10)
         
         local boxFrame = Instance.new("Frame")
-		boxFrame.Parent = Window
+		boxFrame.Parent = contentParent
 		boxFrame.Size = UDim2.new(1, 0, 0, 32)
 		boxFrame.BackgroundTransparency = 1
 		boxFrame.Name = tostring(windowContentCount) .. "_BoxHolder_"
@@ -771,7 +771,7 @@ function library:Window(WinConfig)
         autoSizeWin(60, 10)
         
         local sliFrame = Instance.new("Frame")
-		sliFrame.Parent = Window
+		sliFrame.Parent = contentParent
 		sliFrame.Size = UDim2.new(1, 0, 0, 60)
 		sliFrame.BackgroundTransparency = 1
 		sliFrame.Name = tostring(windowContentCount) .. "_SliderHolder_"
@@ -914,7 +914,7 @@ function library:Window(WinConfig)
         DropConfig.Callback = DropConfig.Callback or function() end
 
 		local droFrame = Instance.new("Frame")
-		droFrame.Parent = Window
+		droFrame.Parent = contentParent
 		droFrame.Size = UDim2.new(1, 0, 0, 32)
 		droFrame.BackgroundTransparency = 1
 		droFrame.Name = tostring(windowContentCount) .. "_DropdownHolder_"
@@ -1085,7 +1085,7 @@ function library:Window(WinConfig)
         ColConfig.Callback = ColConfig.Callback or function() end
         
         local colFrame = Instance.new("Frame")
-		colFrame.Parent = Window
+		colFrame.Parent = contentParent
 		colFrame.Size = UDim2.new(1, 0, 0, 32)
 		colFrame.BackgroundTransparency = 1
 		colFrame.Name = tostring(windowContentCount) .. "_ColorPickerHolder_"
