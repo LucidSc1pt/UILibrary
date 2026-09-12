@@ -984,6 +984,14 @@ function library:Window(WinConfig)
 		listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
     	listLayout.Padding = UDim.new(0, 2)
+    	
+    	local listPaddingLayout = Instance.new("UIPadding")
+		listPaddingLayout.PaddingBottom = UDim.new(0, 5)
+		listPaddingLayout.PaddingTop = UDim.new(0, 5)
+		listPaddingLayout.PaddingRight = UDim.new(0, 5)
+		listPaddingLayout.PaddingLeft = UDim.new(0, 5)
+		listPaddingLayout.Parent = DropdownFrame
+
 
         table.insert(dropdowns, DropdownFrame)
         local dropFunctions = {}
@@ -1047,7 +1055,7 @@ function library:Window(WinConfig)
             Button_2.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
             Button_2.BorderColor3 = Color3.fromRGB(113, 128, 147)
 			Button_2.BorderSizePixel = 0
-            Button_2.Position = UDim2.new(0, 6, 0, canvasSize + 1)
+            Button_2.Position = UDim2.new(0, 6, 0, 0)
             Button_2.Size = UDim2.new(0, 180, 0, 26)
             Button_2.Selected = true
             Button_2.Font = Enum.Font.SourceSans
@@ -1106,17 +1114,20 @@ function library:Window(WinConfig)
         	end)
         end
         function dropFunctions:Remove(name)
-            local foundIt
-            for i, v in pairs(DropdownFrame:GetChildren()) do
-                if v:IsA("TextButton") and v.Text == name then
-                    foundIt = true
-                    v:Destroy()
-                end
-            end
-            if not foundIt then
-                warn("The button you tried to remove didn't exist!")
-            end
-        end
+        	if selectedSingle == name then
+            	selectedSingle = nil
+        	end
+        	selectedItems[name] = nil
+        	itemButtons[name] = nil
+        	updateDropdownText()
+        
+        	for _, v in pairs(DropdownFrame:GetChildren()) do
+            	if v:IsA("TextButton") and v.Text == name then
+                	v:Destroy()
+                	break
+            	end
+        	end
+    	end
         function dropFunctions:AddPlaceholder(labelText)
     		local PlaceholderLabel = Instance.new("TextLabel")
     		PlaceholderLabel.Name = "Placeholder"
@@ -1167,7 +1178,7 @@ function library:Window(WinConfig)
 		colFrame.AutomaticSize = Enum.AutomaticSize.Y
 		colFrame.Name = tostring(windowContentCount) .. "_ColorPickerHolder_"
 		windowContentCount = windowContentCount + 1
-		
+		--[[
 		local colLayout = Instance.new("UIListLayout")
 		colLayout.FillDirection = Enum.FillDirection.Vertical
 		colLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -1175,7 +1186,7 @@ function library:Window(WinConfig)
 		colLayout.Padding = UDim.new(0, 5)
 		colLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		colLayout.Parent = colFrame
-
+		]]
         local ColorPicker = Instance.new("TextButton")
         local PickerCorner = Instance.new("UICorner")
         local PickerDescription = Instance.new("TextLabel")
@@ -1234,7 +1245,7 @@ function library:Window(WinConfig)
         ColorPickerFrame.Parent = colFrame
         ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.BorderColor3 = Color3.fromRGB(47, 54, 64)
-        ColorPickerFrame.Position = UDim2.new(0, 0, 0, 0)
+        ColorPickerFrame.Position = UDim2.new(0, 0, 0, 31)
         ColorPickerFrame.Size = UDim2.new(1, 0, 0, 155)
         ColorPickerFrame.ZIndex = 3 + zindex
         ColorPickerFrame.Active = true
