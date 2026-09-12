@@ -422,9 +422,11 @@ function library:Window(WinConfig)
     Window.Parent = Header
     Window.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
     Window.BorderColor3 = Color3.fromRGB(47, 54, 64)
-    Window.Position = UDim2.new(0, 0, 0, 33)
+    Window.Position = UDim2.new(0, 0, 1, 0)
     Window.Size = UDim2.new(1, 0, 0, 33)
     Window.ZIndex = 1 + zindex
+    
+    local WindowScroll
     
     if not WinConfig.Scrolling then
     	winPaddingLayout = Instance.new("UIPadding")
@@ -441,6 +443,17 @@ function library:Window(WinConfig)
 		winLayout.Padding = UDim.new(0, 8)
 		winLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		winLayout.Parent = Window
+	else
+		if winPaddingLayout and winLayout then
+			winLayout:Destroy()
+			winPaddingLayout:Destroy()
+		end
+		WindowScroll = Instance.new("ScrollingFrame")
+		WindowScroll.Parent = Window
+		WindowScroll.Size = UDim2.new(1,0,1,0)
+		WindowScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+		WindowScroll.CanvasSize = UDim2.new(0,0,0,0)
+		WindowScroll.ScrollBarThickness = 0
 	end
 
     local Minimise = Instance.new("TextButton")
@@ -466,15 +479,6 @@ function library:Window(WinConfig)
        end
     end)
     
-    local WindowScroll
-	
-	if WinConfig.Scrolling then
-		if winPaddingLayout and winLayout then
-			winLayout:Destroy()
-			winPaddingLayout:Destroy()
-		end
-	end
-	
 	local contentParent = WinConfig.Scrolling and WindowScroll or Window
 
 	local DropdownParent = Instance.new("Frame")
@@ -826,46 +830,6 @@ function library:Window(WinConfig)
         local Current = Instance.new("TextLabel")
         local Min = Instance.new("TextLabel")
         local Max = Instance.new("TextLabel")
---[[
-        function SliderMovement(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                isdragging = true;
-                    minitial = input.Position.X;
-                    initial = SliderButton.Position.X.Offset;
-                    local delta1 = SliderButton.AbsolutePosition.X - initial
-                    local con;
-                    con = stepped:Connect(function()
-                        if isdragging then
-                        	local sliderWidth = Slider.AbsoluteSize.X
-                            local xOffset = mouse.X - delta1 - 3
-                            if xOffset > 185 then
-                                xOffset = 185
-                            elseif xOffset < 0 then
-                                xOffset = 0
-                            end
-                            SliderButton.Position = UDim2.new(0, xOffset , -1.33333337, 0);
-                            SilderFiller.Size = UDim2.new(0, xOffset, 0, 6)
-                            local value = Lerp(SliConfig.Min, SliConfig.Max, SliderButton.Position.X.Offset/(sliderWidth-5))
-                            Current.Text = tostring(math.round(value))
-                        else
-                            con:Disconnect();
-                        end;
-                    end);
-                    input.Changed:Connect(function()
-                        if input.UserInputState == Enum.UserInputState.End then
-                            isdragging = false;
-                        end;
-                    end);
-            end;
-        end
-        function SliderEnd(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-          	local sliderWidth = Slider.AbsoluteSize.X
-            local value = Lerp(SliConfig.Min, SliConfig.Max, SliderButton.Position.X.Offset/(sliderWidth))
-            SliConfig.Callback(math.round(value))
-            end
-        end
-        ]]
 		
 		function SliderMovement(input)
     		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -1015,11 +979,12 @@ function library:Window(WinConfig)
         sizes[winCount] = sizes[winCount] + 32
         Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
 
+		Dropdown.AnchorPoint = Vector2.new(0,0.5)
         Dropdown.Name = "Dropdown_" .. DropConfig.Name
-        Dropdown.Parent = Window
+        Dropdown.Parent = droFrame
         Dropdown.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         Dropdown.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        Dropdown.Position = UDim2.new(0, 0, 0, 0)
+        Dropdown.Position = UDim2.new(0, 0, 0.5, 0)
         Dropdown.Size = UDim2.new(1, 0, 0, 26)
         Dropdown.Selected = true
         Dropdown.Font = Enum.Font.SourceSans
@@ -1242,6 +1207,7 @@ function library:Window(WinConfig)
         ColorPickerFrame.Position = UDim2.new(1.40350854, 0, -2.84615374, 0)
         ColorPickerFrame.Size = UDim2.new(0, 158, 0, 155)
         ColorPickerFrame.ZIndex = 3 + zindex
+        ColorPickerFrame.Active = true
         ColorPickerFrame.Visible = false
 
         ToggleRGB.Name = "ToggleRGB"
