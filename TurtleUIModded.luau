@@ -132,7 +132,6 @@ library:Destroy()
 
 local library = {}
 local windowCount = 0
-local windowContentCount = 0
 local sizes = {}
 local listOffset = {}
 local windows = {}
@@ -496,14 +495,15 @@ function library:Window(WinConfig)
     local functions = {}
     sizes[winCount] = 33
     listOffset[winCount] = 10
+    local windowContentCount = 0
     
 	local function autoSizeWin(winC, sizeWin)
 		if WinConfig.Scrolling and windowContentCount =< 6 then
 			sizes[winCount] = sizes[winCount] + winC
-			Window.Size.Y.Offset = sizes[winCount] + sizeWin
+			Window.Size = UDim2.new(0,Window.Size.X.Offset,0,sizes[winCount] + sizeWin)
 		else
 			sizes[winCount] = sizes[winCount] + winC
-			Window.Size.Y.Offset = sizes[winCount] + sizeWin
+			Window.Size = UDim2.new(0,Window.Size.X.Offset,0,sizes[winCount] + sizeWin)
 		end
 	end
 
@@ -538,7 +538,7 @@ function library:Window(WinConfig)
         Button.Text = ButConfig.Name
         Button.MouseButton1Click:Connect(ButConfig.Callback)
 
-		windowContentCount =+ 1
+		windowContentCount = windowContentCount + 1
         pastSliders[winCount] = false
     end
 
@@ -582,7 +582,7 @@ function library:Window(WinConfig)
             Label.TextColor3 = LabConfig.Color
         end
         
-        windowContentCount =+ 1
+        windowContentCount = windowContentCount + 1
         pastSliders[winCount] = false
     end
  
@@ -668,7 +668,7 @@ function library:Window(WinConfig)
         ToggleFiller.Visible = TogConfig.Default
         ToggleFiller.ZIndex = 2 + zindex
         
-        windowContentCount =+ 1
+        windowContentCount = windowContentCount + 1
         pastSliders[winCount] = false
     end
 
@@ -805,7 +805,7 @@ function library:Window(WinConfig)
         BoxDescription.TextXAlignment = Enum.TextXAlignment.Left
         BoxDescription.ZIndex = 2 + zindex
         
-        windowContentCount =+ 1
+        windowContentCount = windowContentCount + 1
         pastSliders[winCount] = false
     end
 
@@ -967,7 +967,7 @@ function library:Window(WinConfig)
         Max.TextXAlignment = Enum.TextXAlignment.Right
         Max.ZIndex = 2 + zindex
         
-        windowContentCount =+ 1
+        windowContentCount = windowContentCount + 1
         pastSliders[winCount] = true
     end
 
@@ -1139,7 +1139,7 @@ function library:Window(WinConfig)
     		end
 		end
 
-		windowContentCount =+ 1
+		windowContentCount = windowContentCount + 1
         return dropFunctions
     end
 
@@ -1478,7 +1478,7 @@ function library:Window(WinConfig)
 	        end
         end
     
-		windowContentCount =+ 1
+		windowContentCount = windowContentCount + 1
 		return colorFuncs
     end
 
