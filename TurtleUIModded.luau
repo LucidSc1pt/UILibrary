@@ -56,15 +56,16 @@ Window:Toggle({
     Default = false,
     Loop = false,
     Callback = function(value)
-        -- script here
+        print("manyap")
     end
 })
 
-Window:Toogle({
-    Name = "Toogle",
+Window:Toggle({
+    Name = "Toggle",
     Default = false,
+    Loop = true,
     Callback = function(value)
-        -- script here
+        print("hahahah")
     end
 })
 
@@ -90,7 +91,7 @@ Window:Slider({
 
 Window:Label({
    Name = "Label Example", 
-   Color = Color3.fromRGB(127, 143, 166)
+   Color = "Rainbow"
 })
 
 Window:Box({
@@ -373,6 +374,7 @@ function library:Window(WinConfig)
     WinConfig.Name = WinConfig.Name or "Window"
     WinConfig.Size = WinConfig.Size or UDim2.new(0, 217, 0, 33)
     WinConfig.Scrolling = WinConfig.Scrolling or false
+    WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
 
     windowCount = windowCount + 1
     local winCount = windowCount
@@ -386,7 +388,7 @@ function library:Window(WinConfig)
     UiWindow.Parent = TurtleUiLib
     UiWindow.BackgroundColor3 = Color3.fromRGB(0, 151, 230)
     UiWindow.BorderColor3 = Color3.fromRGB(0, 151, 230)
-    UiWindow.Position = UDim2.new(0, xOffset, 0, 20)
+    UiWindow.Position = WinConfig.Position
     UiWindow.Size = WinConfig.Size
     UiWindow.ZIndex = 4 + zindex
     UiWindow.Active = true
@@ -674,82 +676,6 @@ function library:Window(WinConfig)
         pastSliders[winCount] = false
     end
 
-    -- // Toogle Function \\ --
-    function functions:Toogle(ToogConfig)
-		ToogConfig = ToogConfig or {}
-        ToogConfig.Name = ToogConfig.Name or "Toogle"
-        ToogConfig.Default = ToogConfig.Default or false
-        ToogConfig.Callback = ToogConfig.Callback or function() end
-
-        sizes[winCount] = sizes[winCount] + 32
-        Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
-
-        listOffset[winCount] = listOffset[winCount] + 32
-
-        local ToogleDescription = Instance.new("TextLabel")
-        local ToogleButton = Instance.new("TextButton")
-		local ToogleButton_stroke = Instance.new("UIStroke")
-        local ToogleFiller = Instance.new("Frame")
-
-        ToogleDescription.Name = "ToogleDescription"
-        ToogleDescription.Parent = Window
-        ToogleDescription.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        ToogleDescription.BackgroundTransparency = 1.000
-        ToogleDescription.Position = UDim2.new(0, 14, 0, listOffset[winCount])
-        ToogleDescription.Size = UDim2.new(0, 139, 0, 26)
-        ToogleDescription.Font = Enum.Font.SourceSans
-        ToogleDescription.Text = ToogConfig.Name
-        ToogleDescription.TextColor3 = Color3.fromRGB(245, 246, 250)
-        ToogleDescription.TextSize = 16.000
-        ToogleDescription.TextWrapped = true
-        ToogleDescription.TextXAlignment = Enum.TextXAlignment.Left
-        ToogleDescription.ZIndex = 2 + zindex
-
-        ToogleButton.Name = "ToogleButton"
-        ToogleButton.Parent = ToogleDescription
-        ToogleButton.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
-		ToogleButton.BackgroundTransparency = 1
-        ToogleButton.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        ToogleButton.Position = UDim2.new(1.2061069, 0, 0.0769230798, 0)
-        ToogleButton.Size = UDim2.new(0, 22, 0, 22)
-        ToogleButton.Font = Enum.Font.SourceSans
-        ToogleButton.Text = ""
-        ToogleButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-        ToogleButton.TextSize = 14.000
-        ToogleButton.ZIndex = 2 + zindex
-		
-        ToogleButton.MouseButton1Click:Connect(function()
-            ToogleFiller.Visible = not ToogleFiller.Visible
-			ToogConfig.Callback(ToogleFiller.Visible)
-        end)
-
-        local BetterLoopOperator = false
-
-        game:GetService("RunService").RenderStepped:Connect(function()
-            if ToogleFiller.Visible and BetterLoopOperator == false then
-                BetterLoopOperator = true
-                ToogConfig.Callback(ToogleFiller.Visible)
-                BetterLoopOperator = false
-            end
-        end)
-
-		ToogleButton_stroke.Parent = ToogleButton
-		ToogleButton_stroke.Color = Color3.fromRGB(113, 128, 147)
-		ToogleButton_stroke.Thickness = 1
-		ToogleButton_stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		ToogleButton_stroke.Enabled = true
-
-        ToogleFiller.Name = "ToogleFiller"
-        ToogleFiller.Parent = ToogleButton
-        ToogleFiller.BackgroundColor3 = Color3.fromRGB(68, 189, 50)
-        ToogleFiller.BorderColor3 = Color3.fromRGB(47, 54, 64)
-        ToogleFiller.Position = UDim2.new(0, 4, 0, 4)
-        ToogleFiller.Size = UDim2.new(0, 14, 0, 14)
-        ToogleFiller.Visible = ToogConfig.Default
-        ToogleFiller.ZIndex = 2 + zindex
-        pastSliders[winCount] = false
-    end
-
 	-- // TextBox Function \\ --
     function functions:Box(BoxConfig)
         BoxConfig = BoxConfig or {}
@@ -827,11 +753,11 @@ function library:Window(WinConfig)
             offset = 60
         end
 
-        autoSizeWin(50, 10)
+        autoSizeWin(60, 10)
         
         local sliFrame = Instance.new("Frame")
 		sliFrame.Parent = Window
-		sliFrame.Size = UDim2.new(1, 0, 0, 50)
+		sliFrame.Size = UDim2.new(1, 0, 0, 60)
 		sliFrame.BackgroundTransparency = 1
 		sliFrame.Name = tostring(windowContentCount) .. "_SliderHolder_"
 		windowContentCount = windowContentCount + 1
@@ -919,6 +845,7 @@ function library:Window(WinConfig)
         Current.Name = "Current"
     	Current.Parent = Slider
     	Current.BackgroundColor3 = Color3.fromRGB(35, 40, 48)
+    	Current.BackgroundTransparency = 1
 		Current.BorderColor3 = Color3.fromRGB(113, 128, 147)
     	Current.Position = UDim2.new(1, 0, 0, -33)
     	Current.Size = UDim2.new(0, 45, 0, 20)
@@ -946,7 +873,7 @@ function library:Window(WinConfig)
         Description.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         Description.BackgroundTransparency = 1.000
         Description.Position = UDim2.new(0, 0, 0, -35)
-        Description.Size = UDim2.new(0, 200, 0, 21)
+        Description.Size = UDim2.new(0, 180, 0, 21)
         Description.Font = Enum.Font.SourceSans
         Description.Text = SliConfig.Name
         Description.TextColor3 = Color3.fromRGB(245, 246, 250)
