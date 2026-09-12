@@ -764,7 +764,7 @@ function library:Window(WinConfig)
 		boxFrame.Parent = Window
 		boxFrame.Size = UDim2.new(1, 0, 0, 32)
 		boxFrame.BackgroundTransparency = 1
-		boxFrame.Name = "BoxHolder_" .. tostring
+		boxFrame.Name = "BoxHolder_" .. tostring(windowContentCount)
 		windowContentCount = windowContentCount + 1
         
         local TextBox = Instance.new("TextBox")
