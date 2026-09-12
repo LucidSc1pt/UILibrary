@@ -132,6 +132,7 @@ library:Destroy()
 
 local library = {}
 local windowCount = 0
+local windowContentCount = 0
 local sizes = {}
 local listOffset = {}
 local windows = {}
@@ -422,7 +423,7 @@ function library:Window(WinConfig)
     Window.Parent = Header
     Window.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
     Window.BorderColor3 = Color3.fromRGB(47, 54, 64)
-    Window.Position = UDim2.new(0, 0, 1, 0)
+    Window.Position = UDim2.new(0, 0, 1, 9)
     Window.Size = UDim2.new(1, 0, 0, 33)
     Window.ZIndex = 1 + zindex
     
@@ -438,8 +439,8 @@ function library:Window(WinConfig)
 
 		winLayout = Instance.new("UIListLayout")
 		winLayout.FillDirection = Enum.FillDirection.Vertical
-		winLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-		winLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+		winLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		winLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 		winLayout.Padding = UDim.new(0, 8)
 		winLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		winLayout.Parent = Window
@@ -487,7 +488,7 @@ function library:Window(WinConfig)
     DropdownParent.Active = false
     DropdownParent.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
     DropdownParent.BorderColor3 = Color3.fromRGB(53, 59, 72)
-    DropdownParent.Position = UDim2.new(1, 15, 1, 0)
+    DropdownParent.Position = UDim2.new(1, 15, 1, 9)
     DropdownParent.Size = UDim2.new(0, 192, 0, 0)
     DropdownParent.Visible = true
     DropdownParent.BackgroundTransparency = 1
@@ -496,11 +497,13 @@ function library:Window(WinConfig)
     sizes[winCount] = 33
     listOffset[winCount] = 10
     
-	local function autoSizeWin(winC, sizeWin, listO)
-		if not WinConfig.Scrolling then
+	local function autoSizeWin(winC, sizeWin)
+		if WinConfig.Scrolling and windowContentCount =< 6 then
 			sizes[winCount] = sizes[winCount] + winC
-			Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + sizeWin)
-			listOffset[winCount] = listOffset[winCount] + listO
+			Window.Size.Y.Offset = sizes[winCount] + sizeWin
+		else
+			sizes[winCount] = sizes[winCount] + winC
+			Window.Size.Y.Offset = sizes[winCount] + sizeWin
 		end
 	end
 
@@ -510,16 +513,16 @@ function library:Window(WinConfig)
         ButConfig.Name = ButConfig.Name or "Button"
         ButConfig.Callback = ButConfig.Callback or function() end
 
-        sizes[winCount] = sizes[winCount] + 32
-        Window.Size = UDim2.new(0, 217, 0, sizes[winCount] + 10)
+		autoSizeWin(32, 10)
 
 		local btnFrame = Instance.new("Frame")
 		btnFrame.Parent = Window
 		btnFrame.Size = UDim2.new(1, 0, 0, 32)
 		btnFrame.BackgroundTransparency = 1
-		btnFrame.Name = "ButtonHolder_" .. tostring(winCount)
+		btnFrame.Name = "ButtonHolder_" .. tostring(windowContentCount)
 		
         local Button = Instance.new("TextButton")
+        Button.AnchorPoint = Vector2.new(0,0.5)
         Button.Name = "THEBUTTON"
         Button.Parent = btnFrame
         Button.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
@@ -535,6 +538,7 @@ function library:Window(WinConfig)
         Button.Text = ButConfig.Name
         Button.MouseButton1Click:Connect(ButConfig.Callback)
 
+		windowContentCount =+ 1
         pastSliders[winCount] = false
     end
 
@@ -551,7 +555,7 @@ function library:Window(WinConfig)
 		labelFrame.Parent = Window
 		labelFrame.Size = UDim2.new(1, 0, 0, 32)
 		labelFrame.BackgroundTransparency = 1
-		labelFrame.Name = "LabelHolder_" .. tostring(winCount)
+		labelFrame.Name = "LabelHolder_" .. tostring(windowContentCount)
         
         local Label = Instance.new("TextLabel")
         Label.Name = "LABEL"
@@ -577,6 +581,8 @@ function library:Window(WinConfig)
         else
             Label.TextColor3 = LabConfig.Color
         end
+        
+        windowContentCount =+ 1
         pastSliders[winCount] = false
     end
  
@@ -595,7 +601,7 @@ function library:Window(WinConfig)
 		togFrame.Parent = Window
 		togFrame.Size = UDim2.new(1, 0, 0, 32)
 		togFrame.BackgroundTransparency = 1
-		togFrame.Name = "ToggleHolder_" .. tostring(winCount)
+		togFrame.Name = "ToggleHolder_" .. tostring(windowContentCount)
 
         local ToggleDescription = Instance.new("TextLabel")
         local ToggleButton = Instance.new("TextButton")
@@ -661,6 +667,8 @@ function library:Window(WinConfig)
         ToggleFiller.Size = UDim2.new(0, 14, 0, 14)
         ToggleFiller.Visible = TogConfig.Default
         ToggleFiller.ZIndex = 2 + zindex
+        
+        windowContentCount =+ 1
         pastSliders[winCount] = false
     end
 
@@ -753,7 +761,7 @@ function library:Window(WinConfig)
 		boxFrame.Parent = Window
 		boxFrame.Size = UDim2.new(1, 0, 0, 32)
 		boxFrame.BackgroundTransparency = 1
-		boxFrame.Name = "BoxHolder_" .. tostring(winCount)
+		boxFrame.Name = "BoxHolder_" .. tostring(windowContentCount)
         
         local TextBox = Instance.new("TextBox")
         local BoxDescription = Instance.new("TextLabel")
@@ -796,6 +804,8 @@ function library:Window(WinConfig)
         BoxDescription.TextSize = 16.000
         BoxDescription.TextXAlignment = Enum.TextXAlignment.Left
         BoxDescription.ZIndex = 2 + zindex
+        
+        windowContentCount =+ 1
         pastSliders[winCount] = false
     end
 
@@ -821,7 +831,7 @@ function library:Window(WinConfig)
 		sliFrame.Parent = Window
 		sliFrame.Size = UDim2.new(1, 0, 0, 62)
 		sliFrame.BackgroundTransparency = 1
-		sliFrame.Name = "SliderHolder_" .. tostring(winCount)
+		sliFrame.Name = "SliderHolder_" .. tostring(windowContentCount)
         
         local Slider = Instance.new("Frame")
         local SliderButton = Instance.new("Frame")
@@ -956,6 +966,8 @@ function library:Window(WinConfig)
         Max.TextSize = 14.000
         Max.TextXAlignment = Enum.TextXAlignment.Right
         Max.ZIndex = 2 + zindex
+        
+        windowContentCount =+ 1
         pastSliders[winCount] = true
     end
 
@@ -970,7 +982,7 @@ function library:Window(WinConfig)
 		droFrame.Parent = Window
 		droFrame.Size = UDim2.new(1, 0, 0, 32)
 		droFrame.BackgroundTransparency = 1
-		droFrame.Name = "DropdownHolder_" .. tostring(winCount)
+		droFrame.Name = "DropdownHolder_" .. tostring(windowContentCount)
 
         local Dropdown = Instance.new("TextButton")
         local DownSign = Instance.new("TextLabel")
@@ -1127,6 +1139,7 @@ function library:Window(WinConfig)
     		end
 		end
 
+		windowContentCount =+ 1
         return dropFunctions
     end
 
@@ -1141,7 +1154,7 @@ function library:Window(WinConfig)
 		colFrame.Parent = Window
 		colFrame.Size = UDim2.new(1, 0, 0, 32)
 		colFrame.BackgroundTransparency = 1
-		colFrame.Name = "ColorPickerHolder_" .. tostring(winCount)
+		colFrame.Name = "ColorPickerHolder_" .. tostring(windowContentCount)
 
         local ColorPicker = Instance.new("TextButton")
         local PickerCorner = Instance.new("UICorner")
@@ -1463,8 +1476,9 @@ function library:Window(WinConfig)
 					end
 				end)
 	        end
-	    end
-		
+        end
+    
+		windowContentCount =+ 1
 		return colorFuncs
     end
 
