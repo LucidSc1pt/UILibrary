@@ -510,10 +510,7 @@ function library:Window(WinConfig)
     local windowContentCount = 0
     
 	local function autoSizeWin(winC, sizeWin)
-		if WinConfig.Scrolling and windowContentCount <= 6 then
-			sizes[winCount] = sizes[winCount] + winC
-			Window.Size = UDim2.new(1,0,0,sizes[winCount] + sizeWin)
-		elseif not WinConfig.Scrolling then
+		if windowContentCount <= 6 then
 			sizes[winCount] = sizes[winCount] + winC
 			Window.Size = UDim2.new(1,0,0,sizes[winCount] + sizeWin)
 		end
@@ -925,6 +922,7 @@ function library:Window(WinConfig)
 		droLayout.Parent = droFrame
 
         local Dropdown = Instance.new("TextButton")
+        local DroTitle = Instance.new("TextLabel")
         local DownSign = Instance.new("TextLabel")
         local DropdownFrame = Instance.new("ScrollingFrame")
 
@@ -939,14 +937,24 @@ function library:Window(WinConfig)
         Dropdown.Size = UDim2.new(1, 0, 0, 26)
         Dropdown.Selected = true
         Dropdown.Font = Enum.Font.SourceSans
-        Dropdown.Text = tostring(DropConfig.Name)
-        --Dropdown.TextXAlignment = Enum.TextXAlignment.Left
-        Dropdown.TextColor3 = Color3.fromRGB(245, 246, 250)
-        Dropdown.TextSize = 16.000
-        Dropdown.TextStrokeTransparency = 123.000
-        Dropdown.TextWrapped = true
+        Dropdown.Text = ""
         Dropdown.ZIndex = 3 + zindex
-
+        
+        DroTitle.Name = "Title"
+        DroTitle.Parent = Dropdown
+        DroTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        DroTitle.BackgroundTransparency = 1.000
+        DroTitle.Position = UDim2.new(0, 5, 0, 0)
+        DroTitle.Size = UDim2.new(1, -30, 1, 0)
+        DroTitle.Font = Enum.Font.SourceSans
+        DroTitle.Text = tostring(DropConfig.Name)
+        DroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
+        DroTitle.TextSize = 14.000
+        DroTitle.ZIndex = 4 + zindex
+        DroTitle.TextWrapped = false
+        DroTitle.TextYAlignment = Enum.TextYAlignment.Left
+        DroTitle.TextTruncate = Enum.TextTruncate.AtEnd
+        
 		DownSign.AnchorPoint = Vector2.new(1,0.5)
         DownSign.Name = "DownSign"
         DownSign.Parent = Dropdown
@@ -1009,15 +1017,15 @@ function library:Window(WinConfig)
             	end
             
             	if #chosenList > 0 then
-                	Dropdown.Text = table.concat(chosenList, ", ")
+                	DroTitle.Text = table.concat(chosenList, ", ")
             	else
-                	Dropdown.Text = tostring(DropConfig.Name)
+                	DroTitle.Text = tostring(DropConfig.Name)
             	end
         	else
 				if selectedSingle then
-                	Dropdown.Text = selectedSingle
+                	DroTitle.Text = selectedSingle
             	else
-                	Dropdown.Text = tostring(DropConfig.Name)
+                	DroTitle.Text = tostring(DropConfig.Name)
             	end
         	end
     	end
@@ -1080,7 +1088,7 @@ function library:Window(WinConfig)
 					selectedItems[name] = not selectedItems[name]
 
                 	if selectedItems[name] then
-                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 109, 55)
+                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 79, 92)
                 	else
                     	Button_2.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
                 	end
@@ -1106,7 +1114,7 @@ function library:Window(WinConfig)
                     	end
 
 						selectedSingle = name
-                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 109, 55)
+                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 79, 92)
                     	updateDropdownText()
                     	DropConfig.Callback(name)
                 	end
@@ -1252,11 +1260,12 @@ function library:Window(WinConfig)
         ColorPickerFrame.Active = true
         ColorPickerFrame.Visible = false
 
+		ToggleRGB.AnchorPoint = Vector2.new(1,0)
         ToggleRGB.Name = "ToggleRGB"
         ToggleRGB.Parent = ColorPickerFrame
         ToggleRGB.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ToggleRGB.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        ToggleRGB.Position = UDim2.new(0, 125, 0, 97)
+        ToggleRGB.Position = UDim2.new(1, 0, 0, 97)
         ToggleRGB.Size = UDim2.new(0, 22, 0, 22)
         ToggleRGB.Font = Enum.Font.SourceSans
         ToggleRGB.Text = ""
@@ -1273,10 +1282,10 @@ function library:Window(WinConfig)
         ToggleFiller_2.ZIndex = 4 + zindex
         ToggleFiller_2.Visible = false
 
-        TextLabel.Parent = ToggleRGB
+        TextLabel.Parent = ColorPickerFrame
         TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         TextLabel.BackgroundTransparency = 1.000
-        TextLabel.Position = UDim2.new(-5.13636351, 0, 0, 0)
+        TextLabel.Position = UDim2.new(0, 0, 0, 97)
         TextLabel.Size = UDim2.new(0, 106, 0, 22)
         TextLabel.Font = Enum.Font.SourceSans
         TextLabel.Text = "Rainbow"
