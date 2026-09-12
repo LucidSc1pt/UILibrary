@@ -1135,7 +1135,7 @@ function library:Window(WinConfig)
     		PlaceholderLabel.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
     		PlaceholderLabel.BorderSizePixel = 0
     		PlaceholderLabel.Size = UDim2.new(0, 180, 0, 26)
-    		PlaceholderLabel.Position = UDim2.new(0, 6, 0, canvasSize + 1)
+    		PlaceholderLabel.Position = UDim2.new(0, 6, 0, 0)
     		PlaceholderLabel.Font = Enum.Font.SourceSansItalic
     		PlaceholderLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
     		PlaceholderLabel.TextSize = 15
