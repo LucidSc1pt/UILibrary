@@ -454,10 +454,16 @@ function library:Window(WinConfig)
 		WindowScroll = Instance.new("ScrollingFrame")
 		WindowScroll.Parent = Window
 		WindowScroll.Size = UDim2.new(1,0,1,0)
+		WindowScroll.BackgroundTransparency = 1
 		WindowScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
 		WindowScroll.CanvasSize = UDim2.new(0,0,0,0)
 		WindowScroll.ScrollBarThickness = 0
-		
+		WindowScroll.Active = true
+        WindowScroll.Position = UDim2.new(0, 0, 0, 0)
+        WindowScroll.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
+        WindowScroll.ZIndex = 5 + zindex
+        WindowScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+        
 		winPaddingLayout = Instance.new("UIPadding")
 		winPaddingLayout.PaddingBottom = UDim.new(0, 5)
 		winPaddingLayout.PaddingTop = UDim.new(0, 5)
