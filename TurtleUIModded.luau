@@ -531,6 +531,7 @@ function library:Window(WinConfig)
         Button.Parent = btnFrame
         Button.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         Button.BorderColor3 = Color3.fromRGB(113, 128, 147)
+        Button.Position = UDim2.new(0,0,0.5,0)
         Button.Size = UDim2.new(1, 0, 0, 26)
         Button.ZIndex = 2 + zindex
         Button.Selected = true
@@ -562,12 +563,13 @@ function library:Window(WinConfig)
 		windowContentCount = windowContentCount + 1
         
         local Label = Instance.new("TextLabel")
+        Label.AnchorPoint = Vector2.new(0,0.5)
         Label.Name = "LABEL"
         Label.Parent = labelFrame
         Label.BackgroundColor3 = Color3.fromRGB(220, 221, 225)
         Label.BackgroundTransparency = 1.000
         Label.BorderColor3 = Color3.fromRGB(27, 42, 53)
-        Label.Position = UDim2.new(0, 0, 0, 0)
+        Label.Position = UDim2.new(0, 0, 0.5, 0)
         Label.Size = UDim2.new(1, 0, 0, 29)
         Label.Font = Enum.Font.SourceSans
         Label.Text = LabConfig.Name
@@ -612,11 +614,12 @@ function library:Window(WinConfig)
 		local ToggleButton_stroke = Instance.new("UIStroke")
         local ToggleFiller = Instance.new("Frame")
 
+		ToggleDescription.AnchorPoint = Vector2.new(0,0.5)
         ToggleDescription.Name = "ToggleDescription"
         ToggleDescription.Parent = togFrame
         ToggleDescription.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         ToggleDescription.BackgroundTransparency = 1.000
-        ToggleDescription.Position = UDim2.new(0, 0, 0, 0)
+        ToggleDescription.Position = UDim2.new(0, 0, 0.5, 0)
         ToggleDescription.Size = UDim2.new(1, 0, 0, 26)
         ToggleDescription.Font = Enum.Font.SourceSans
         ToggleDescription.Text = TogConfig.Name
@@ -626,13 +629,13 @@ function library:Window(WinConfig)
         ToggleDescription.TextXAlignment = Enum.TextXAlignment.Left
         ToggleDescription.ZIndex = 2 + zindex
 
-		ToggleButton.AnchorPoint = Vector2.new(1, 0)
+		ToggleButton.AnchorPoint = Vector2.new(1, 0.5)
         ToggleButton.Name = "ToggleButton"
         ToggleButton.Parent = togFrame
         ToggleButton.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
 		ToggleButton.BackgroundTransparency = 1
         ToggleButton.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        ToggleButton.Position = UDim2.new(1, 0, 0.0769230798, 0)
+        ToggleButton.Position = UDim2.new(1, 0, 0.5, 0)
         ToggleButton.Size = UDim2.new(0, 22, 0, 22)
         ToggleButton.Font = Enum.Font.SourceSans
         ToggleButton.Text = ""
@@ -769,11 +772,11 @@ function library:Window(WinConfig)
         
         local TextBox = Instance.new("TextBox")
         local BoxDescription = Instance.new("TextLabel")
-        TextBox.AnchorPoint = Vector2.new(1, 0)
+        TextBox.AnchorPoint = Vector2.new(1, 0.5)
         TextBox.Parent = boxFrame
         TextBox.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         TextBox.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        TextBox.Position = UDim2.new(1, 0, 0, 0)
+        TextBox.Position = UDim2.new(1, 0, 0.5, 0)
         TextBox.Size = UDim2.new(0, 95, 0, 26)
         TextBox.Font = Enum.Font.SourceSans
         TextBox.PlaceholderColor3 = Color3.fromRGB(220, 221, 225)
@@ -796,11 +799,12 @@ function library:Window(WinConfig)
             BoxConfig.Callback(TextBox.Text, true)
         end)
         
+        BoxDescription.AnchorPoint = Vector2.new(0,0.5)
         BoxDescription.Name = "BoxDescription"
         BoxDescription.Parent = boxFrame
         BoxDescription.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         BoxDescription.BackgroundTransparency = 1.000
-        BoxDescription.Position = UDim2.new(0, 0, 0, 0)
+        BoxDescription.Position = UDim2.new(0, 0, 0.5, 0)
         BoxDescription.Size = UDim2.new(0, 75, 0, 26)
         BoxDescription.Font = Enum.Font.SourceSans
         BoxDescription.Text = BoxConfig.Name
@@ -921,7 +925,7 @@ function library:Window(WinConfig)
         Current.Font = Enum.Font.SourceSans
         Current.Text = tostring(SliConfig.Default)
         Current.TextColor3 = Color3.fromRGB(220, 221, 225)
-        Current.TextSize = 14.000  
+        Current.TextSize = 10.000  
         Current.ZIndex = 2 + zindex
 
 		Description.AnchorPoint = Vector2.new(0.5, 0)
