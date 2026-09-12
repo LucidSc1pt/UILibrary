@@ -28,6 +28,9 @@
 - / December, 22, Monday, 2025 \ -
 [★] - Revamped window drag function
 
+- / September, 12, Saturday, 2026 \ -
+[★] -  Fixing some Issue
+
 
 -- // How To Use This Library \\ --
 
@@ -47,7 +50,7 @@ library:Notification({
 Window:Button({
 	Name = "Button",
     Callback = function()
-		-- script here
+		print("yayyyyy!")
 	end
 })
 
@@ -56,7 +59,7 @@ Window:Toggle({
     Default = false,
     Loop = false,
     Callback = function(value)
-        print("manyap")
+        print("hmmmm")
     end
 })
 
@@ -478,6 +481,8 @@ function library:Window(WinConfig)
 		winLayout.Padding = UDim.new(0, 5)
 		winLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		winLayout.Parent = WindowScroll
+		
+		Window.Active = false
 	end
 
     local Minimise = Instance.new("TextButton")
@@ -923,6 +928,7 @@ function library:Window(WinConfig)
 		droFrame.Parent = contentParent
 		droFrame.Size = UDim2.new(1, 0, 0, 32)
 		droFrame.BackgroundTransparency = 1
+		droFrame.AutomaticSize = Enum.AutomaticSize.Y
 		droFrame.Name = tostring(windowContentCount) .. "_DropdownHolder_"
 		windowContentCount = windowContentCount + 1
 
@@ -947,20 +953,6 @@ function library:Window(WinConfig)
         Dropdown.TextStrokeTransparency = 123.000
         Dropdown.TextWrapped = true
         Dropdown.ZIndex = 3 + zindex
-        Dropdown.MouseButton1Click:Connect(function()
-            for i, v in pairs(dropdowns) do
-                if v ~= DropdownFrame and v.Visible then
-                   v.Visible = false
-                   TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
-                end
-            end
-			if DropdownFrame.Visible then
-				TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
-			else
-				TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 270}):Play()
-			end
-            DropdownFrame.Visible = not DropdownFrame.Visible
-        end)
 
 		DownSign.AnchorPoint = Vector2.new(1,0.5)
         DownSign.Name = "DownSign"
@@ -971,29 +963,37 @@ function library:Window(WinConfig)
         DownSign.Size = UDim2.new(0, 27, 0, 22)
         DownSign.Font = Enum.Font.SourceSans
         DownSign.Text = "^"
-        DownSign.Rotation = 90
+        DownSign.Rotation = 180
         DownSign.TextColor3 = Color3.fromRGB(220, 221, 225)
         DownSign.TextSize = 20.000
         DownSign.ZIndex = 4 + zindex
         DownSign.TextYAlignment = Enum.TextYAlignment.Bottom
 
         DropdownFrame.Name = "DropdownFrame"
-        DropdownFrame.Parent = DropdownParent
+        DropdownFrame.Parent = droFrame
         DropdownFrame.Active = true
         DropdownFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         DropdownFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
-        DropdownFrame.Position = UDim2.new(0, 0, 0, 0)
+        DropdownFrame.Position = UDim2.new(0, 0, 0, 26)
         DropdownFrame.Size = UDim2.new(1, 0, 0, 0)
         DropdownFrame.Visible = false
         DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
         DropdownFrame.ScrollBarThickness = 2
         DropdownFrame.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
-        DropdownFrame.ZIndex = 5 + zindex
+        DropdownFrame.ZIndex = 50 + zindex
         DropdownFrame.ScrollingDirection = Enum.ScrollingDirection.Y
         DropdownFrame.ScrollBarImageColor3 = Color3.fromRGB(220, 221, 225)
         table.insert(dropdowns, DropdownFrame)
         local dropFunctions = {}
         local canvasSize = 0
+        function dropFunctions:Close()
+			TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
+            DropdownFrame.Visible = false
+        end
+        function dropFunctions:Open()
+        	TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
+        	DropdownFrame.Visible = true
+        end
         function dropFunctions:Button(name)
             local name = name or ""
             local Button_2 = Instance.new("TextButton")
@@ -1025,8 +1025,7 @@ function library:Window(WinConfig)
             Button_2.MouseButton1Click:Connect(function()
                 DropConfig.Callback(name)
                 Dropdown.Text = name
-	        	DropdownFrame.Visible = false
-				TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
+	        	dropFunctions:Close()
             end)
         end
         function dropFunctions:Remove(name)
@@ -1079,6 +1078,14 @@ function library:Window(WinConfig)
         		dropFunctions:AddPlaceholder(item.PlaceHolder)
     		end
 		end
+		
+		Dropdown.MouseButton1Click:Connect(function()
+			if DropdownFrame.Visible then
+				dropFunctions:Close()
+			else
+				dropFunctions:Open()
+			end
+        end)
 
 		return dropFunctions
     end
