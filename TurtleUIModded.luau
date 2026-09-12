@@ -464,7 +464,7 @@ function library:Window(WinConfig)
 		WindowScroll.Active = true
         WindowScroll.Position = UDim2.new(0, 0, 0, 0)
         WindowScroll.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
-        WindowScroll.ZIndex = 5 + zindex
+        WindowScroll.ZIndex = 1 + zindex
         WindowScroll.ScrollingDirection = Enum.ScrollingDirection.Y
         
 		winPaddingLayout = Instance.new("UIPadding")
@@ -931,6 +931,14 @@ function library:Window(WinConfig)
 		droFrame.AutomaticSize = Enum.AutomaticSize.Y
 		droFrame.Name = tostring(windowContentCount) .. "_DropdownHolder_"
 		windowContentCount = windowContentCount + 1
+		
+		local droLayout = Instance.new("UIListLayout")
+		droLayout.FillDirection = Enum.FillDirection.Vertical
+		droLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		droLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+		droLayout.Padding = UDim.new(0, 1)
+		droLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		droLayout.Parent = droFrame
 
         local Dropdown = Instance.new("TextButton")
         local DownSign = Instance.new("TextLabel")
@@ -938,16 +946,17 @@ function library:Window(WinConfig)
 
         autoSizeWin(32, 10)
         
-		Dropdown.AnchorPoint = Vector2.new(0,0.5)
+		Dropdown.AnchorPoint = Vector2.new(0,0)
         Dropdown.Name = "Dropdown_" .. DropConfig.Name
         Dropdown.Parent = droFrame
         Dropdown.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         Dropdown.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        Dropdown.Position = UDim2.new(0, 0, 0.5, 0)
+        Dropdown.Position = UDim2.new(0, 0, 0, 0)
         Dropdown.Size = UDim2.new(1, 0, 0, 26)
         Dropdown.Selected = true
         Dropdown.Font = Enum.Font.SourceSans
         Dropdown.Text = tostring(DropConfig.Name)
+        --Dropdown.TextXAlignment = Enum.TextXAlignment.Left
         Dropdown.TextColor3 = Color3.fromRGB(245, 246, 250)
         Dropdown.TextSize = 16.000
         Dropdown.TextStrokeTransparency = 123.000
@@ -959,7 +968,7 @@ function library:Window(WinConfig)
         DownSign.Parent = Dropdown
         DownSign.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         DownSign.BackgroundTransparency = 1.000
-        DownSign.Position = UDim2.new(1, -10, 0.5, 0)
+        DownSign.Position = UDim2.new(1, -5, 0.5, 0)
         DownSign.Size = UDim2.new(0, 27, 0, 22)
         DownSign.Font = Enum.Font.SourceSans
         DownSign.Text = "^"
