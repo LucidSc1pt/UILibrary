@@ -1059,17 +1059,9 @@ function library:Window(WinConfig)
         function dropFunctions:Remove(name)
             local foundIt
             for i, v in pairs(DropdownFrame:GetChildren()) do
-                if foundIt then
-                    canvasSize = canvasSize - 27
-                    v.Position = UDim2.new(0, 6, 0, v.Position.Y.Offset - 27)
-                    DropdownFrame.CanvasSize = UDim2.new(1, 0, 0, canvasSize + 1)
-                end
-                if v.Text == name then
+                if v:IsA("TextButton") and v.Text == name then
                     foundIt = true
                     v:Destroy()
-                    if #DropdownFrame:GetChildren() < 8 then
-                        DropdownFrame.Size = UDim2.new(1, 0, 0, DropdownFrame.Size.Y.Offset - 28)
-                    end
                 end
             end
             if not foundIt then
