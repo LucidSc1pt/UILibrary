@@ -979,7 +979,7 @@ function library:Window(WinConfig)
         DownSign.TextYAlignment = Enum.TextYAlignment.Bottom
 
         DropdownFrame.Name = "DropdownFrame"
-        DropdownFrame.Parent = droFrame
+        DropdownFrame.Parent = TurtleUiLib
         DropdownFrame.Active = true
         DropdownFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         DropdownFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
@@ -989,20 +989,44 @@ function library:Window(WinConfig)
         DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
         DropdownFrame.ScrollBarThickness = 2
         DropdownFrame.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
-        DropdownFrame.ZIndex = 50 + zindex
+        DropdownFrame.ZIndex = 1000
         DropdownFrame.ScrollingDirection = Enum.ScrollingDirection.Y
         DropdownFrame.ScrollBarImageColor3 = Color3.fromRGB(220, 221, 225)
+        
+        local listLayout = Instance.new("UIListLayout")
+    	listLayout.Parent = DropdownFrame
+    	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    	listLayout.Padding = UDim.new(0, 1)
+
         table.insert(dropdowns, DropdownFrame)
         local dropFunctions = {}
         local canvasSize = 0
-        function dropFunctions:Close()
-			TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
-            DropdownFrame.Visible = false
-        end
-        function dropFunctions:Open()
-        	TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
-        	DropdownFrame.Visible = true
-        end
+        local function updateDropdownSize()
+        	local contentHeight = listLayout.AbsoluteContentSize.Y
+        	DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
+        
+			local maxHeight = math.min(contentHeight, 130)
+        	DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, maxHeight)
+    	end
+
+    	listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateDropdownSize)
+
+    	function dropFunctions:Close()
+	        TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
+	        DropdownFrame.Visible = false
+	    end
+
+	    function dropFunctions:Open()
+			for _, otherDrop in ipairs(dropdowns) do
+            	otherDrop.Visible = false
+        	end
+
+			DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 2)
+	        DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, math.min(listLayout.AbsoluteContentSize.Y, 130))
+        
+		    TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
+	        DropdownFrame.Visible = true
+	    end
         function dropFunctions:Button(name)
             local name = name or ""
             local Button_2 = Instance.new("TextButton")
@@ -1018,7 +1042,7 @@ function library:Window(WinConfig)
             Button_2.TextColor3 = Color3.fromRGB(245, 246, 250)
             Button_2.TextSize = 16.000
             Button_2.TextStrokeTransparency = 123.000
-            Button_2.ZIndex = 6 + zindex
+            Button_2.ZIndex = 1001
             Button_2.Text = name
             Button_2.TextWrapped = true
 			local btn_2_stroke = Instance.new("UIStroke")
@@ -1026,11 +1050,6 @@ function library:Window(WinConfig)
 			btn_2_stroke.Color = Color3.fromRGB(113, 128, 147)
 			btn_2_stroke.Thickness = 1
 			btn_2_stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            canvasSize = canvasSize + 27
-            DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, canvasSize + 1)
-            if #DropdownFrame:GetChildren() < 8 then
-                DropdownFrame.Size = UDim2.new(1, 0, 0, DropdownFrame.Size.Y.Offset + 28)
-            end
             Button_2.MouseButton1Click:Connect(function()
                 DropConfig.Callback(name)
                 Dropdown.Text = name
@@ -1069,15 +1088,9 @@ function library:Window(WinConfig)
     		PlaceholderLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
     		PlaceholderLabel.TextSize = 15
     		PlaceholderLabel.Text = tostring(labelText)
-    		PlaceholderLabel.ZIndex = 6 + zindex
+    		PlaceholderLabel.ZIndex = 1001
     		PlaceholderLabel.TextWrapped = true
     		PlaceholderLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-    		canvasSize = canvasSize + 27
-    		DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, canvasSize + 1)
-    		if #DropdownFrame:GetChildren() < 8 then
-        		DropdownFrame.Size = UDim2.new(1, 0, 0, DropdownFrame.Size.Y.Offset + 28)
-    		end
 		end
 
 		for _, item in ipairs(DropConfig.Items) do
