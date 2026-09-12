@@ -1080,7 +1080,7 @@ function library:Window(WinConfig)
 					selectedItems[name] = not selectedItems[name]
 
                 	if selectedItems[name] then
-                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
+                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 109, 55)
                 	else
                     	Button_2.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
                 	end
@@ -1106,7 +1106,7 @@ function library:Window(WinConfig)
                     	end
 
 						selectedSingle = name
-                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
+                    	Button_2.BackgroundColor3 = Color3.fromRGB(76, 109, 55)
                     	updateDropdownText()
                     	DropConfig.Callback(name)
                 	end
@@ -1178,7 +1178,7 @@ function library:Window(WinConfig)
 		colFrame.AutomaticSize = Enum.AutomaticSize.Y
 		colFrame.Name = tostring(windowContentCount) .. "_ColorPickerHolder_"
 		windowContentCount = windowContentCount + 1
-		--[[
+		
 		local colLayout = Instance.new("UIListLayout")
 		colLayout.FillDirection = Enum.FillDirection.Vertical
 		colLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -1186,7 +1186,7 @@ function library:Window(WinConfig)
 		colLayout.Padding = UDim.new(0, 5)
 		colLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		colLayout.Parent = colFrame
-		]]
+		
         local ColorPicker = Instance.new("TextButton")
         local PickerCorner = Instance.new("UICorner")
         local PickerDescription = Instance.new("TextLabel")
@@ -1208,9 +1208,9 @@ function library:Window(WinConfig)
         
 		ColorPicker.AnchorPoint = Vector2.new(1,0.5)
         ColorPicker.Name = "ColorPicker"
-        ColorPicker.Parent = colFrame
+        ColorPicker.Parent = PickerDescription
         ColorPicker.Position = UDim2.new(1, 0, 0.5, 0)
-        ColorPicker.Size = UDim2.new(0, 57, 0, 26)
+        ColorPicker.Size = UDim2.new(0, 57, 1, 0)
         ColorPicker.Font = Enum.Font.SourceSans
         ColorPicker.Text = ""
         ColorPicker.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -1233,7 +1233,7 @@ function library:Window(WinConfig)
         PickerDescription.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         PickerDescription.BackgroundTransparency = 1.000
         PickerDescription.Position = UDim2.new(0, 0, 0.5, 0)
-        PickerDescription.Size = UDim2.new(0, 116, 0, 26)
+        PickerDescription.Size = UDim2.new(1, 0, 0, 26)
         PickerDescription.Font = Enum.Font.SourceSans
         PickerDescription.Text = ColConfig.Name
         PickerDescription.TextColor3 = Color3.fromRGB(245, 246, 250)
