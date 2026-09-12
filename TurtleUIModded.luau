@@ -500,10 +500,10 @@ function library:Window(WinConfig)
 	local function autoSizeWin(winC, sizeWin)
 		if WinConfig.Scrolling and windowContentCount =< 6 then
 			sizes[winCount] = sizes[winCount] + winC
-			Window.Size = UDim2.new(0,Window.Size.X.Offset,0,sizes[winCount] + sizeWin)
+			Window.Size = UDim2.new(1,0,0,sizes[winCount] + sizeWin)
 		else
 			sizes[winCount] = sizes[winCount] + winC
-			Window.Size = UDim2.new(0,Window.Size.X.Offset,0,sizes[winCount] + sizeWin)
+			Window.Size = UDim2.new(1,0,0,sizes[winCount] + sizeWin)
 		end
 	end
 
