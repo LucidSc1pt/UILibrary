@@ -45,7 +45,7 @@ local Window = library:Window({
 | Position | UDim2 | Optional | Posisi awal jendela di layar |
 
 ## 🧩 UI Components
-**Button**
+### Button
 Membuat tombol interaktif biasa.
 ```luau
 Window:Button({
@@ -62,7 +62,7 @@ Window:Button({
 
 ---
 
-**Toggle**
+### Toggle
 Membuat sakelar ON/OFF.
 ```luau
 Window:Toggle({
@@ -83,7 +83,7 @@ Window:Toggle({
 
 ---
 
-**Slider**
+### Slider
 Membuat pengatur nilai angka bergeser.
 ```luau
 Window:Slider({
@@ -108,7 +108,7 @@ Window:Slider({
 
 ---
 
-**Dropdown**
+### Dropdown
 Membuat menu pilihan drop-down yang mendukung mode Single Select maupun Multi Select.
 ```luau
 local dropdown = Window:Dropdown({
@@ -132,24 +132,25 @@ local dropdown = Window:Dropdown({
 | MultiSelect | boolean | false | Memungkinkan memilih lebih dari satu item |
 | Callback | function | - | Mengembalikan string/nil (single) atau table (multi) |
 
-**Dropdown Methods**
-Kamu dapat memanipulasi opsi dropdown secara dinamis setelah dibuat:
--- Menambahkan tombol baru
+**Dropdown Methods**<br>
+Kamu dapat memanipulasi opsi dropdown secara dinamis setelah dibuat:<br>
+
+Menambahkan tombol baru
 ```luau
 dropdown:Button("Option 4")
 ```
--- Menghapus tombol yang ada
+Menghapus tombol yang ada
 ```luau
 dropdown:Remove("Option 1")
 ```
--- Menambahkan pemisah (placeholder)
+Menambahkan pemisah (placeholder)
 ```luau
 dropdown:AddPlaceholder("-- Category 2 --")
 ```
 
 ---
 
-**Color Picker**
+### Color Picker
 Membuat pemilih warna RGB/HSV.
 ```luau
 Window:ColorPicker({
@@ -168,7 +169,7 @@ Window:ColorPicker({
 
 ---
 
-**Text Box**
+### Text Box
 Membuat kolom input teks/angka.
 ```luau
 Window:Box({
@@ -187,7 +188,7 @@ Window:Box({
 
 ---
 
-**Label**
+### Label
 Menampilkan teks informasi statis atau berwarna rainbow.
 ```luau
 Window:Label({
@@ -201,7 +202,7 @@ Window:Label({
 | Color | Color3 / string | Color3.fromRGB(255, 255, 255) | Warna teks atau pasang "Rainbow" |
 
 ## 🛠️ Utilities
-**Notification**
+### Notification
 Menampilkan notifikasi popup di sudut layar.
 ```luau
 library:Notification({
@@ -218,7 +219,7 @@ library:Notification({
 
 ---
 
-**Destroy UI**
+### Destroy UI
 Menghapus seluruh antarmuka GUI dari memori.
 ```luau
 library:Destroy()
