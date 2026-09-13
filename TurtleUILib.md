@@ -27,6 +27,7 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Litte
  * Change Log
 
 
+
 ### 🪟 Creating a Window
 Membuat jendela UI utama.
 ```luau
@@ -59,6 +60,8 @@ Window:Button({
 | Name | string | Teks pada tombol |
 | Callback | function | Fungsi yang dijalankan saat tombol diklik |
 
+
+
 **Toggle**
 Membuat sakelar ON/OFF.
 ```luau
@@ -77,6 +80,8 @@ Window:Toggle({
 | Default | boolean | false | Status awal toggle |
 | Loop | boolean | false | Menjalankan looping otomatis selama bernilai true |
 | Callback | function | - | Mengembalikan nilai boolean (true/false) |
+
+
 
 **Slider**
 Membuat pengatur nilai angka bergeser.
@@ -100,6 +105,8 @@ Window:Slider({
 | Default | number | Max / 2 | Nilai awal |
 | Increment | number | 1 | Kelipatan pergeseran nilai |
 | Callback | function | - | Mengembalikan nilai number hasil geseran/input |
+
+
 
 **Dropdown**
 Membuat menu pilihan drop-down yang mendukung mode Single Select maupun Multi Select.
@@ -140,7 +147,9 @@ dropdown:Remove("Option 1")
 dropdown:AddPlaceholder("-- Category 2 --")
 ```
 
-***Color Picker*
+
+
+**Color Picker**
 Membuat pemilih warna RGB/HSV.
 ```luau
 Window:ColorPicker({
@@ -156,6 +165,8 @@ Window:ColorPicker({
 | Name | string | "Color Picker" | Label pemilih warna |
 | Default | Color3 | Color3.fromRGB(255, 255, 255) | Warna awal |
 | Callback | function | - | Mengembalikan objek Color3 |
+
+
 
 **Text Box**
 Membuat kolom input teks/angka.
@@ -173,6 +184,8 @@ Window:Box({
 |---|---|---|
 | Name | string | Label kolom input |
 | Callback | function | Mengembalikan (text: string, focusLost: boolean) |
+
+
 
 **Label**
 Menampilkan teks informasi statis atau berwarna rainbow.
@@ -220,18 +233,33 @@ Fixed
  * Memperbaiki bug fungsionalitas dan beberapa perbaikan performa umum.
 Removed
  * Menghapus fitur Toggle lama dan menggantinya dengan struktur baru.
+
+
+
 [December 22, 2025]
 Refactored
  * Memperbarui sistem drag/geser pada jendela UI (Window drag function).
+
+
+
 [December 15, 2025]
 Added
  * Menambahkan opsi eksekusi looping pada Toggle.
+
+
+
 [September 6, 2025]
 Improved
  * Menambahkan gaya penulisan panggilan fungsi bergaya Orion & Rayfield Library.
+
+
+
 [September 2, 2025]
 Added
  * Fitur Placeholder teks di dalam daftar Dropdown.
+
+
+
 [August 30, 2025]
 Added
  * Sistem Notification bawaan library.
