@@ -128,13 +128,18 @@ Value:
 - Callback = function (return table value)
 
 Adding new Button to Dropdown:
+```luau
 dropdown:Button("New button")
+```
 
 Removing Button to Dropdown:
+```luau
 dropdown:Remove("Button")
-
+```
 Adding new Placeholder to Dropdown:
+```luau
 dropdown:AddPlaceholder("New Placeholder")
+```
 
 ### Creating a Notification
 ```luau
@@ -149,8 +154,10 @@ Value:
 - Content = string
 - Time = number
 
-Destroying the UI
+Destroying the UI:
+```luau
 library:Destroy()
+```
 
 # Change Log
 ### August, 30, Saturday, 2025
