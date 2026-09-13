@@ -45,7 +45,7 @@ local Window = library:Window({
 | Position | UDim2 | Optional | Posisi awal jendela di layar |
 
 ## 🧩 UI Components
-**Button**\n
+**Button**
 Membuat tombol interaktif biasa.
 ```luau
 Window:Button({
@@ -60,7 +60,7 @@ Window:Button({
 | Name | string | Teks pada tombol |
 | Callback | function | Fungsi yang dijalankan saat tombol diklik |
 
-
+---
 
 **Toggle**
 Membuat sakelar ON/OFF.
@@ -81,7 +81,7 @@ Window:Toggle({
 | Loop | boolean | false | Menjalankan looping otomatis selama bernilai true |
 | Callback | function | - | Mengembalikan nilai boolean (true/false) |
 
-
+---
 
 **Slider**
 Membuat pengatur nilai angka bergeser.
@@ -106,7 +106,7 @@ Window:Slider({
 | Increment | number | 1 | Kelipatan pergeseran nilai |
 | Callback | function | - | Mengembalikan nilai number hasil geseran/input |
 
-
+---
 
 **Dropdown**
 Membuat menu pilihan drop-down yang mendukung mode Single Select maupun Multi Select.
@@ -147,7 +147,7 @@ dropdown:Remove("Option 1")
 dropdown:AddPlaceholder("-- Category 2 --")
 ```
 
-
+---
 
 **Color Picker**
 Membuat pemilih warna RGB/HSV.
@@ -166,7 +166,7 @@ Window:ColorPicker({
 | Default | Color3 | Color3.fromRGB(255, 255, 255) | Warna awal |
 | Callback | function | - | Mengembalikan objek Color3 |
 
-
+---
 
 **Text Box**
 Membuat kolom input teks/angka.
@@ -185,7 +185,7 @@ Window:Box({
 | Name | string | Label kolom input |
 | Callback | function | Mengembalikan (text: string, focusLost: boolean) |
 
-
+---
 
 **Label**
 Menampilkan teks informasi statis atau berwarna rainbow.
@@ -216,6 +216,8 @@ library:Notification({
 | Content | string | "" | Isi pesan |
 | Time | number | 5 | Durasi notifikasi muncul (dalam detik) |
 
+---
+
 **Destroy UI**
 Menghapus seluruh antarmuka GUI dari memori.
 ```luau
@@ -224,44 +226,35 @@ library:Destroy()
 
 # 📜 Change Log
 [September 12, 2026]
-* Added
- * Fitur MultiSelect pada komponen Dropdown.
- * Pengaturan Loop pada komponen Toggle.
- * Pengaturan custom Position dan ukuran X pada Window.
- * Sistem antarmuka baru berbasi Scrolling UI.
-* Fixed
- * Memperbaiki bug fungsionalitas dan beberapa perbaikan performa umum.
-* Removed
- * Menghapus fitur Toggle lama dan menggantinya dengan struktur baru.
+* Added: Fitur MultiSelect pada komponen Dropdown.
+* Added: Pengaturan Loop pada komponen Toggle.
+* Added: Pengaturan custom Position dan ukuran X pada Window.
+* Added: Sistem antarmuka baru berbasis Scrolling UI.
+* Fixed: Memperbaiki bug fungsionalitas dan beberapa perbaikan performa umum.
+* Removed: fitur Toggle lama dan menggantinya dengan struktur baru.
 
 
 
 [December 22, 2025]
-* Refactored
- * Memperbarui sistem drag/geser pada jendela UI (Window drag function).
+* Refactored: Memperbarui sistem drag/geser pada jendela UI (Window drag function).
 
 
 
 [December 15, 2025]
-* Added
- * Menambahkan opsi eksekusi looping pada Toggle.
+* Added: Menambahkan opsi eksekusi looping pada Toggle.
 
 
 
 [September 6, 2025]
-* Improved
- * Menambahkan gaya penulisan panggilan fungsi bergaya Orion & Rayfield Library.
+* Improved: Menambahkan gaya penulisan panggilan fungsi bergaya Orion & Rayfield Library.
 
 
 
 [September 2, 2025]
-* Added
- * Fitur Placeholder teks di dalam daftar Dropdown.
+* Added: Fitur Placeholder teks di dalam daftar Dropdown.
 
 
 
 [August 30, 2025]
-* Added
- * Sistem Notification bawaan library.
-* Fixed
- * Memperbaiki ketidaksesuaian pemilihan warna pada komponen ColorPicker.
+* Added: Sistem Notification bawaan library.
+* Fixed: Memperbaiki ketidaksesuaian pemilihan warna pada komponen ColorPicker.
