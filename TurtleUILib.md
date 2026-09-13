@@ -1,188 +1,239 @@
-# Documentation
+# 🐢 Turtle UI Library
 
-### Calling Turtle UI Library
+Dokumentasi resmi untuk **Turtle UI Library** di Roblox. Library ini mempermudah pembuatan antarmuka pengguna (UI) yang responsif dan fleksibel.
+
+---
+
+## 📌 Quick Start
+
+Gunakan *script* berikut untuk memuat library ke dalam proyek kamu:
+
 ```luau
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/LittenHub/Fuckyouman/refs/heads/main/TurtleUI.lua"))()
 ```
-### Creating Window
-```luau
-local Window = library:Window({Name = "Table Turtle Hub"})
-```
-Value:
-- Name = string
-- Size = UDim2
-- Position = UDim2
+📑 Table of Contents
+ * Creating a Window
+ * UI Components
+   * Button
+   * Toggle
+   * Slider
+   * Dropdown
+   * Color Picker
+   * Text Box
+   * Label
+ * Utilities
+   * Notification
+   * Destroy UI
+ * Change Log
 
-### Creating a Button
+
+### 🪟 Creating a Window
+Membuat jendela UI utama.
 ```luau
-Window:Button({
-	Name = "Button",
-  Callback = function()
-		print("yayyyyy buttonnn!")
-	end
+local Window = library:Window({
+    Name = "Turtle Hub",
+    Size = UDim2.new(0, 500, 0, 400),
+    Position = UDim2.new(0.5, -250, 0.5, -200)
 })
 ```
-Value:
-- Name = string
-- Callback = function
+**Parameters**
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| Name | string | "Window" | Judul utama jendela UI |
+| Size | UDim2 | Optional | Ukuran dimensi jendela |
+| Position | UDim2 | Optional | Posisi awal jendela di layar |
 
-### Creating a Toggle
+## 🧩 UI Components
+**Button**
+Membuat tombol interaktif biasa.
 ```luau
-Window:Toggle({
-    Name = "Toggle",
-    Default = false,
-    Loop = false,
-    Callback = function(value)
-        print("hmmmm")
+Window:Button({
+    Name = "Click Me",
+    Callback = function()
+        print("Button clicked!")
     end
 })
 ```
-Value:
-- Name = string
-- Default = boolean
-- Loop = boolean
-- Callback = function (return boolean value)
+| Parameter | Type | Description |
+|---|---|---|
+| Name | string | Teks pada tombol |
+| Callback | function | Fungsi yang dijalankan saat tombol diklik |
 
-
-### Creating a ColorPicker
+**Toggle**
+Membuat sakelar ON/OFF.
 ```luau
-Window:ColorPicker({
-   Name = "Color Picker",
-   Default = Color3.fromRGB(255, 255, 255),
-   Callback = function(color)
-        print(color)
-   end
+Window:Toggle({
+    Name = "Auto Farm",
+    Default = false,
+    Loop = false,
+    Callback = function(state)
+        print("Toggle State:", state)
+    end
 })
 ```
-Value:
-- Name = string
-- Default = Color3
-- Callback = function (return HVS value)
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| Name | string | - | Label toggle |
+| Default | boolean | false | Status awal toggle |
+| Loop | boolean | false | Menjalankan looping otomatis selama bernilai true |
+| Callback | function | - | Mengembalikan nilai boolean (true/false) |
 
-### Creating a Slider
+**Slider**
+Membuat pengatur nilai angka bergeser.
 ```luau
 Window:Slider({
-   Name = "Example Slider",
-   Min = 0,
-   Max = 100,
-   Default = 20,
-   Increment = 1,
-   Callback = function(value)
-		 print(value)
-	 end
+    Name = "WalkSpeed",
+    Min = 16,
+    Max = 100,
+    Default = 16,
+    Increment = 1,
+    Callback = function(value)
+        print("Slider Value:", value)
+    end
 })
 ```
-Value:
-- Name = string
-- Min = number
-- Max = number
-- Default = number
-- Increment = number
-- Callback = function (return number value)
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| Name | string | "Slider" | Label slider |
+| Min | number | 1 | Nilai minimum |
+| Max | number | 100 | Nilai maksimum |
+| Default | number | Max / 2 | Nilai awal |
+| Increment | number | 1 | Kelipatan pergeseran nilai |
+| Callback | function | - | Mengembalikan nilai number hasil geseran/input |
 
-### Creating a Label
-```luau
-Window:Label({
-   Name = "Label Example", 
-   Color = "Rainbow"
-})
-```
-Value:
-- Name = string
-- Color = Color3 or "Rainbow"
-
-### Creating a TextBox
-```luau
-Window:Box({
-   Name = "Walkspeed", 
-   Callback = function(text, focuslost)
-   		if focuslost then
-          print(text)
-      end
-   end
-})
-```
-Value:
-- Name = string
-- Callback = function (return string value)
-
-### Creating a Dropdown
+**Dropdown**
+Membuat menu pilihan drop-down yang mendukung mode Single Select maupun Multi Select.
 ```luau
 local dropdown = Window:Dropdown({
-   Name = "Example dropdown", 
-   Items = {
-            "Button 1",
-            "Button 2",
-            {PlaceHolder = "- Text here -"},
-            "Third button"
-   }, 
-   Callback = function(name)
-        -- // Put your code here \\ --
-        print(name)
-   end
+    Name = "Select Option",
+    Items = {
+        "Option 1",
+        "Option 2",
+        { PlaceHolder = "-- Extra Options --" },
+        "Option 3"
+    },
+    MultiSelect = false,
+    Callback = function(selected)
+        print("Selected:", selected)
+    end
 })
 ```
-Value:
-- Name = string
-- Items = table or array
-- Callback = function (return table value)
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| Name | string | "Dropdown" | Judul/Placeholder utama dropdown |
+| Items | table | {} | Daftar item string atau pembatas placeholder |
+| MultiSelect | boolean | false | Memungkinkan memilih lebih dari satu item |
+| Callback | function | - | Mengembalikan string/nil (single) atau table (multi) |
 
-Adding new Button to Dropdown:
+**Dropdown Methods**
+Kamu dapat memanipulasi opsi dropdown secara dinamis setelah dibuat:
+-- Menambahkan tombol baru
 ```luau
-dropdown:Button("New button")
+dropdown:Button("Option 4")
+```
+-- Menghapus tombol yang ada
+```luau
+dropdown:Remove("Option 1")
+```
+-- Menambahkan pemisah (placeholder)
+```luau
+dropdown:AddPlaceholder("-- Category 2 --")
 ```
 
-Removing Button to Dropdown:
+***Color Picker*
+Membuat pemilih warna RGB/HSV.
 ```luau
-dropdown:Remove("Button")
+Window:ColorPicker({
+    Name = "ESP Color",
+    Default = Color3.fromRGB(255, 0, 0),
+    Callback = function(color)
+        print("Selected Color:", color)
+    end
+})
 ```
-Adding new Placeholder to Dropdown:
-```luau
-dropdown:AddPlaceholder("New Placeholder")
-```
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| Name | string | "Color Picker" | Label pemilih warna |
+| Default | Color3 | Color3.fromRGB(255, 255, 255) | Warna awal |
+| Callback | function | - | Mengembalikan objek Color3 |
 
-### Creating a Notification
+**Text Box**
+Membuat kolom input teks/angka.
+```luau
+Window:Box({
+    Name = "Target Player",
+    Callback = function(text, focusLost)
+        if focusLost then
+            print("Entered Text:", text)
+        end
+    end
+})
+```
+| Parameter | Type | Description |
+|---|---|---|
+| Name | string | Label kolom input |
+| Callback | function | Mengembalikan (text: string, focusLost: boolean) |
+
+**Label**
+Menampilkan teks informasi statis atau berwarna rainbow.
+```luau
+Window:Label({
+    Name = "Status: Active",
+    Color = Color3.fromRGB(0, 255, 0) -- Bisa diisi "Rainbow" untuk efek warna bergerak
+})
+```
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| Name | string | - | Teks yang ditampilkan |
+| Color | Color3 / string | Color3.fromRGB(255, 255, 255) | Warna teks atau pasang "Rainbow" |
+
+## 🛠️ Utilities
+**Notification**
+Menampilkan notifikasi popup di sudut layar.
 ```luau
 library:Notification({
-	Title = "Title here!",
-	Content = "Content here!",
-	Time = 5
+    Title = "Script Loaded!",
+    Content = "Turtle UI has been successfully executed.",
+    Time = 5
 })
 ```
-Value:
-- Title = string
-- Content = string
-- Time = number
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| Title | string | "Notification" | Judul notifikasi |
+| Content | string | "" | Isi pesan |
+| Time | number | 5 | Durasi notifikasi muncul (dalam detik) |
 
-Destroying the UI:
+**Destroy UI**
+Menghapus seluruh antarmuka GUI dari memori.
 ```luau
 library:Destroy()
 ```
 
-# Change Log
-### August, 30, Saturday, 2025
-- Added a Notificaton function
-- Fixed ColorPicker not matching colors
-
-### September, 2, Tuesday, 2025
-- Added a PlaceHolder on the Dropdown
-
-### September, 6, Saturday, 2025
-- Added a Orion or Rayfield function call style
-
-### December, 15, Tuesday, 2025
-- Added Toogle with loop
-
-### December, 22, Monday, 2025
-- Revamped window drag function
-
-### September, 12, Saturday, 2026
-- Added Loop setting on Toggle function
-- Added MultiSelect setting on Dropdown function
-- Added X Size setting on Window function
-- Added Position setting on Window function
-
-- Remove Toogle feature
-
-- Fixing some Issue
-- Updated to Scrolling Ui
+# 📜 Change Log
+[September 12, 2026]
+Added
+ * Fitur MultiSelect pada komponen Dropdown.
+ * Pengaturan Loop pada komponen Toggle.
+ * Pengaturan custom Position dan ukuran X pada Window.
+ * Sistem antarmuka baru berbasi Scrolling UI.
+Fixed
+ * Memperbaiki bug fungsionalitas dan beberapa perbaikan performa umum.
+Removed
+ * Menghapus fitur Toggle lama dan menggantinya dengan struktur baru.
+[December 22, 2025]
+Refactored
+ * Memperbarui sistem drag/geser pada jendela UI (Window drag function).
+[December 15, 2025]
+Added
+ * Menambahkan opsi eksekusi looping pada Toggle.
+[September 6, 2025]
+Improved
+ * Menambahkan gaya penulisan panggilan fungsi bergaya Orion & Rayfield Library.
+[September 2, 2025]
+Added
+ * Fitur Placeholder teks di dalam daftar Dropdown.
+[August 30, 2025]
+Added
+ * Sistem Notification bawaan library.
+Fixed
+ * Memperbaiki ketidaksesuaian pemilihan warna pada komponen ColorPicker.
