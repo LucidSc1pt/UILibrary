@@ -45,7 +45,7 @@ local Window = library:Window({
 | Position | UDim2 | Optional | Posisi awal jendela di layar |
 
 ## 🧩 UI Components
-**Button**
+**Button**\n
 Membuat tombol interaktif biasa.
 ```luau
 Window:Button({
@@ -224,44 +224,44 @@ library:Destroy()
 
 # 📜 Change Log
 [September 12, 2026]
-Added
+* Added
  * Fitur MultiSelect pada komponen Dropdown.
  * Pengaturan Loop pada komponen Toggle.
  * Pengaturan custom Position dan ukuran X pada Window.
  * Sistem antarmuka baru berbasi Scrolling UI.
-Fixed
+* Fixed
  * Memperbaiki bug fungsionalitas dan beberapa perbaikan performa umum.
-Removed
+* Removed
  * Menghapus fitur Toggle lama dan menggantinya dengan struktur baru.
 
 
 
 [December 22, 2025]
-Refactored
+* Refactored
  * Memperbarui sistem drag/geser pada jendela UI (Window drag function).
 
 
 
 [December 15, 2025]
-Added
+* Added
  * Menambahkan opsi eksekusi looping pada Toggle.
 
 
 
 [September 6, 2025]
-Improved
+* Improved
  * Menambahkan gaya penulisan panggilan fungsi bergaya Orion & Rayfield Library.
 
 
 
 [September 2, 2025]
-Added
+* Added
  * Fitur Placeholder teks di dalam daftar Dropdown.
 
 
 
 [August 30, 2025]
-Added
+* Added
  * Sistem Notification bawaan library.
-Fixed
+* Fixed
  * Memperbaiki ketidaksesuaian pemilihan warna pada komponen ColorPicker.
