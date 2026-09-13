@@ -1254,7 +1254,7 @@ function library:Window(WinConfig)
         ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.BorderColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.Position = UDim2.new(0, 0, 0, 31)
-        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 105)
+        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 135)
         ColorPickerFrame.ZIndex = 3 + zindex
         ColorPickerFrame.Active = true
         ColorPickerFrame.Visible = false
