@@ -1028,10 +1028,10 @@ function library:Window(WinConfig)
         	end
     	end
         local function updateDropdownSize()
-        	local contentHeight = listLayout.AbsoluteContentSize.Y
+        	local contentHeight = listLayout.AbsoluteContentSize.Y + 10
         	DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
         
-			local maxHeight = math.min(contentHeight, 150)
+			local maxHeight = math.min(contentHeight, 140)
         	DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, maxHeight)
     	end
 
@@ -1049,7 +1049,7 @@ function library:Window(WinConfig)
         	end
 
 			DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 2)
-	        DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, math.min(listLayout.AbsoluteContentSize.Y, 130))
+	        DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, math.min(listLayout.AbsoluteContentSize.Y, 140))
         
 		    TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
 	        DropdownFrame.Visible = true
