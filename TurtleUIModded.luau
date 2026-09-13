@@ -383,7 +383,6 @@ function library:Window(WinConfig)
 	WinConfig = WinConfig or {}
     WinConfig.Name = WinConfig.Name or "Window"
     WinConfig.Size = WinConfig.Size or 217
-    WinConfig.Scrolling = WinConfig.Scrolling or false
     WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
 
     windowCount = windowCount + 1
@@ -952,7 +951,7 @@ function library:Window(WinConfig)
         DroTitle.TextSize = 14.000
         DroTitle.ZIndex = 4 + zindex
         DroTitle.TextWrapped = false
-        DroTitle.TextYAlignment = Enum.TextYAlignment.Left
+        DroTitle.TextXAlignment = Enum.TextXAlignment.Left
         DroTitle.TextTruncate = Enum.TextTruncate.AtEnd
         
 		DownSign.AnchorPoint = Vector2.new(1,0.5)
@@ -1255,7 +1254,7 @@ function library:Window(WinConfig)
         ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.BorderColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.Position = UDim2.new(0, 0, 0, 31)
-        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 155)
+        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 105)
         ColorPickerFrame.ZIndex = 3 + zindex
         ColorPickerFrame.Active = true
         ColorPickerFrame.Visible = false
