@@ -1,144 +1,6 @@
 -- // Credits to Intrer#0421 for the source \\ --
 -- // This UI is updated by me (LucidSc1pt) \\ --
 
--- // Update \\ --
---[[
-
-[+] <- Added a new function
-[-] <- Remove a function
-[!] <- On development, fixed a function or feature
-[★] <- Change a function, Improving a function or feature
-[!!!] <- Update a function or feature
-
-
--- // Change Log \\ --
-
-- / August, 30, Saturday, 2025 \ -
-[+] - Added a Notificaton function
-[!] - Fixed ColorPicker not matching colors
-
-- / September, 2, Tuesday, 2025 \ -
-[+] - Added a PlaceHolder on the Dropdown
-
-- / September, 6, Saturday, 2025 \ -
-[+] - Added a Orion or Rayfield function call style
-
-- / December, 15, Tuesday, 2025 \ -
-[+] - Added Toogle with loop
-
-- / December, 22, Monday, 2025 \ -
-[★] - Revamped window drag function
-
-- / September, 12, Saturday, 2026 \ -
-[★] -  Fixing some Issue
-[!!!] - updated to Scrolling Ui
-[-] - Remove Toogle feature
-[+] - Added Loop setting on Toggle function
-[+] - Added MultiSelect setting on Dropdown function
-[+] - Added X Size setting on Window function
-[+] - Added Position setting on Window function
-
-
--- // How To Use This Library \\ --
-
--- Turtle Ui Library
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/LittenHub/Fuckyouman/refs/heads/main/TurtleUI.lua"))()
-
--- Making a window
-local Window = library:Window({Name = "Table Turtle Hub"})
-
--- Making a Notification
-library:Notification({
-	Title = "Title here!",
-	Content = "Content here!",
-	Time = 5
-})
-
-Window:Button({
-	Name = "Button",
-    Callback = function()
-		print("yayyyyy!")
-	end
-})
-
-Window:Toggle({
-    Name = "Toggle",
-    Default = false,
-    Loop = false,
-    Callback = function(value)
-        print("hmmmm")
-    end
-})
-
-Window:Toggle({
-    Name = "Toggle",
-    Default = false,
-    Loop = true,
-    Callback = function(value)
-        print("hahahah")
-    end
-})
-
-Window:ColorPicker({
-   Name = "Color Picker",
-   Default = Color3.fromRGB(255, 255, 255),
-   Callback = function(color)
-        -- // Put your code here \\ --
-        print(color)
-   end
-})
-
-Window:Slider({
-   Name = "Example Slider",
-   Min = 0,
-   Max = 100,
-   Default = 20,
-   Callback = function(value)
-   -- // Put your code here \\ --
-		print(value)
-	end
-})
-
-Window:Label({
-   Name = "Label Example", 
-   Color = "Rainbow"
-})
-
-Window:Box({
-   Name = "Walkspeed", 
-   Callback = function(text, focuslost)
-   		if focuslost then
-        	-- // Put your code here \\ --
-            print(text)
-        end
-   end
-})
-
-local dropdown = Window:Dropdown({
-   Name = "Example dropdown", 
-   Items = {
-            "Button 1",
-            "Button 2",
-            {PlaceHolder = "- Text here -"},
-            "Third button"
-   }, 
-   Callback = function(name)
-        -- // Put your code here \\ --
-        print(name)
-   end
-})
-
-dropdown:Button("New button")
-
-dropdown:Remove("Button")
-
-dropdown:AddPlaceholder("New Placeholder")
-
--- destroy the gui
-library:Destroy()
-
-]]--
-
 -- // MAIN CODE \\ --
 
 local library = {}
@@ -601,6 +463,7 @@ function library:Window(WinConfig)
         TogConfig.Name = TogConfig.Name or "Toggle"
         TogConfig.Default = TogConfig.Default or false
         TogConfig.Loop = TogConfig.Loop or false
+        TogConfig.Delay = TogConfig.Delay or 0
         TogConfig.Callback = TogConfig.Callback or function() end
 
         autoSizeWin(32, 10)
@@ -648,19 +511,26 @@ function library:Window(WinConfig)
 		
         ToggleButton.MouseButton1Click:Connect(function()
             ToggleFiller.Visible = not ToggleFiller.Visible
-            TogConfig.Callback(ToggleFiller.Visible)
+            if not TogConfig.Loop then
+            	TogConfig.Callback(ToggleFiller.Visible)
+        	end
         end)
         
 		if TogConfig.Loop then
-			local BetterLoopOperator = false
+			local lastTick = 0
 
-			game:GetService("RunService").RenderStepped:Connect(function()
-				if ToggleFiller.Visible and BetterLoopOperator == false then
-					BetterLoopOperator = true
-					TogConfig.Callback(ToggleFiller.Visible)
-					BetterLoopOperator = false
-				end
-			end)
+        	game:GetService("RunService").Heartbeat:Connect(function()
+            	if ToggleFiller.Visible then
+					if os.clock() - lastTick >= TogConfig.Delay then
+                    	lastTick = os.clock()
+                    	task.spawn(function()
+                        	TogConfig.Callback(ToggleFiller.Visible)
+                    	end)
+                	end
+            	else
+					lastTick = 0
+            	end
+        	end)
         end
 
 		ToggleButton_stroke.Parent = ToggleButton
