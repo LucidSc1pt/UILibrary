@@ -1,5 +1,4 @@
 -- // Update \\ --
---[[
 
 [+] <- Added a new function
 [-] <- Remove a function
