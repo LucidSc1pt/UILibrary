@@ -928,7 +928,7 @@ function library:Window(WinConfig)
         autoSizeWin(32, 10)
         
 		Dropdown.AnchorPoint = Vector2.new(0,0)
-        Dropdown.Name = "Dropdown_" .. DropConfig.Name
+        Dropdown.Name = "Dropdown"
         Dropdown.Parent = droFrame
         Dropdown.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         Dropdown.BorderColor3 = Color3.fromRGB(113, 128, 147)
@@ -990,15 +990,14 @@ function library:Window(WinConfig)
 		listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    	listLayout.Padding = UDim.new(0, 2)
+    	listLayout.Padding = UDim.new(0, 3)
     	
     	local listPaddingLayout = Instance.new("UIPadding")
+    	listPaddingLayout.Parent = DropdownFrame
 		listPaddingLayout.PaddingBottom = UDim.new(0, 5)
 		listPaddingLayout.PaddingTop = UDim.new(0, 5)
 		listPaddingLayout.PaddingRight = UDim.new(0, 5)
 		listPaddingLayout.PaddingLeft = UDim.new(0, 5)
-		listPaddingLayout.Parent = DropdownFrame
-
 
         table.insert(dropdowns, DropdownFrame)
         local dropFunctions = {}
@@ -1032,7 +1031,7 @@ function library:Window(WinConfig)
         	local contentHeight = listLayout.AbsoluteContentSize.Y
         	DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
         
-			local maxHeight = math.min(contentHeight, 130)
+			local maxHeight = math.min(contentHeight, 150)
         	DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, maxHeight)
     	end
 
@@ -1046,6 +1045,7 @@ function library:Window(WinConfig)
 	    function dropFunctions:Open()
 			for _, otherDrop in ipairs(dropdowns) do
             	otherDrop.Visible = false
+            	TweenService:Create(otherDrop.Parent.Dropdown.DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
         	end
 
 			DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 2)
@@ -1223,13 +1223,6 @@ function library:Window(WinConfig)
         ColorPicker.TextColor3 = Color3.fromRGB(0, 0, 0)
         ColorPicker.TextSize = 14.000
         ColorPicker.ZIndex = 2 + zindex
-        ColorPicker.MouseButton1Click:Connect(function()
-            if ColorPickerFrame.Visible then
-            	ColorPickerFrame.Visible = false
-            else
-            	ColorPickerFrame.Visible = true
-            end
-        end)
 
         PickerCorner.Parent = ColorPicker
         PickerCorner.Name = "PickerCorner"
@@ -1254,7 +1247,7 @@ function library:Window(WinConfig)
         ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.BorderColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.Position = UDim2.new(0, 0, 0, 31)
-        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 135)
+        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 125)
         ColorPickerFrame.ZIndex = 3 + zindex
         ColorPickerFrame.Active = true
         ColorPickerFrame.Visible = false
@@ -1361,8 +1354,9 @@ function library:Window(WinConfig)
         Canvas.Name = "Canvas"
         Canvas.Parent = ColorPickerFrame
         Canvas.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Canvas.Position = UDim2.new(0, 5, 0, 5)
-        Canvas.Size = UDim2.new(1, -10, 0, 64)
+        Canvas.Position = UDim2.new(0, 0, 0, 0)
+        Canvas.Size = UDim2.new(1, 0, 0, 64)
+        Canvas.Active = true
         Canvas.ZIndex = 4 + zindex
 
         CanvasGradient.Color = ColorSequence.new{
@@ -1407,6 +1401,7 @@ function library:Window(WinConfig)
         Color.Position = UDim2.new(0, 5, 0, 75)
         Color.Size = UDim2.new(1, -10, 0, 14)
         Color.BorderMode = Enum.BorderMode.Inset
+        Color.Active = true
         Color.ZIndex = 4 + zindex
 
         Color.InputBegan:Connect(function(input)
@@ -1465,6 +1460,7 @@ function library:Window(WinConfig)
         ColorSlider.BorderColor3 = Color3.fromRGB(245, 246, 250)
         ColorSlider.Position = UDim2.new(0, 0, 0, -1)
         ColorSlider.Size = UDim2.new(0, 2, 0, 14)
+        ColorSlider.Active = true
         ColorSlider.ZIndex = 5 + zindex
 
 		table.insert(colorPickers, ColorPickerFrame)
@@ -1488,6 +1484,25 @@ function library:Window(WinConfig)
 				end)
 	        end
         end
+        function colorFuncs:Close()
+	        ColorPickerFrame.Visible = false
+	    end
+
+	    function colorFuncs:Open()
+			for _, otherColor in ipairs(colorPickers) do
+            	otherColor.Visible = false
+        	end
+
+			ColorPickerFrame.Visible = true
+	    end
+	    
+	    ColorPicker.MouseButton1Click:Connect(function()
+            if ColorPickerFrame.Visible then
+            	colorFuncs:Close()
+            else
+            	colorFuncs:Open()
+            end
+        end)
     
 		return colorFuncs
     end
