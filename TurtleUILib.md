@@ -8,8 +8,8 @@
 
 # Change Log
 * August, 30, Saturday, 2025
-[+] - Added a Notificaton function
-[!] - Fixed ColorPicker not matching colors
+  [+] - Added a Notificaton function
+  [!] - Fixed ColorPicker not matching colors
 
 * September, 2, Tuesday, 2025
 [+] - Added a PlaceHolder on the Dropdown
