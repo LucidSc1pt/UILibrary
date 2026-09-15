@@ -790,7 +790,6 @@ function library:Window(WinConfig)
         SilderFiller.Name = "SilderFiller"
         SilderFiller.Parent = Slider
         SilderFiller.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
-        SliderFiller.BorderSizePixel = 0
         SilderFiller.Size = UDim2.new(defaultAlpha, 0, 1, 0)
         SilderFiller.ZIndex = 2 + zindex
         
