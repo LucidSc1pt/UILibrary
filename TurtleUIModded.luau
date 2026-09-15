@@ -873,7 +873,7 @@ function library:Window(WinConfig)
         local dragDropFrame
         if DropConfig.Floating then
 			dragDropFrame = Instance.new("Frame")
-			dragDropFrame.Parent = DropdownParent
+			dragDropFrame.Parent = Dropdown
 			dragDropFrame.Size = UDim2.new(1, 0, 0, 26)
 			dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
@@ -894,7 +894,7 @@ function library:Window(WinConfig)
         	dragDroTitle.Active = false
         	dragDroTitle.TextXAlignment = Enum.TextXAlignment.Left
         	
-        	MakeDraggable(dragDropFrame, DropdownFrame)
+        	MakeDraggable(dragDropFrame, dragDropFrame)
 		end
         DropdownFrame.Name = "DropdownFrame"
         DropdownFrame.Parent = DropConfig.Floating and dragDropFrame or droFrame
@@ -974,8 +974,14 @@ function library:Window(WinConfig)
 
 	    function dropFunctions:Open()
 			for _, otherDrop in ipairs(dropdowns) do
-            	otherDrop.Visible = false
-            	TweenService:Create(otherDrop.Parent.Dropdown.DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
+            	if DropConfig.Floating then
+	        		otherDrop.Parent.Visible = false
+	        		otherDrop.Visible = false
+	        		TweenService:Create(otherDrop.Parent.Parent.DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
+	        	else
+	        		otherDrop.Visible = false
+	        		TweenService:Create(otherDrop.Parent.Dropdown.DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
+	        	end
         	end
 
 			DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 2)
@@ -984,8 +990,10 @@ function library:Window(WinConfig)
 		    TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
 		    if DropConfig.Floating then
 	        	dragDropFrame.Visible = true
+	        	DropdownFrame.Visible = true
+	        else
+	        	DropdownFrame.Visible = true
 	        end
-	        DropdownFrame.Visible = true
 	    end
         function dropFunctions:Button(name)
             local name = name or ""
@@ -1094,7 +1102,7 @@ function library:Window(WinConfig)
 		end
 		
 		Dropdown.MouseButton1Click:Connect(function()
-			if DropdownFrame.Visible then
+			if DropdownFrame.Visible or dragDropFrame.Visible then
 				dropFunctions:Close()
 			else
 				dropFunctions:Open()
