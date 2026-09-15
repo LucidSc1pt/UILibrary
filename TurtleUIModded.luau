@@ -49,7 +49,7 @@ local mouse = player:GetMouse();
 local run = game:service('RunService');
 local stepped = run.Stepped;
 
-local function MakeDraggable(DragPoint, )
+local function MakeDraggable(DragPoint, Main)
 	pcall(function()
 		local Dragging = false
 		local DragInput
@@ -983,7 +983,7 @@ function library:Window(WinConfig)
         
 		    TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
 		    if DropConfig.Floating then
-	        	dragDropFrame.Visible = false
+	        	dragDropFrame.Visible = true
 	        end
 	        DropdownFrame.Visible = true
 	    end
