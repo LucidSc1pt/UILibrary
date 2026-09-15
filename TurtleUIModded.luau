@@ -696,8 +696,8 @@ function library:Window(WinConfig)
             	local con
             	con = stepped:Connect(function()
                 	if isdragging then
-                    	local sliderWidth = Slider.AbsoluteSize.X - 10
-                    	local mousePosX = mouse.X - Slider.AbsolutePosition.X - 10
+                    	local sliderWidth = Slider.AbsoluteSize.X - 20
+                    	local mousePosX = mouse.X - Slider.AbsolutePosition.X - 20
                     	local alpha = math.clamp(mousePosX / sliderWidth, 0, 1)
                     
                     	local rawValue = Lerp(SliConfig.Min, SliConfig.Max, alpha)
@@ -873,7 +873,7 @@ function library:Window(WinConfig)
         local dragDropFrame
         if DropConfig.Floating then
 			dragDropFrame = Instance.new("Frame")
-			dragDropFrame.Parent = DropdownFrame
+			dragDropFrame.Parent = DropdownParent
 			dragDropFrame.Size = UDim2.new(1, 0, 0, 26)
 			dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
