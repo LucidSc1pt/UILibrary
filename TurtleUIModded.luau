@@ -870,7 +870,7 @@ function library:Window(WinConfig)
         DownSign.ZIndex = 4 + zindex
         DownSign.TextYAlignment = Enum.TextYAlignment.Bottom
         
-        local dragDropFrame
+        local dragDropFrame = nil
         if DropConfig.Floating then
 			dragDropFrame = Instance.new("Frame")
 			dragDropFrame.Parent = Dropdown
@@ -1102,7 +1102,7 @@ function library:Window(WinConfig)
 		end
 		
 		Dropdown.MouseButton1Click:Connect(function()
-			if DropdownFrame.Visible or dragDropFrame.Visible then
+			if DropdownFrame.Visible or (dragDropFrame ~= nil and dragDropFrame.Visible) then
 				dropFunctions:Close()
 			else
 				dropFunctions:Open()
