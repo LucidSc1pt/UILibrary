@@ -407,8 +407,6 @@ function library:Window(WinConfig)
         ButConfig.Name = ButConfig.Name or "Button"
         ButConfig.Callback = ButConfig.Callback or function() end
 
-		autoSizeWin(32, 10)
-		
 		local btnFrame = Instance.new("Frame")
 		btnFrame.Parent = contentParent
 		btnFrame.Size = UDim2.new(1, 0, 0, 32)
@@ -444,7 +442,7 @@ function library:Window(WinConfig)
         ButtonTitle.Font = Enum.Font.SourceSans
         ButtonTitle.Text = ButConfig.Name
         ButtonTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
-        ButtonTitle.TextSize = 14
+        ButtonTitle.TextSize = 16
         ButtonTitle.TextWrapped = true
         ButtonTitle.TextXAlignment = Enum.TextXAlignment.Left
         ButtonTitle.Active = false
@@ -479,7 +477,7 @@ function library:Window(WinConfig)
         Label.Size = UDim2.new(1, 0, 0, 29)
         Label.Font = Enum.Font.SourceSans
         Label.Text = LabConfig.Name
-        Label.TextSize = 14
+        Label.TextSize = 16
         Label.ZIndex = 2 + zindex
 
         if LabConfig.Color == "Rainbow" then
@@ -641,7 +639,7 @@ function library:Window(WinConfig)
         BoxDescription.Font = Enum.Font.SourceSans
         BoxDescription.Text = BoxConfig.Name
         BoxDescription.TextColor3 = Color3.fromRGB(245, 246, 250)
-        BoxDescription.TextSize = 14
+        BoxDescription.TextSize = 16
         BoxDescription.TextXAlignment = Enum.TextXAlignment.Left
         BoxDescription.ZIndex = 2 + zindex
         
@@ -786,7 +784,7 @@ function library:Window(WinConfig)
         Description.Font = Enum.Font.SourceSans
         Description.Text = SliConfig.Name
         Description.TextColor3 = Color3.fromRGB(245, 246, 250)
-        Description.TextSize = 14
+        Description.TextSize = 16
         Description.TextXAlignment = Enum.TextXAlignment.Left
         Description.ZIndex = 2 + zindex
 
@@ -851,7 +849,7 @@ function library:Window(WinConfig)
         DroTitle.Font = Enum.Font.SourceSans
         DroTitle.Text = tostring(DropConfig.Name)
         DroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
-        DroTitle.TextSize = 14
+        DroTitle.TextSize = 16
         DroTitle.ZIndex = 4 + zindex
         DroTitle.TextWrapped = false
         DroTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -1171,7 +1169,7 @@ function library:Window(WinConfig)
         PickerDescription.Font = Enum.Font.SourceSans
         PickerDescription.Text = ColConfig.Name
         PickerDescription.TextColor3 = Color3.fromRGB(245, 246, 250)
-        PickerDescription.TextSize = 14
+        PickerDescription.TextSize = 16
         PickerDescription.TextXAlignment = Enum.TextXAlignment.Left
         PickerDescription.ZIndex = 2 + zindex
 
@@ -1215,7 +1213,7 @@ function library:Window(WinConfig)
         TextLabel.Font = Enum.Font.SourceSans
         TextLabel.Text = "Rainbow"
         TextLabel.TextColor3 = Color3.fromRGB(245, 246, 250)
-        TextLabel.TextSize = 14
+        TextLabel.TextSize = 16
         TextLabel.TextXAlignment = Enum.TextXAlignment.Left
         TextLabel.ZIndex = 4 + zindex
 
