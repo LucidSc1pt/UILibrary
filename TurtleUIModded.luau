@@ -83,7 +83,7 @@ local function MakeDraggable(DragPoint, Main)
 
 				local newPos = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
 			    
-				TweenService:Create(DragPoint, TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = newPos}):Play()
+				TweenService:Create(Main, TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = newPos}):Play()
 				Main.Position = newPos
 			end
 		end)
