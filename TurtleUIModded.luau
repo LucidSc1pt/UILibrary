@@ -3,7 +3,30 @@
 
 -- // MAIN CODE \\ --
 
-local library = {}
+local library = {
+	Theme = {
+		Default = {
+			WindowBackground = Color3.fromRGB(47, 54, 64),
+			WindowBorder = Color3.fromRGB(47, 54, 64),
+		
+			UIWindow = Color3.fromRGB(0, 151, 230),
+			UIWindowBorder = Color3.fromRGB(0, 151, 230),
+		
+			Header = Color3.fromRGB(0, 168, 255),
+			HeaderBorder = Color3.fromRGB(0, 168, 255),
+			HeaderText = Color3.fromRGB(47, 54, 64),
+
+			NormalText = Color3.fromRGB(245, 246, 250),
+			NormalBackground = Color3.fromRGB(53, 59, 72),
+
+			BtnBorder = Color3.fromRGB(113, 128, 147),
+
+			ToggleFiller = Color3.fromRGB(68, 189, 50),
+
+			SliderFiller = Color3.fromRGB(76, 209, 55),
+		}
+	}
+}
 local windowCount = 0
 local sizes = {}
 local listOffset = {}
@@ -12,28 +35,6 @@ local pastSliders = {}
 local dropdowns = {}
 local dropdownSizes = {}
 local colorPickers = {}
-local theme = {
-	Default = {
-		WindowBackground = Color3.fromRGB(47, 54, 64),
-		WindowBorder = Color3.fromRGB(47, 54, 64),
-		
-		UIWindow = Color3.fromRGB(0, 151, 230),
-		UIWindowBorder = Color3.fromRGB(0, 151, 230),
-		
-		Header = Color3.fromRGB(0, 168, 255),
-		HeaderBorder = Color3.fromRGB(0, 168, 255),
-		
-		HeaderText = Color3.fromRGB(47, 54, 64),
-
-		NormalText = Color3.fromRGB(245, 246, 250),
-		NormalBackground = Color3.fromRGB(53, 59, 72),
-
-		ToggleFiller = Color3.fromRGB(68, 189, 50),
-		ToggleBackground = Color3.fromRGB(47, 54, 64),
-
-		TextBoxBackground = Color3.fromRGB(53, 59, 72)
-	}
-}
 
 function Lerp(a, b, c)
 	return a + ((b - a) * c)
@@ -106,6 +107,14 @@ local function protect_gui(obj)
 	else
 		obj.Parent = game.CoreGui
 	end
+end
+
+local function Create(Name, Properties)
+	local Object = Instance.new(Name)
+	for i, v in next, Properties or {} do
+		Object[i] = v
+	end
+	return Object
 end
 
 -- // Making the ScreenGui \\ --
@@ -244,15 +253,23 @@ end
 function library:Window(WinConfig)
 	WinConfig = WinConfig or {}
     WinConfig.Name = WinConfig.Name or "Window"
-    WinConfig.Size = WinConfig.Size or 217
+    WinConfig.Size = WinConfig.Size or UDim2.new(0,220,0,33)
+    WinConfig.MultiWindow = WinConfig.MultiWindow = true
     WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
-
-    windowCount = windowCount + 1
-    local winCount = windowCount
-    local zindex = winCount * 7
-    
+	
+	local winCount
+    local zindex
     local winPaddingLayout
     local winLayout
+    
+    if WinConfig.MultiWindow then
+    	windowCount = windowCount + 1
+    	winCount = windowCount
+    	zindex = winCount * 7
+   	else
+    	zindex = zindex * 7
+    	f
+    end
   
 	local UiWindow = Instance.new("Frame")
     UiWindow.Name = "UiWindow"
@@ -260,7 +277,7 @@ function library:Window(WinConfig)
     UiWindow.BackgroundColor3 = Color3.fromRGB(0, 151, 230)
     UiWindow.BorderColor3 = Color3.fromRGB(0, 151, 230)
     UiWindow.Position = WinConfig.Position
-    UiWindow.Size = UDim2.new(0,WinConfig.Size,0,33)
+    UiWindow.Size = WinConfig.Size
     UiWindow.ZIndex = 4 + zindex
     UiWindow.Active = true
 	
@@ -273,8 +290,8 @@ function library:Window(WinConfig)
     Header.Parent = UiWindow
     Header.BackgroundColor3 = Color3.fromRGB(0, 168, 255)
     Header.BorderColor3 = Color3.fromRGB(0, 168, 255)
-    Header.Position = UDim2.new(0, 0, -0.0202544238, 0)
-    Header.Size = UDim2.new(0, 217, 0, 26)
+    Header.Position = UDim2.new(0, 0, 0, 0)
+    Header.Size = UDim2.new(1, 0, 0, 26)
     Header.ZIndex = 5 + zindex
 
     local HeaderText = Instance.new("TextLabel")
@@ -282,7 +299,7 @@ function library:Window(WinConfig)
     HeaderText.Parent = Header
     HeaderText.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     HeaderText.BackgroundTransparency = 1.000
-    HeaderText.Position = UDim2.new(0, 0, -0.0020698905, 0)
+    HeaderText.Position = UDim2.new(0, 5, 0, 0)
     HeaderText.Size = UDim2.new(0, 217, 0, 33)
     HeaderText.ZIndex = 6 + zindex
     HeaderText.Font = Enum.Font.SourceSansBold
@@ -292,16 +309,15 @@ function library:Window(WinConfig)
 
     local Window = Instance.new("Frame")
     Window.Name = "Window"
-    Window.Parent = Header
+    Window.Parent = UiWindow
     Window.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
     Window.BorderColor3 = Color3.fromRGB(47, 54, 64)
-    Window.Position = UDim2.new(0, 0, 1, 9)
-    Window.Size = UDim2.new(1, 0, 0, 33)
+    Window.Position = UDim2.new(0, 0, 0, 33)
+    Window.Size = UDim2.new(1, 0, 1, -33)
     Window.Active = false
     Window.ZIndex = 1 + zindex
     
-    local WindowScroll
-	WindowScroll = Instance.new("ScrollingFrame")
+    local WindowScroll = Instance.new("ScrollingFrame")
 	WindowScroll.Parent = Window
 	WindowScroll.Size = UDim2.new(1,0,1,0)
 	WindowScroll.BackgroundTransparency = 1
@@ -313,6 +329,7 @@ function library:Window(WinConfig)
     WindowScroll.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
     WindowScroll.ZIndex = 1 + zindex
     WindowScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+    WindowScroll.ElasticBehavior = Enum.ElasticBehavior.Never
         
 	winPaddingLayout = Instance.new("UIPadding")
 	winPaddingLayout.PaddingBottom = UDim.new(0, 5)
@@ -407,7 +424,25 @@ function library:Window(WinConfig)
         Button.TextSize = 16.000
         Button.TextStrokeTransparency = 123.000
         Button.TextWrapped = true
-        Button.Text = ButConfig.Name
+        Button.Text = ""
+        
+        local ButtonTitle = Instance.new("TextLabel")
+        ButtonTitle.AnchorPoint = Vector2.new(0,0.5)
+        ButtonTitle.Name = "ButtonTitle"
+        ButtonTitle.Parent = Button
+        ButtonTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        ButtonTitle.BackgroundTransparency = 1.000
+        ButtonTitle.Position = UDim2.new(0, 5, 0.5, 0)
+        ButtonTitle.Size = UDim2.new(1, -5, 1, 0)
+        ButtonTitle.Font = Enum.Font.SourceSans
+        ButtonTitle.Text = ButConfig.Name
+        ButtonTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
+        ButtonTitle.TextSize = 16.000
+        ButtonTitle.TextWrapped = true
+        ButtonTitle.TextXAlignment = Enum.TextXAlignment.Left
+        ButtonTitle.Active = false
+        ButtonTitle.ZIndex = 2 + zindex
+        
         Button.MouseButton1Click:Connect(ButConfig.Callback)
 
         pastSliders[winCount] = false
@@ -418,8 +453,6 @@ function library:Window(WinConfig)
         LabConfig = LabConfig or {}
         LabConfig.Name = LabConfig.Name or "Label"
         LabConfig.Color = LabConfig.Color or Color3.fromRGB(220, 221, 225)
-
-        autoSizeWin(32, 10)
         
         local labelFrame = Instance.new("Frame")
 		labelFrame.Parent = contentParent
@@ -465,8 +498,6 @@ function library:Window(WinConfig)
         TogConfig.Loop = TogConfig.Loop or false
         TogConfig.Delay = TogConfig.Delay or 0
         TogConfig.Callback = TogConfig.Callback or function() end
-
-        autoSizeWin(32, 10)
         
         local togFrame = Instance.new("Frame")
 		togFrame.Parent = contentParent
@@ -557,8 +588,6 @@ function library:Window(WinConfig)
         BoxConfig.Name = BoxConfig.Name or "Box"
         BoxConfig.Callback = BoxConfig.Callback or function() end
 
-        autoSizeWin(32, 10)
-        
         local boxFrame = Instance.new("Frame")
 		boxFrame.Parent = contentParent
 		boxFrame.Size = UDim2.new(1, 0, 0, 32)
@@ -627,8 +656,6 @@ function library:Window(WinConfig)
         if pastSliders[winCount] then
             offset = 60
         end
-
-        autoSizeWin(60, 10)
         
         local sliFrame = Instance.new("Frame")
 		sliFrame.Parent = contentParent
@@ -758,10 +785,9 @@ function library:Window(WinConfig)
         SilderFiller.Name = "SilderFiller"
         SilderFiller.Parent = Slider
         SilderFiller.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
-        SilderFiller.BorderColor3 = Color3.fromRGB(47, 54, 64)
+        SliderFiller.BorderSizePixel = 0
         SilderFiller.Size = UDim2.new(defaultAlpha, 0, 1, 0)
         SilderFiller.ZIndex = 2 + zindex
-        SilderFiller.BorderMode = Enum.BorderMode.Inset
         
         pastSliders[winCount] = true
     end
@@ -794,8 +820,6 @@ function library:Window(WinConfig)
         local DroTitle = Instance.new("TextLabel")
         local DownSign = Instance.new("TextLabel")
         local DropdownFrame = Instance.new("ScrollingFrame")
-
-        autoSizeWin(32, 10)
         
 		Dropdown.AnchorPoint = Vector2.new(0,0)
         Dropdown.Name = "Dropdown"
@@ -1081,8 +1105,6 @@ function library:Window(WinConfig)
         local ColorCorner = Instance.new("UICorner")
         local BlackOverlay = Instance.new("ImageLabel")
 
-        autoSizeWin(32, 10)
-        
 		ColorPicker.AnchorPoint = Vector2.new(1,0.5)
         ColorPicker.Name = "ColorPicker"
         ColorPicker.Parent = PickerDescription
