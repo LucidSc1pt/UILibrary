@@ -279,12 +279,12 @@ function library:Window(WinConfig)
 	local UiWindow = Instance.new("Frame")
     UiWindow.Name = "UiWindow"
     UiWindow.Parent = TurtleUiLib
-    UiWindow.BackgroundColor3 = Color3.fromRGB(0, 151, 230)
+    UiWindow.BackgroundTransparency = 1
     UiWindow.BorderColor3 = Color3.fromRGB(0, 151, 230)
     UiWindow.Position = WinConfig.Position
     UiWindow.Size = WinConfig.Size
     UiWindow.ZIndex = 4 + zindex
-    UiWindow.Active = true
+    UiWindow.Active = false
 	
     xOffset = xOffset + 230
 
@@ -294,7 +294,8 @@ function library:Window(WinConfig)
     Header.BackgroundColor3 = Color3.fromRGB(0, 168, 255)
     Header.BorderColor3 = Color3.fromRGB(0, 168, 255)
     Header.Position = UDim2.new(0, 0, 0, 0)
-    Header.Size = UDim2.new(1, 0, 0, 26)
+    Header.Size = UDim2.new(1, 0, 0, 33)
+    Header.Active = true
     Header.ZIndex = 5 + zindex
 
     local HeaderText = Instance.new("TextLabel")
@@ -303,11 +304,12 @@ function library:Window(WinConfig)
     HeaderText.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     HeaderText.BackgroundTransparency = 1.000
     HeaderText.Position = UDim2.new(0, 5, 0, 0)
-    HeaderText.Size = UDim2.new(0, 217, 0, 33)
+    HeaderText.Size = UDim2.new(1, -47, 0, 33)
     HeaderText.ZIndex = 6 + zindex
     HeaderText.Font = Enum.Font.SourceSansBold
     HeaderText.Text = WinConfig.Name
     HeaderText.TextColor3 = Color3.fromRGB(47, 54, 64)
+    HeaderText.TextXAlignment = Enum.TextXAlignment.Left
     HeaderText.TextSize = 17.000
 
 	MakeDraggable(Header, UiWindow)
