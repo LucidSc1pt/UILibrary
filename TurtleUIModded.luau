@@ -253,7 +253,7 @@ function library:Window(WinConfig)
 	WinConfig = WinConfig or {}
     WinConfig.Name = WinConfig.Name or "Window"
     WinConfig.Size = WinConfig.Size or UDim2.new(0,220,0,33)
-    WinConfig.MultiWindow = WinConfig.MultiWindow = true
+    WinConfig.MultiWindow = WinConfig.MultiWindow or true
     WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
 	
 	local winCount
