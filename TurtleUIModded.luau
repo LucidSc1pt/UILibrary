@@ -23,7 +23,7 @@ local library = {
 
 			ToggleFiller = Color3.fromRGB(68, 189, 50),
 
-			SliderFiller = Color3.fromRGB(76, 209, 55),
+			SliderFiller = Color3.fromRGB(76, 209, 55)
 		}
 	}
 }
@@ -49,7 +49,7 @@ local mouse = player:GetMouse();
 local run = game:service('RunService');
 local stepped = run.Stepped;
 
-local function MakeDraggable(DragPoint)
+local function MakeDraggable(DragPoint, )
 	pcall(function()
 		local Dragging = false
 		local DragInput
@@ -61,7 +61,7 @@ local function MakeDraggable(DragPoint)
 				
 				Dragging = true
 				MousePos = Input.Position
-				FramePos = DragPoint.Position
+				FramePos = Main.Position
 				
 				Input.Changed:Connect(function()
 					if Input.UserInputState == Enum.UserInputState.End then
@@ -84,7 +84,7 @@ local function MakeDraggable(DragPoint)
 				local newPos = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
 			    
 				TweenService:Create(DragPoint, TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = newPos}):Play()
-				DragPoint.Position = newPos
+				Main.Position = newPos
 			end
 		end)
 	end)
@@ -119,7 +119,6 @@ end
 
 -- // Making the ScreenGui \\ --
 local TurtleUiLib = Instance.new("ScreenGui")
-
 TurtleUiLib.Name = "TurtleUiLib"
 
 protect_gui(TurtleUiLib)
@@ -268,8 +267,14 @@ function library:Window(WinConfig)
     	zindex = winCount * 7
    	else
     	zindex = zindex * 7
-    	f
-    end
+		for _, Interface in ipairs(TurtleUiLib:GetChildren()) do
+			if Interface.Name == "UiWindow" and Interface then
+				Interface.Visible = false
+				Interface.Active = false
+				Interface.Name = "UiWindow-Old"
+			end
+		end
+	end
   
 	local UiWindow = Instance.new("Frame")
     UiWindow.Name = "UiWindow"
@@ -280,8 +285,6 @@ function library:Window(WinConfig)
     UiWindow.Size = WinConfig.Size
     UiWindow.ZIndex = 4 + zindex
     UiWindow.Active = true
-	
-	MakeDraggable(UiWindow)
 	
     xOffset = xOffset + 230
 
@@ -306,6 +309,8 @@ function library:Window(WinConfig)
     HeaderText.Text = WinConfig.Name
     HeaderText.TextColor3 = Color3.fromRGB(47, 54, 64)
     HeaderText.TextSize = 17.000
+
+	MakeDraggable(Header, UiWindow)
 
     local Window = Instance.new("Frame")
     Window.Name = "Window"
@@ -798,6 +803,8 @@ function library:Window(WinConfig)
         DropConfig.Name = DropConfig.Name or "Dropdown"
         DropConfig.Items = DropConfig.Items or {}
         DropConfig.MultiSelect = DropConfig.MultiSelect or false
+        DropConfig.Floating = DropConfig.Floating or false
+        --DropConfig.Draggable = DropConfig.Draggable or false
         DropConfig.Callback = DropConfig.Callback or function() end
 
 		local droFrame = Instance.new("Frame")
@@ -862,13 +869,39 @@ function library:Window(WinConfig)
         DownSign.TextSize = 20.000
         DownSign.ZIndex = 4 + zindex
         DownSign.TextYAlignment = Enum.TextYAlignment.Bottom
-
+        
+        local dragDropFrame
+        if DropConfig.Floating then
+			dragDropFrame = Instance.new("Frame")
+			dragDropFrame.Parent = DropdownFrame
+			dragDropFrame.Size = UDim2.new(1, 0, 0, 26)
+			dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+			dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
+			
+			local dragDroTitle = Instance.new("TextLabel")
+			dragDroTitle.Name = "DragTitle"
+        	dragDroTitle.Parent = dragDropFrame
+        	dragDroTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        	dragDroTitle.BackgroundTransparency = 1.000
+        	dragDroTitle.Position = UDim2.new(0, 5, 0, 0)
+        	dragDroTitle.Size = UDim2.new(1, -30, 1, 0)
+        	dragDroTitle.Font = Enum.Font.SourceSans
+        	dragDroTitle.Text = tostring(DropConfig.Name)
+        	dragDroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
+    		dragDroTitle.TextSize = 14
+        	dragDroTitle.ZIndex = 4 + zindex
+        	dragDroTitle.TextWrapped = false
+        	dragDroTitle.Active = false
+        	dragDroTitle.TextXAlignment = Enum.TextXAlignment.Left
+        	
+        	MakeDraggable(dragDropFrame, DropdownFrame)
+		end
         DropdownFrame.Name = "DropdownFrame"
-        DropdownFrame.Parent = droFrame
+        DropdownFrame.Parent = DropConfig.Floating and dragDropFrame or droFrame
         DropdownFrame.Active = true
         DropdownFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
         DropdownFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
-        DropdownFrame.Position = UDim2.new(0, 0, 0, 26)
+        DropdownFrame.Position = DropConfig.Floating and UDim2.new(0, 0, 1, 0) or UDim2.new(0, 0, 0, 26)
         DropdownFrame.Size = UDim2.new(1, 0, 0, 0)
         DropdownFrame.Visible = false
         DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -933,6 +966,9 @@ function library:Window(WinConfig)
 
     	function dropFunctions:Close()
 	        TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
+	        if DropConfig.Floating then
+	        	dragDropFrame.Visible = false
+	        end
 	        DropdownFrame.Visible = false
 	    end
 
@@ -946,6 +982,9 @@ function library:Window(WinConfig)
 	        DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, math.min(listLayout.AbsoluteContentSize.Y, 140))
         
 		    TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
+		    if DropConfig.Floating then
+	        	dragDropFrame.Visible = false
+	        end
 	        DropdownFrame.Visible = true
 	    end
         function dropFunctions:Button(name)
