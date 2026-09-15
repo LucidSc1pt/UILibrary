@@ -1,5 +1,13 @@
 This is just my small project.
 
-Orion UI Lib is now patched, I don't know why but I will fix it when I'm not busy.
+Orion UI Lib is now patched, I fill fix it when I found what's the problem is...
 
 * [Turtle UI Lib](TurtleUILib.md)
+
+<details>
+  <summary><b>📂 Pilih File Dokumentasi</b></summary>
+
+  * [Dokumentasi Bahasa Indonesia](file-id.md)
+  * [English Documentation](file-en.md)
+  * [Panduan Penggunaan](guide.md)
+</details>
