@@ -873,7 +873,7 @@ function library:Window(WinConfig)
         local dragDropFrame = nil
         if DropConfig.Floating then
 			dragDropFrame = Instance.new("Frame")
-			dragDropFrame.Parent = Dropdown
+			dragDropFrame.Parent = DropdownParent
 			dragDropFrame.Size = UDim2.new(1, 0, 0, 26)
 			dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
@@ -926,11 +926,12 @@ function library:Window(WinConfig)
 		listPaddingLayout.PaddingRight = UDim.new(0, 5)
 		listPaddingLayout.PaddingLeft = UDim.new(0, 5)
 
-        table.insert(dropdowns, DropdownFrame)
         local dropFunctions = {}
         local selectedItems = {}
     	local selectedSingle = nil
     	local itemButtons = {}
+    	
+    	table.insert(dropdowns, dropFunctions)
 
     	local function updateDropdownText()
         	if DropConfig.MultiSelect then
@@ -974,27 +975,23 @@ function library:Window(WinConfig)
 
 	    function dropFunctions:Open()
 			for _, otherDrop in ipairs(dropdowns) do
-            	if DropConfig.Floating then
-	        		otherDrop.Parent.Visible = false
-	        		otherDrop.Visible = false
-	        		TweenService:Create(otherDrop.Parent.Parent.DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
-	        	else
-	        		otherDrop.Visible = false
-	        		TweenService:Create(otherDrop.Parent.Dropdown.DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
-	        	end
+            	if otherDrop ~= dropFunctions then
+                	otherDrop:Close()
+            	end
         	end
 
-			DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 2)
-	        DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, math.min(listLayout.AbsoluteContentSize.Y, 140))
-        
-		    TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
-		    if DropConfig.Floating then
-	        	dragDropFrame.Visible = true
-	        	DropdownFrame.Visible = true
-	        else
-	        	DropdownFrame.Visible = true
-	        end
-	    end
+        	TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
+
+        	if DropConfig.Floating then
+            	dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 2)
+            	dragDropFrame.Visible = true
+            	DropdownFrame.Visible = true
+        	else
+            	DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 2)
+            	DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, math.min(listLayout.AbsoluteContentSize.Y + 10, 140))
+            	DropdownFrame.Visible = true
+        	end
+    	end
         function dropFunctions:Button(name)
             local name = name or ""
             local Button_2 = Instance.new("TextButton")
