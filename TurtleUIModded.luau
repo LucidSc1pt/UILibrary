@@ -252,7 +252,7 @@ end
 function library:Window(WinConfig)
 	WinConfig = WinConfig or {}
     WinConfig.Name = WinConfig.Name or "Window"
-    WinConfig.Size = WinConfig.Size or UDim2.new(0,220,0,286)
+    WinConfig.Size = WinConfig.Size or UDim2.new(0,220,0,288)
     WinConfig.MultiWindow = WinConfig.MultiWindow or true
     WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
 	
@@ -310,7 +310,7 @@ function library:Window(WinConfig)
     HeaderText.Text = WinConfig.Name
     HeaderText.TextColor3 = Color3.fromRGB(47, 54, 64)
     HeaderText.TextXAlignment = Enum.TextXAlignment.Left
-    HeaderText.TextSize = 17.000
+    HeaderText.TextSize = 17
 
 	MakeDraggable(Header, UiWindow)
 
@@ -444,7 +444,7 @@ function library:Window(WinConfig)
         ButtonTitle.Font = Enum.Font.SourceSans
         ButtonTitle.Text = ButConfig.Name
         ButtonTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
-        ButtonTitle.TextSize = 16.000
+        ButtonTitle.TextSize = 14
         ButtonTitle.TextWrapped = true
         ButtonTitle.TextXAlignment = Enum.TextXAlignment.Left
         ButtonTitle.Active = false
@@ -479,7 +479,7 @@ function library:Window(WinConfig)
         Label.Size = UDim2.new(1, 0, 0, 29)
         Label.Font = Enum.Font.SourceSans
         Label.Text = LabConfig.Name
-        Label.TextSize = 16.000
+        Label.TextSize = 14
         Label.ZIndex = 2 + zindex
 
         if LabConfig.Color == "Rainbow" then
@@ -544,7 +544,7 @@ function library:Window(WinConfig)
         ToggleButton.Font = Enum.Font.SourceSans
         ToggleButton.Text = ""
         ToggleButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-        ToggleButton.TextSize = 14.000
+        ToggleButton.TextSize = 14
         ToggleButton.ZIndex = 2 + zindex
 		
         ToggleButton.MouseButton1Click:Connect(function()
@@ -615,7 +615,7 @@ function library:Window(WinConfig)
         TextBox.PlaceholderText = "..."
         TextBox.Text = ""
         TextBox.TextColor3 = Color3.fromRGB(245, 246, 250)
-        TextBox.TextSize = 16.000
+        TextBox.TextSize = 14
         TextBox.TextStrokeColor3 = Color3.fromRGB(245, 246, 250)
         TextBox.ZIndex = 2 + zindex
 
@@ -641,7 +641,7 @@ function library:Window(WinConfig)
         BoxDescription.Font = Enum.Font.SourceSans
         BoxDescription.Text = BoxConfig.Name
         BoxDescription.TextColor3 = Color3.fromRGB(245, 246, 250)
-        BoxDescription.TextSize = 16.000
+        BoxDescription.TextSize = 14
         BoxDescription.TextXAlignment = Enum.TextXAlignment.Left
         BoxDescription.ZIndex = 2 + zindex
         
@@ -761,7 +761,7 @@ function library:Window(WinConfig)
     	Current.Font = Enum.Font.SourceSans
     	Current.Text = tostring(SliConfig.Default)
     	Current.TextColor3 = Color3.fromRGB(220, 221, 225)
-    	Current.TextSize = 14.000  
+    	Current.TextSize = 14
     	Current.ZIndex = 2 + zindex
     	Current.ClearTextOnFocus = false
         
@@ -786,7 +786,8 @@ function library:Window(WinConfig)
         Description.Font = Enum.Font.SourceSans
         Description.Text = SliConfig.Name
         Description.TextColor3 = Color3.fromRGB(245, 246, 250)
-        Description.TextSize = 16.000
+        Description.TextSize = 14
+        Description.TextXAlignment = Enum.TextXAlignment.Left
         Description.ZIndex = 2 + zindex
 
         SilderFiller.Name = "SilderFiller"
@@ -850,7 +851,7 @@ function library:Window(WinConfig)
         DroTitle.Font = Enum.Font.SourceSans
         DroTitle.Text = tostring(DropConfig.Name)
         DroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
-        DroTitle.TextSize = 14.000
+        DroTitle.TextSize = 14
         DroTitle.ZIndex = 4 + zindex
         DroTitle.TextWrapped = false
         DroTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -1001,7 +1002,7 @@ function library:Window(WinConfig)
             Button_2.Selected = true
             Button_2.Font = Enum.Font.SourceSans
             Button_2.TextColor3 = Color3.fromRGB(245, 246, 250)
-            Button_2.TextSize = 16.000
+            Button_2.TextSize = 14
             Button_2.TextStrokeTransparency = 123.000
             Button_2.ZIndex = 1001
             Button_2.Text = name
@@ -1079,7 +1080,7 @@ function library:Window(WinConfig)
     		PlaceholderLabel.Position = UDim2.new(0, 6, 0, 0)
     		PlaceholderLabel.Font = Enum.Font.SourceSansItalic
     		PlaceholderLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-    		PlaceholderLabel.TextSize = 15
+    		PlaceholderLabel.TextSize = 14
     		PlaceholderLabel.Text = tostring(labelText)
     		PlaceholderLabel.ZIndex = 1001
     		PlaceholderLabel.TextWrapped = true
@@ -1153,7 +1154,7 @@ function library:Window(WinConfig)
         ColorPicker.Font = Enum.Font.SourceSans
         ColorPicker.Text = ""
         ColorPicker.TextColor3 = Color3.fromRGB(0, 0, 0)
-        ColorPicker.TextSize = 14.000
+        ColorPicker.TextSize = 14
         ColorPicker.ZIndex = 2 + zindex
 
         PickerCorner.Parent = ColorPicker
@@ -1170,7 +1171,7 @@ function library:Window(WinConfig)
         PickerDescription.Font = Enum.Font.SourceSans
         PickerDescription.Text = ColConfig.Name
         PickerDescription.TextColor3 = Color3.fromRGB(245, 246, 250)
-        PickerDescription.TextSize = 16.000
+        PickerDescription.TextSize = 14
         PickerDescription.TextXAlignment = Enum.TextXAlignment.Left
         PickerDescription.ZIndex = 2 + zindex
 
@@ -1194,7 +1195,7 @@ function library:Window(WinConfig)
         ToggleRGB.Font = Enum.Font.SourceSans
         ToggleRGB.Text = ""
         ToggleRGB.TextColor3 = Color3.fromRGB(0, 0, 0)
-        ToggleRGB.TextSize = 14.000
+        ToggleRGB.TextSize = 14
         ToggleRGB.ZIndex = 4 + zindex
 
         ToggleFiller_2.Name = "ToggleFiller"
@@ -1214,7 +1215,7 @@ function library:Window(WinConfig)
         TextLabel.Font = Enum.Font.SourceSans
         TextLabel.Text = "Rainbow"
         TextLabel.TextColor3 = Color3.fromRGB(245, 246, 250)
-        TextLabel.TextSize = 16.000
+        TextLabel.TextSize = 14
         TextLabel.TextXAlignment = Enum.TextXAlignment.Left
         TextLabel.ZIndex = 4 + zindex
 
