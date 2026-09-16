@@ -1289,12 +1289,6 @@ function library:Window(WinConfig)
         local brightness = 1
 
         local con
-        
-        local function setRGBText(color)
-            RInput.Text = tostring(math.round(color.R * 255))
-            GInput.Text = tostring(math.round(color.G * 255))
-            BInput.Text = tostring(math.round(color.B * 255))
-        end
 
 		-- Helper untuk buat TextBox RGB dengan cepat
         local function createRGBBox(name, xOffset, defaultText)
@@ -1326,6 +1320,12 @@ function library:Window(WinConfig)
 		RInput.Position = UDim2.new(0, 0, 0, 88)
         GInput.Position = UDim2.new(0, 36, 0, 88)
         BInput.Position = UDim2.new(0, 72, 0, 88)
+        
+        local function setRGBText(color)
+            RInput.Text = tostring(math.round(color.R * 255))
+            GInput.Text = tostring(math.round(color.G * 255))
+            BInput.Text = tostring(math.round(color.B * 255))
+        end
         
         if ColConfig.Default and type(ColConfig.Default) == "boolean" then
             ToggleFiller_2.Visible = true
