@@ -48,7 +48,7 @@ local player = players.LocalPlayer;
 local mouse = player:GetMouse();
 local run = game:service('RunService');
 local stepped = run.Stepped;
-
+--[[
 local function MakeDraggable(DragPoint, Main)
 	pcall(function()
 		local Dragging = false
@@ -83,11 +83,57 @@ local function MakeDraggable(DragPoint, Main)
 
 				local newPos = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
 			    
-				TweenService:Create(Main, TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = newPos}):Play()
+				--TweenService:Create(Main, TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = newPos}):Play()
 				Main.Position = newPos
 			end
 		end)
 	end)
+end
+]]
+local activeDraggingObject = nil -- Global lock untuk mencegah bentrok drag antar UI
+
+local function MakeDraggable(handleFrame, guiFrame)
+    handleFrame = handleFrame or guiFrame
+    
+    handleFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            -- 1. Cek apakah ada UI lain yang sedang di-drag
+            if activeDraggingObject ~= nil then return end
+            
+            -- Lock UI yang sedang di-drag
+            activeDraggingObject = guiFrame
+            local dragStart = input.Position
+            local startPos = guiFrame.Position
+
+            local dragConnection
+            local releaseConnection
+
+            -- 2. Pakai UserInputService (Global) untuk deteksi pergerakan mouse
+            dragConnection = uis.InputChanged:Connect(function(moveInput)
+                if moveInput.UserInputType == Enum.UserInputType.MouseMovement or moveInput.UserInputType == Enum.UserInputType.Touch then
+                    if activeDraggingObject == guiFrame then
+                        local delta = moveInput.Position - dragStart
+                        guiFrame.Position = UDim2.new(
+                            startPos.X.Scale, startPos.X.Offset + delta.X,
+                            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+                        )
+                    end
+                end
+            end)
+
+            -- 3. Lepas lock saat mouse/layar dilepas
+            releaseConnection = uis.InputEnded:Connect(function(endInput)
+                if endInput.UserInputType == Enum.UserInputType.MouseButton1 or endInput.UserInputType == Enum.UserInputType.Touch then
+                    if activeDraggingObject == guiFrame then
+                        activeDraggingObject = nil
+                        -- Putus koneksi event agar tidak membebankan memori (lag)
+                        dragConnection:Disconnect()
+                        releaseConnection:Disconnect()
+                    end
+                end
+            end)
+        end
+    end)
 end
 
 -- // Instances:
@@ -884,7 +930,7 @@ function library:Window(WinConfig)
         if DropConfig.Floating then
 			dragDropFrame = Instance.new("Frame")
 			dragDropFrame.Parent = UiWindow
-			dragDropFrame.Size = UDim2.new(1, 0, 0, 26)
+			dragDropFrame.Size = UDim2.new(1, 0, 0, 33)
 			dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.Active = true
@@ -1194,7 +1240,7 @@ function library:Window(WinConfig)
         if ColConfig.Floating then
 			dragColFrame = Instance.new("Frame")
 			dragColFrame.Parent = ColorPickerParent
-			dragColFrame.Size = UDim2.new(1, 0, 0, 26)
+			dragColFrame.Size = UDim2.new(1, 0, 0, 33)
 			dragColFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragColFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
 			dragColFrame.Active = true
