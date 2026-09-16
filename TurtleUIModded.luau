@@ -883,11 +883,12 @@ function library:Window(WinConfig)
         local dragDropFrame = nil
         if DropConfig.Floating then
 			dragDropFrame = Instance.new("Frame")
-			dragDropFrame.Parent = DropdownParent
+			dragDropFrame.Parent = UiWindow
 			dragDropFrame.Size = UDim2.new(1, 0, 0, 26)
 			dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.Active = true
+			dragDropFrame.Visible = false
 			
 			local dragDroTitle = Instance.new("TextLabel")
 			dragDroTitle.Name = "DragTitle"
@@ -1197,6 +1198,7 @@ function library:Window(WinConfig)
 			dragColFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragColFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
 			dragColFrame.Active = true
+			dragColFrame.Visible = false
 			
 			local dragColTitle = Instance.new("TextLabel")
 			dragColTitle.Name = "DragTitle"
@@ -1229,7 +1231,7 @@ function library:Window(WinConfig)
         ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.BorderColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.Position = ColConfig.Floating and UDim2.new(0, 0, 1, 0) or UDim2.new(0, 0, 0, 31)
-        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 125)
+        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 135)
         ColorPickerFrame.ZIndex = 3 + zindex
         ColorPickerFrame.Active = true
         ColorPickerFrame.Visible = false
