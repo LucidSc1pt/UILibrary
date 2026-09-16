@@ -49,7 +49,7 @@ local player = players.LocalPlayer;
 local mouse = player:GetMouse();
 local run = game:service('RunService');
 local stepped = run.Stepped;
-
+--[[
 local function MakeDraggable(DragPoint, Main)
 	pcall(function()
 		local Dragging = false
@@ -83,11 +83,64 @@ local function MakeDraggable(DragPoint, Main)
 				local Delta = Input.Position - MousePos
 
 				local newPos = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
-			    
-				--TweenService:Create(Main, TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = newPos}):Play()
-				Main.Position = newPos
+			    Main.Position = newPos
 			end
 		end)
+	end)
+end
+]]
+local function MakeDraggable(DragPoint, Main)
+	Main = Main or DragPoint
+	
+	local Dragging = false
+	local DragInput = nil
+	local MousePos = nil
+	local FramePos = nil
+
+	DragPoint.InputBegan:Connect(function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+			-- Abaikan sentuhan jari lain jika UI sudah dalam posisi ter-drag
+			if Dragging then return end
+
+			Dragging = true
+			MousePos = Input.Position
+			FramePos = Main.Position
+			DragInput = Input
+
+			-- Putus koneksi event setelah sentuhan dilepas agar tidak memory leak
+			local changedConnection
+			changedConnection = Input.Changed:Connect(function()
+				if Input.UserInputState == Enum.UserInputState.End then
+					Dragging = false
+					DragInput = nil
+					if changedConnection then
+						changedConnection:Disconnect()
+					end
+				end
+			end)
+		end
+	end)
+
+	DragPoint.InputChanged:Connect(function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
+			-- Hanya perbarui DragInput jika belum ada proses drag yang aktif
+			if not Dragging then
+				DragInput = Input
+			end
+		end
+	end)
+
+	uis.InputChanged:Connect(function(Input)
+		-- Memastikan hanya input yang pertama kali menekan yang boleh menggerakkan UI
+		if Dragging and Input == DragInput then
+			local Delta = Input.Position - MousePos
+			Main.Position = UDim2.new(
+				FramePos.X.Scale, 
+				FramePos.X.Offset + Delta.X, 
+				FramePos.Y.Scale, 
+				FramePos.Y.Offset + Delta.Y
+			)
+		end
 	end)
 end
 
@@ -746,44 +799,9 @@ function library:Window(WinConfig)
         Slider.Position = UDim2.new(0, 0, 0.5, 0)
         Slider.Size = UDim2.new(1, 0, 0, 6)
         Slider.ZIndex = 2 + zindex
-        --Slider.InputBegan:Connect(SliderMovement) 
-        --Slider.InputEnded:Connect(SliderEnd)
-		Slider.InputBegan:Connect(function(input)
-    		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				if activeInteraction ~= nil then return end
-        		activeInteraction = Slider
-
-        		local moveConn, releaseConn
-
-        		local function updateValue(inputObj)
-            		local relX = math.clamp((inputObj.Position.X - Slider.AbsolutePosition.X) / Slider.AbsoluteSize.X, 0, 1)
-            
-					local rawValue = SliConfig.Min + (SliConfig.Max - SliConfig.Min) * relX
-            		local steppedValue = math.floor(rawValue / SliConfig.Increment + 0.5) * SliConfig.Increment
-            		local finalValue = math.clamp(steppedValue, SliConfig.Min, SliConfig.Max)
-
-					SliderButton.Position = UDim2.new(relX, 0, 0.5, 0)
-            		SliConfig.Callback(finalValue)
-        		end
-
-				updateValue(input)
-
-				moveConn = uis.InputChanged:Connect(function(moveInput)
-            		if moveInput.UserInputType == Enum.UserInputType.MouseMovement or moveInput.UserInputType == Enum.UserInputType.Touch then
-                		updateValue(moveInput)
-            		end
-        		end)
-
-				releaseConn = uis.InputEnded:Connect(function(endInput)
-            		if endInput.UserInputType == Enum.UserInputType.MouseButton1 or endInput.UserInputType == Enum.UserInputType.Touch then
-                		activeInteraction = nil
-                		moveConn:Disconnect()
-                		releaseConn:Disconnect()
-            		end
-        		end)
-    		end
-		end)
-
+        Slider.InputBegan:Connect(SliderMovement) 
+        Slider.InputEnded:Connect(SliderEnd)
+		
         SliderButton.Position = UDim2.new(defaultAlpha, 0, -1.333337, 0)
 		SliderButton.Name = "SliderButton"
 		SliderButton.Active = true
@@ -792,8 +810,8 @@ function library:Window(WinConfig)
         SliderButton.BorderColor3 = Color3.fromRGB(113, 128, 147)
         SliderButton.Size = UDim2.new(0, 6, 0, 22)
         SliderButton.ZIndex = 3 + zindex
-        --SliderButton.InputBegan:Connect(SliderMovement)
-        --SliderButton.InputEnded:Connect(SliderEnd)    
+        SliderButton.InputBegan:Connect(SliderMovement)
+        SliderButton.InputEnded:Connect(SliderEnd)    
         
         Current.AnchorPoint = Vector2.new(1,0)
         Current.Name = "Current"
@@ -1269,7 +1287,7 @@ function library:Window(WinConfig)
         ColorPickerFrame.BorderColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.Position = ColConfig.Floating and UDim2.new(0, 0, 1, 0) or UDim2.new(0, 0, 0, 31)
         ColorPickerFrame.Size = UDim2.new(1, 0, 0, 135)
-        ColorPickerFrame.ZIndex = 3 + zindex
+        ColorPickerFrame.ZIndex = 10 + zindex
         ColorPickerFrame.Active = true
         ColorPickerFrame.Visible = false
 
@@ -1284,7 +1302,7 @@ function library:Window(WinConfig)
         ToggleRGB.Text = ""
         ToggleRGB.TextColor3 = Color3.fromRGB(0, 0, 0)
         ToggleRGB.TextSize = 14
-        ToggleRGB.ZIndex = 4 + zindex
+        ToggleRGB.ZIndex = 10 + zindex
 
         ToggleFiller_2.Name = "ToggleFiller"
         ToggleFiller_2.Parent = ToggleRGB
@@ -1292,7 +1310,7 @@ function library:Window(WinConfig)
         ToggleFiller_2.BorderColor3 = Color3.fromRGB(47, 54, 64)
         ToggleFiller_2.Position = UDim2.new(0, 5, 0, 5)
         ToggleFiller_2.Size = UDim2.new(0, 12, 0, 12)
-        ToggleFiller_2.ZIndex = 4 + zindex
+        ToggleFiller_2.ZIndex = 10 + zindex
         ToggleFiller_2.Visible = false
 
         TextLabel.Parent = ColorPickerFrame
@@ -1317,7 +1335,7 @@ function library:Window(WinConfig)
         BlackOverlay.BackgroundTransparency = 1.000
         BlackOverlay.Size = UDim2.new(1, 0, 1, 0)
         BlackOverlay.Image = "rbxassetid://5107152095"
-        BlackOverlay.ZIndex = 5 + zindex
+        BlackOverlay.ZIndex = 10 + zindex
 
         UICorner.Parent = Canvas
         UICorner.Name = "UICorner"
@@ -1329,7 +1347,7 @@ function library:Window(WinConfig)
         Cursor.BackgroundTransparency = 1.000
         Cursor.Size = UDim2.new(0, 8, 0, 8)
         Cursor.Image = "rbxassetid://5100115962"
-        Cursor.ZIndex = 5 + zindex
+        Cursor.ZIndex = 10 + zindex
 
         local draggingColor = false
         local hue = 0
@@ -1350,7 +1368,7 @@ function library:Window(WinConfig)
             box.Text = defaultText
             box.TextColor3 = Color3.fromRGB(245, 246, 250)
             box.TextSize = 13
-            box.ZIndex = 4 + zindex
+            box.ZIndex = 10 + zindex
             box.ClearTextOnFocus = false
 
             local stroke = Instance.new("UIStroke")
@@ -1398,9 +1416,9 @@ function library:Window(WinConfig)
         Canvas.Parent = ColorPickerFrame
         Canvas.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         Canvas.Position = UDim2.new(0, 0, 0, 0)
-        Canvas.Size = UDim2.new(1, -22, 0, 80)
+        Canvas.Size = UDim2.new(1, -32, 0, 80)
         Canvas.Active = true
-        Canvas.ZIndex = 4 + zindex
+        Canvas.ZIndex = 10 + zindex
 
         CanvasGradient.Color = ColorSequence.new{
              ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), 
@@ -1481,11 +1499,11 @@ function library:Window(WinConfig)
         Color.Name = "Color"
         Color.Parent = ColorPickerFrame
         Color.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        Color.Position = UDim2.new(1, -15, 0, 0)
-        Color.Size = UDim2.new(0, 15, 0, 80)
+        Color.Position = UDim2.new(1, -25, 0, 0)
+        Color.Size = UDim2.new(0, 25, 0, 80)
         Color.BorderMode = Enum.BorderMode.Inset
         Color.Active = true
-        Color.ZIndex = 4 + zindex
+        Color.ZIndex = 10 + zindex
 
 		Color.InputBegan:Connect(function(input)
     		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -1590,7 +1608,7 @@ function library:Window(WinConfig)
         ColorSlider.Position = UDim2.new(0, -1, 0, 0)
         ColorSlider.Size = UDim2.new(1, 2, 0, 3)
         ColorSlider.Active = true
-        ColorSlider.ZIndex = 5 + zindex
+        ColorSlider.ZIndex = 10 + zindex
 
 		local colorFuncs = {}
 		
