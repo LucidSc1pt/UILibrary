@@ -1209,7 +1209,7 @@ function library:Window(WinConfig)
     		dragColTitle.TextSize = 14
         	dragColTitle.ZIndex = 4 + zindex
         	dragColTitle.TextWrapped = false
-        	dragDroTitle.Active = false
+        	dragColTitle.Active = false
         	dragColTitle.TextXAlignment = Enum.TextXAlignment.Left
         	
         	MakeDraggable(dragColFrame, dragColFrame)
