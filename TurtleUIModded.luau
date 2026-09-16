@@ -887,6 +887,7 @@ function library:Window(WinConfig)
 			dragDropFrame.Size = UDim2.new(1, 0, 0, 26)
 			dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
+			dragDropFrame.Active = true
 			
 			local dragDroTitle = Instance.new("TextLabel")
 			dragDroTitle.Name = "DragTitle"
@@ -1195,6 +1196,7 @@ function library:Window(WinConfig)
 			dragColFrame.Size = UDim2.new(1, 0, 0, 26)
 			dragColFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragColFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
+			dragColFrame.Active = true
 			
 			local dragColTitle = Instance.new("TextLabel")
 			dragColTitle.Name = "DragTitle"
@@ -1211,6 +1213,13 @@ function library:Window(WinConfig)
         	dragColTitle.TextWrapped = false
         	dragColTitle.Active = false
         	dragColTitle.TextXAlignment = Enum.TextXAlignment.Left
+        	
+        	local colPaddingLayout = Instance.new("UIPadding")
+    		colPaddingLayout.Parent = ColorPickerFrame
+			colPaddingLayout.PaddingBottom = UDim.new(0, 5)
+			colPaddingLayout.PaddingTop = UDim.new(0, 5)
+			colPaddingLayout.PaddingRight = UDim.new(0, 5)
+			colPaddingLayout.PaddingLeft = UDim.new(0, 5)
         	
         	MakeDraggable(dragColFrame, dragColFrame)
 		end
@@ -1230,7 +1239,7 @@ function library:Window(WinConfig)
         ToggleRGB.Parent = ColorPickerFrame
         ToggleRGB.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ToggleRGB.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        ToggleRGB.Position = UDim2.new(1, 0, 0, 97)
+        ToggleRGB.Position = UDim2.new(1, 0, 0, 102)
         ToggleRGB.Size = UDim2.new(0, 22, 0, 22)
         ToggleRGB.Font = Enum.Font.SourceSans
         ToggleRGB.Text = ""
@@ -1250,7 +1259,7 @@ function library:Window(WinConfig)
         TextLabel.Parent = ColorPickerFrame
         TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         TextLabel.BackgroundTransparency = 1.000
-        TextLabel.Position = UDim2.new(0, 0, 0, 97)
+        TextLabel.Position = UDim2.new(0, 0, 0, 102)
         TextLabel.Size = UDim2.new(0, 106, 0, 22)
         TextLabel.Font = Enum.Font.SourceSans
         TextLabel.Text = "Rainbow"
@@ -1317,9 +1326,9 @@ function library:Window(WinConfig)
         local GInput = createRGBBox("GInput", 42, "0")
         local BInput = createRGBBox("BInput", 79, "0")
 
-		RInput.Position = UDim2.new(0, 0, 0, 88)
-        GInput.Position = UDim2.new(0, 36, 0, 88)
-        BInput.Position = UDim2.new(0, 72, 0, 88)
+		RInput.Position = UDim2.new(0, 0, 0, 85)
+        GInput.Position = UDim2.new(0, 36, 0, 85)
+        BInput.Position = UDim2.new(0, 72, 0, 85)
         
         local function setRGBText(color)
             RInput.Text = tostring(math.round(color.R * 255))
@@ -1481,7 +1490,7 @@ function library:Window(WinConfig)
                 ColorSequenceKeypoint.new(1.00, Color3.fromHSV(hue, 1, 1))
             }
             Cursor.Position = UDim2.fromOffset(sat * Canvas.AbsoluteSize.X - 4, (1 - brightness) * Canvas.AbsoluteSize.Y - 4)
-            ColorSlider.Position = UDim2.new(0, hue * Color.AbsoluteSize.X, 0, -1)
+            ColorSlider.Position = UDim2.new(0, -1, 0, hue * Color.AbsoluteSize.Y)
             ColorPicker.BackgroundColor3 = newColor
 
             setRGBText(newColor)
