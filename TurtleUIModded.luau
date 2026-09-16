@@ -969,7 +969,7 @@ function library:Window(WinConfig)
         	local contentHeight = listLayout.AbsoluteContentSize.Y + 10
         	DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
         
-			local maxHeight = math.min(contentHeight, 140)
+			local maxHeight = math.min(contentHeight, 100)
         	DropdownFrame.Size = UDim2.new(1, 0, 0, maxHeight)
     	end
 
@@ -993,12 +993,11 @@ function library:Window(WinConfig)
         	TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
 
         	if DropConfig.Floating then
-            	dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 2)
+            	dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + 2)
             	dragDropFrame.Visible = true
             	DropdownFrame.Visible = true
         	else
-            	DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + Dropdown.AbsoluteSize.Y + 2)
-            	DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, math.min(listLayout.AbsoluteContentSize.Y + 10, 140))
+            	DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + 2)
             	DropdownFrame.Visible = true
         	end
     	end
