@@ -1400,7 +1400,7 @@ function library:Window(WinConfig)
         Color.Active = true
         Color.ZIndex = 4 + zindex
 
-        Co        Color.InputBegan:Connect(function(input)
+        Color.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 draggingColor = true
                 local con
@@ -1446,8 +1446,8 @@ function library:Window(WinConfig)
 			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))
 		})
 		ColorGradient.Name = "ColorGradient"
-		ColorGradient.Parent = Color
 		ColorGradient.Rotation = 90
+		ColorGradient.Parent = Color
 
         ColorCorner.Parent = Color
         ColorCorner.Name = "ColorCorner"
