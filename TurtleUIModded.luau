@@ -35,6 +35,7 @@ local pastSliders = {}
 local dropdowns = {}
 local dropdownSizes = {}
 local colorPickers = {}
+local activeInteraction = nil
 
 function Lerp(a, b, c)
 	return a + ((b - a) * c)
@@ -48,7 +49,7 @@ local player = players.LocalPlayer;
 local mouse = player:GetMouse();
 local run = game:service('RunService');
 local stepped = run.Stepped;
---[[
+
 local function MakeDraggable(DragPoint, Main)
 	pcall(function()
 		local Dragging = false
@@ -88,52 +89,6 @@ local function MakeDraggable(DragPoint, Main)
 			end
 		end)
 	end)
-end
-]]
-local activeDraggingObject = nil -- Global lock untuk mencegah bentrok drag antar UI
-
-local function MakeDraggable(handleFrame, guiFrame)
-    handleFrame = handleFrame or guiFrame
-    
-    handleFrame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            -- 1. Cek apakah ada UI lain yang sedang di-drag
-            if activeDraggingObject ~= nil then return end
-            
-            -- Lock UI yang sedang di-drag
-            activeDraggingObject = guiFrame
-            local dragStart = input.Position
-            local startPos = guiFrame.Position
-
-            local dragConnection
-            local releaseConnection
-
-            -- 2. Pakai UserInputService (Global) untuk deteksi pergerakan mouse
-            dragConnection = uis.InputChanged:Connect(function(moveInput)
-                if moveInput.UserInputType == Enum.UserInputType.MouseMovement or moveInput.UserInputType == Enum.UserInputType.Touch then
-                    if activeDraggingObject == guiFrame then
-                        local delta = moveInput.Position - dragStart
-                        guiFrame.Position = UDim2.new(
-                            startPos.X.Scale, startPos.X.Offset + delta.X,
-                            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-                        )
-                    end
-                end
-            end)
-
-            -- 3. Lepas lock saat mouse/layar dilepas
-            releaseConnection = uis.InputEnded:Connect(function(endInput)
-                if endInput.UserInputType == Enum.UserInputType.MouseButton1 or endInput.UserInputType == Enum.UserInputType.Touch then
-                    if activeDraggingObject == guiFrame then
-                        activeDraggingObject = nil
-                        -- Putus koneksi event agar tidak membebankan memori (lag)
-                        dragConnection:Disconnect()
-                        releaseConnection:Disconnect()
-                    end
-                end
-            end)
-        end
-    end)
 end
 
 -- // Instances:
@@ -791,8 +746,43 @@ function library:Window(WinConfig)
         Slider.Position = UDim2.new(0, 0, 0.5, 0)
         Slider.Size = UDim2.new(1, 0, 0, 6)
         Slider.ZIndex = 2 + zindex
-        Slider.InputBegan:Connect(SliderMovement) 
-        Slider.InputEnded:Connect(SliderEnd)      
+        --Slider.InputBegan:Connect(SliderMovement) 
+        --Slider.InputEnded:Connect(SliderEnd)
+		Slider.InputBegan:Connect(function(input)
+    		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				if activeInteraction ~= nil then return end
+        		activeInteraction = Slider
+
+        		local moveConn, releaseConn
+
+        		local function updateValue(inputObj)
+            		local relX = math.clamp((inputObj.Position.X - Slider.AbsolutePosition.X) / Slider.AbsoluteSize.X, 0, 1)
+            
+					local rawValue = SliConfig.Min + (SliConfig.Max - SliConfig.Min) * relX
+            		local steppedValue = math.floor(rawValue / SliConfig.Increment + 0.5) * SliConfig.Increment
+            		local finalValue = math.clamp(steppedValue, SliConfig.Min, SliConfig.Max)
+
+					SliderButton.Position = UDim2.new(relX, 0, 0.5, 0)
+            		SliConfig.Callback(finalValue)
+        		end
+
+				updateValue(input)
+
+				moveConn = uis.InputChanged:Connect(function(moveInput)
+            		if moveInput.UserInputType == Enum.UserInputType.MouseMovement or moveInput.UserInputType == Enum.UserInputType.Touch then
+                		updateValue(moveInput)
+            		end
+        		end)
+
+				releaseConn = uis.InputEnded:Connect(function(endInput)
+            		if endInput.UserInputType == Enum.UserInputType.MouseButton1 or endInput.UserInputType == Enum.UserInputType.Touch then
+                		activeInteraction = nil
+                		moveConn:Disconnect()
+                		releaseConn:Disconnect()
+            		end
+        		end)
+    		end
+		end)
 
         SliderButton.Position = UDim2.new(defaultAlpha, 0, -1.333337, 0)
 		SliderButton.Name = "SliderButton"
@@ -802,8 +792,8 @@ function library:Window(WinConfig)
         SliderButton.BorderColor3 = Color3.fromRGB(113, 128, 147)
         SliderButton.Size = UDim2.new(0, 6, 0, 22)
         SliderButton.ZIndex = 3 + zindex
-        SliderButton.InputBegan:Connect(SliderMovement)
-        SliderButton.InputEnded:Connect(SliderEnd)    
+        --SliderButton.InputBegan:Connect(SliderMovement)
+        --SliderButton.InputEnded:Connect(SliderEnd)    
         
         Current.AnchorPoint = Vector2.new(1,0)
         Current.Name = "Current"
@@ -826,8 +816,7 @@ function library:Window(WinConfig)
             	local finalVal = updateSliderFromValue(inputNum)
             	SliConfig.Callback(finalVal)
         	else
-            	-- Kembalikan teks ke nilai slider saat ini jika input bukan angka valid
-            	Current.Text = tostring(snapToIncrement(Lerp(SliConfig.Min, SliConfig.Max, SliderButton.Position.X.Scale)))
+				Current.Text = tostring(snapToIncrement(Lerp(SliConfig.Min, SliConfig.Max, SliderButton.Position.X.Scale)))
         	end
     	end)
 
@@ -1415,7 +1404,46 @@ function library:Window(WinConfig)
              ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)), 
              ColorSequenceKeypoint.new(1.00, Color3.fromHSV(0, 1, 1))
         }
+        
+        Canvas.InputBegan:Connect(function(input)
+    		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        		if activeInteraction ~= nil then return end
+        		activeInteraction = Canvas
 
+        		local moveConn, releaseConn
+
+        		local function updateCanvas(inputObj)
+            		local relX = math.clamp((inputObj.Position.X - Canvas.AbsolutePosition.X) / Canvas.AbsoluteSize.X, 0, 1)
+            		local relY = math.clamp((inputObj.Position.Y - Canvas.AbsolutePosition.Y) / Canvas.AbsoluteSize.Y, 0, 1)
+
+            		sat = relX
+            		brightness = 1 - relY
+            		color3 = Color3.fromHSV(hue, sat, brightness)
+
+            		Cursor.Position = UDim2.fromOffset(relX * Canvas.AbsoluteSize.X - 4, relY * Canvas.AbsoluteSize.Y - 4)
+            		ColorPicker.BackgroundColor3 = color3
+            		setRGBText(color3)
+            		ColConfig.Callback(color3)
+        		end
+
+        		updateCanvas(input)
+
+        		moveConn = UserInputService.InputChanged:Connect(function(moveInput)
+            		if moveInput.UserInputType == Enum.UserInputType.MouseMovement or moveInput.UserInputType == Enum.UserInputType.Touch then
+                		updateCanvas(moveInput)
+            		end
+        		end)
+
+        		releaseConn = UserInputService.InputEnded:Connect(function(endInput)
+            		if endInput.UserInputType == Enum.UserInputType.MouseButton1 or endInput.UserInputType == Enum.UserInputType.Touch then
+                		activeInteraction = nil
+                		moveConn:Disconnect()
+                		releaseConn:Disconnect()
+            		end
+        		end)
+    		end
+		end)
+--[[
 		Canvas.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 				local isdragging = true
@@ -1447,7 +1475,7 @@ function library:Window(WinConfig)
 				end)
 			end
 		end)
-
+]]
         Color.Name = "Color"
         Color.Parent = ColorPickerFrame
         Color.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1457,6 +1485,49 @@ function library:Window(WinConfig)
         Color.Active = true
         Color.ZIndex = 4 + zindex
 
+		Color.InputBegan:Connect(function(input)
+    		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        		if activeInteraction ~= nil then return end
+        		activeInteraction = Color
+
+        		local moveConn, releaseConn
+
+        		local function updateHue(inputObj)
+            		local relY = math.clamp((inputObj.Position.Y - Color.AbsolutePosition.Y) / Color.AbsoluteSize.Y, 0, 1)
+            		hue = relY
+
+            		CanvasGradient.Color = ColorSequence.new{
+                		ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
+                		ColorSequenceKeypoint.new(1.00, Color3.fromHSV(hue, 1, 1))
+            		}
+
+            		ColorSlider.Position = UDim2.new(0, -1, 0, math.clamp(relY * Color.AbsoluteSize.Y - 1, 0, Color.AbsoluteSize.Y - 3))
+
+            		color3 = Color3.fromHSV(hue, sat, brightness)
+            		ColorPicker.BackgroundColor3 = color3
+            		setRGBText(color3)
+            		ColConfig.Callback(color3)
+        		end
+
+        		updateHue(input)
+
+        		moveConn = UserInputService.InputChanged:Connect(function(moveInput)
+            		if moveInput.UserInputType == Enum.UserInputType.MouseMovement or moveInput.UserInputType == Enum.UserInputType.Touch then
+                		updateHue(moveInput)
+            		end
+        		end)
+
+        		releaseConn = UserInputService.InputEnded:Connect(function(endInput)
+            		if endInput.UserInputType == Enum.UserInputType.MouseButton1 or endInput.UserInputType == Enum.UserInputType.Touch then
+                		activeInteraction = nil
+                		moveConn:Disconnect()
+                		releaseConn:Disconnect()
+            		end
+        		end)
+    		end
+		end)
+
+--[[
         Color.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 draggingColor = true
@@ -1492,7 +1563,7 @@ function library:Window(WinConfig)
 				draggingColor = false
 			end
 		end)
-
+]]
 		ColorGradient.Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 0)), 
 			ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)), 
