@@ -384,10 +384,21 @@ function library:Window(WinConfig)
     DropdownParent.Active = false
     DropdownParent.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
     DropdownParent.BorderColor3 = Color3.fromRGB(53, 59, 72)
-    DropdownParent.Position = UDim2.new(1, 15, 1, 9)
+    DropdownParent.Position = UDim2.new(1, 15, 0, 0)
     DropdownParent.Size = UDim2.new(0, 192, 0, 0)
     DropdownParent.Visible = true
     DropdownParent.BackgroundTransparency = 1
+    
+    local ColorPickerParent = Instance.new("Frame")
+	ColorPickerParent.Name = "ColorPickerParent"
+    ColorPickerParent.Parent = Header
+    ColorPickerParent.Active = false
+    ColorPickerParent.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+    ColorPickerParent.BorderColor3 = Color3.fromRGB(53, 59, 72)
+    ColorPickerParent.Position = UDim2.new(1, 15, 0, 0)
+    ColorPickerParent.Size = UDim2.new(0, 192, 0, 0)
+    ColorPickerParent.Visible = true
+    ColorPickerParent.BackgroundTransparency = 1
 
     local functions = {}
     sizes[winCount] = 33
@@ -804,7 +815,6 @@ function library:Window(WinConfig)
         DropConfig.Items = DropConfig.Items or {}
         DropConfig.MultiSelect = DropConfig.MultiSelect or false
         DropConfig.Floating = DropConfig.Floating or false
-        --DropConfig.Draggable = DropConfig.Draggable or false
         DropConfig.Callback = DropConfig.Callback or function() end
 
 		local droFrame = Instance.new("Frame")
@@ -960,7 +970,7 @@ function library:Window(WinConfig)
         	DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
         
 			local maxHeight = math.min(contentHeight, 140)
-        	DropdownFrame.Size = UDim2.new(0, Dropdown.AbsoluteSize.X, 0, maxHeight)
+        	DropdownFrame.Size = UDim2.new(1, 0, 0, maxHeight)
     	end
 
     	listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateDropdownSize)
@@ -1114,6 +1124,7 @@ function library:Window(WinConfig)
 		ColConfig = ColConfig or {}
         ColConfig.Name = ColConfig.Name or "Color picker"
         ColConfig.Default = ColConfig.Default or Color3.fromRGB(255, 0, 0)
+        ColConfig.Floating = ColConfig.Floating or false
         ColConfig.Callback = ColConfig.Callback or function() end
         
         local colFrame = Instance.new("Frame")
@@ -1177,12 +1188,39 @@ function library:Window(WinConfig)
         PickerDescription.TextSize = 16
         PickerDescription.TextXAlignment = Enum.TextXAlignment.Left
         PickerDescription.ZIndex = 2 + zindex
+        
+        local dragColFrame = nil
+        if ColConfig.Floating then
+			dragColFrame = Instance.new("Frame")
+			dragColFrame.Parent = ColorPickerParent
+			dragColFrame.Size = UDim2.new(1, 0, 0, 26)
+			dragColFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+			dragColFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
+			
+			local dragColTitle = Instance.new("TextLabel")
+			dragColTitle.Name = "DragTitle"
+        	dragColTitle.Parent = dragDropFrame
+        	dragColTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        	dragColTitle.BackgroundTransparency = 1.000
+        	dragColTitle.Position = UDim2.new(0, 5, 0, 0)
+        	dragColTitle.Size = UDim2.new(1, -30, 1, 0)
+        	dragColTitle.Font = Enum.Font.SourceSans
+        	dragColTitle.Text = tostring(ColConfig.Name)
+        	dragColTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
+    		dragColTitle.TextSize = 14
+        	dragColTitle.ZIndex = 4 + zindex
+        	dragColTitle.TextWrapped = false
+        	dragDroTitle.Active = false
+        	dragColTitle.TextXAlignment = Enum.TextXAlignment.Left
+        	
+        	MakeDraggable(dragColFrame, dragColFrame)
+		end
 
         ColorPickerFrame.Name = "ColorPickerFrame"
-        ColorPickerFrame.Parent = colFrame
+        ColorPickerFrame.Parent = ColConfig.Floating and dragColFrame or colFrame
         ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.BorderColor3 = Color3.fromRGB(47, 54, 64)
-        ColorPickerFrame.Position = UDim2.new(0, 0, 0, 31)
+        ColorPickerFrame.Position = ColConfig.Floating and UDim2.new(0, 0, 1, 0) or UDim2.new(0, 0, 0, 31)
         ColorPickerFrame.Size = UDim2.new(1, 0, 0, 125)
         ColorPickerFrame.ZIndex = 3 + zindex
         ColorPickerFrame.Active = true
@@ -1399,9 +1437,10 @@ function library:Window(WinConfig)
         ColorSlider.Active = true
         ColorSlider.ZIndex = 5 + zindex
 
-		table.insert(colorPickers, ColorPickerFrame)
-
 		local colorFuncs = {}
+		
+		table.insert(colorPickers, colorFuncs)
+		
         function colorFuncs:UpdateColorPicker(color)
 			if type(color) == "userdata" then
 				ToggleFiller_2.Visible = false
@@ -1420,17 +1459,27 @@ function library:Window(WinConfig)
 				end)
 	        end
         end
-        function colorFuncs:Close()
+	    function colorFuncs:Close()
+	        if ColConfig.Floating then
+	        	dragColFrame.Visible = false
+	        end
 	        ColorPickerFrame.Visible = false
 	    end
 
 	    function colorFuncs:Open()
-			for _, otherColor in ipairs(colorPickers) do
-            	otherColor.Visible = false
+			for _, otherCol in ipairs(colorPickers) do
+            	if otherCol ~= dropFunctions then
+                	otherCol:Close()
+            	end
         	end
 
-			ColorPickerFrame.Visible = true
-	    end
+        	if ColConfig.Floating then
+            	dragColFrame.Visible = true
+            	ColorPickerFrame.Visible = true
+        	else
+            	ColorPickerFrame.Visible = true
+        	end
+    	end
 	    
 	    ColorPicker.MouseButton1Click:Connect(function()
             if ColorPickerFrame.Visible then
