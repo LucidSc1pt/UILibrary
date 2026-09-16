@@ -923,6 +923,7 @@ function library:Window(WinConfig)
 			dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.Active = true
+			dragDropFrame.ZIndex = 10 + zindex
 			dragDropFrame.Visible = false
 			
 			local dragDroTitle = Instance.new("TextLabel")
@@ -936,7 +937,7 @@ function library:Window(WinConfig)
         	dragDroTitle.Text = tostring(DropConfig.Name)
         	dragDroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
     		dragDroTitle.TextSize = 14
-        	dragDroTitle.ZIndex = 4 + zindex
+        	dragDroTitle.ZIndex = 10 + zindex
         	dragDroTitle.TextWrapped = false
         	dragDroTitle.Active = false
         	dragDroTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -954,7 +955,7 @@ function library:Window(WinConfig)
         DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
         DropdownFrame.ScrollBarThickness = 2
         DropdownFrame.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
-        DropdownFrame.ZIndex = 1000
+        DropdownFrame.ZIndex = 10 + zindex
         DropdownFrame.ScrollingDirection = Enum.ScrollingDirection.Y
         DropdownFrame.ScrollBarImageColor3 = Color3.fromRGB(220, 221, 225)
         
@@ -1053,7 +1054,7 @@ function library:Window(WinConfig)
             Button_2.TextColor3 = Color3.fromRGB(245, 246, 250)
             Button_2.TextSize = 14
             Button_2.TextStrokeTransparency = 123.000
-            Button_2.ZIndex = 1001
+            Button_2.ZIndex = 11 + zindex
             Button_2.Text = name
             Button_2.TextWrapped = true
             Button_2.TextTruncate = Enum.TextTruncate.AtEnd
@@ -1131,7 +1132,7 @@ function library:Window(WinConfig)
     		PlaceholderLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
     		PlaceholderLabel.TextSize = 14
     		PlaceholderLabel.Text = tostring(labelText)
-    		PlaceholderLabel.ZIndex = 1001
+    		PlaceholderLabel.ZIndex = 11 + zindex
     		PlaceholderLabel.TextWrapped = true
     		PlaceholderLabel.TextXAlignment = Enum.TextXAlignment.Left
 		end
@@ -1233,6 +1234,7 @@ function library:Window(WinConfig)
 			dragColFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragColFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
 			dragColFrame.Active = true
+			dragColFrame.ZIndex = 10 + zindex
 			dragColFrame.Visible = false
 			
 			local dragColTitle = Instance.new("TextLabel")
@@ -1246,7 +1248,7 @@ function library:Window(WinConfig)
         	dragColTitle.Text = tostring(ColConfig.Name)
         	dragColTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
     		dragColTitle.TextSize = 14
-        	dragColTitle.ZIndex = 4 + zindex
+        	dragColTitle.ZIndex = 10 + zindex
         	dragColTitle.TextWrapped = false
         	dragColTitle.Active = false
         	dragColTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -1428,13 +1430,13 @@ function library:Window(WinConfig)
 
         		updateCanvas(input)
 
-        		moveConn = UserInputService.InputChanged:Connect(function(moveInput)
+        		moveConn = uis.InputChanged:Connect(function(moveInput)
             		if moveInput.UserInputType == Enum.UserInputType.MouseMovement or moveInput.UserInputType == Enum.UserInputType.Touch then
                 		updateCanvas(moveInput)
             		end
         		end)
 
-        		releaseConn = UserInputService.InputEnded:Connect(function(endInput)
+        		releaseConn = uis.InputEnded:Connect(function(endInput)
             		if endInput.UserInputType == Enum.UserInputType.MouseButton1 or endInput.UserInputType == Enum.UserInputType.Touch then
                 		activeInteraction = nil
                 		moveConn:Disconnect()
@@ -1511,13 +1513,13 @@ function library:Window(WinConfig)
 
         		updateHue(input)
 
-        		moveConn = UserInputService.InputChanged:Connect(function(moveInput)
+        		moveConn = uis.InputChanged:Connect(function(moveInput)
             		if moveInput.UserInputType == Enum.UserInputType.MouseMovement or moveInput.UserInputType == Enum.UserInputType.Touch then
                 		updateHue(moveInput)
             		end
         		end)
 
-        		releaseConn = UserInputService.InputEnded:Connect(function(endInput)
+        		releaseConn = uis.InputEnded:Connect(function(endInput)
             		if endInput.UserInputType == Enum.UserInputType.MouseButton1 or endInput.UserInputType == Enum.UserInputType.Touch then
                 		activeInteraction = nil
                 		moveConn:Disconnect()
