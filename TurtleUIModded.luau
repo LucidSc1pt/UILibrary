@@ -396,6 +396,7 @@ function library:Notification(NotificationConfig)
 				AnchorPoint = Vector2.new(0,0.5),
 				Size = UDim2.new(0, 20, 0, 20),
 				Position = UDim2.new(0,0,0.5,0),
+				BackgroundTransparency = 1,
 				ImageColor3 = Color3.fromRGB(240, 240, 240),
 				Name = "Icon",
 				Parent = NotificationFrame
@@ -434,19 +435,23 @@ function library:Notification(NotificationConfig)
 		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {Size = UDim2.new(0,0,0,3)})
 		barTween:Play()
 
-		task.wait(NotificationConfig.Time - 1)
+		task.wait(NotificationConfig.Time - 0.1)
+		
+		if notifDestroy ~= true then
+		    TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+		    TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.8}):Play()
+        	TweenService:Create(ProgressBar, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.7}):Play()
+			TweenService:Create(Stroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 0.6}):Play()
+			TweenService:Create(Title, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
+			TweenService:Create(Content, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
+			task.wait(0.35)
+		    
+			TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {Position = UDim2.new(1,50,0,0)}):Play()
 
-		TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.8}):Play()
-        TweenService:Create(ProgressBar, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.7}):Play()
-		TweenService:Create(Stroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 0.6}):Play()
-		TweenService:Create(Title, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
-		TweenService:Create(Content, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
-
-		task.wait(1)
-		NotificationFrame:TweenPosition(UDim2.new(1, 50, 0, 0), "Out", "Quint", 0.6, true)
-
-		task.wait(1)
-		NotificationParent:Destroy()
+	    	wait(.5)
+            notifDestroy = false
+	    	NotificationFrame:Destroy()
+        end
 	end)
 end
 
