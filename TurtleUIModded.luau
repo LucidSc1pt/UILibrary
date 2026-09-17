@@ -625,7 +625,7 @@ function library:Window(WinConfig)
     HeaderText.Text = WinConfig.Name
     HeaderText.TextColor3 = Color3.fromRGB(47, 54, 64)
     HeaderText.TextXAlignment = Enum.TextXAlignment.Left
-    HeaderText.TextSize = 
+    HeaderText.TextSize = 14
     AddThemeObject(HeaderText, "HeaderText", "TextColor3")
 
 	MakeDraggable(Header, UiWindow)
@@ -705,12 +705,13 @@ function library:Window(WinConfig)
     AddThemeObject(Minimise, "Header", "TextColor3")
 	
 	if UiWindow.Size.X.Offset >= 400 then
-		CloseWindowBtn = Create("Frame", {
+		CloseWindowBtn = Create("TextButton", {
 			Size = UDim2.new(0, 22, 0, 22),
 			BackgroundTransparency = 1,
 			Font = Enum.Font.SourceSansBold,
     		Text = "x",
     		TextSize = 20,
+    		ZIndex = 7 + zindex,
 			Parent = utilityButt
 		})
 	
@@ -1266,7 +1267,7 @@ function library:Window(WinConfig)
         local dragDropFrame = nil
         if DropConfig.Floating then
 			dragDropFrame = Instance.new("Frame")
-			dragDropFrame.Parent = UiWindow
+			dragDropFrame.Parent = TurtleUiLib
 			dragDropFrame.Size = UDim2.new(1, 0, 0, 33)
 			dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
