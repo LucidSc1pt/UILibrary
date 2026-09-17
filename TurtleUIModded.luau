@@ -354,7 +354,7 @@ function library:Notification(NotificationConfig)
 			VerticalAlignment = Enum.VerticalAlignment.Top,
 			Padding = UDim.new(0, 5),
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			Parent = NotificationFrame
+			Parent = textHolder
 		})
 
 		local Title = Instance.new("TextLabel")
