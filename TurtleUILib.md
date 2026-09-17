@@ -9,11 +9,11 @@ Dokumentasi resmi untuk **Turtle UI Library** di Roblox. Library ini mempermudah
 Gunakan *script* berikut untuk memuat library ke dalam proyek kamu:
 
 ```luau
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/LittenHub/Fuckyouman/refs/heads/main/TurtleUI.lua"))()
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/LucidSc1pt/UILibrary/refs/heads/main/TurtleUIModded.luau"))()
 ```
 📑 Table of Contents
- * Creating a Window
- * UI Components
+ * [Creating a Window](#creatingawindow)
+ * [UI Components](#uicomponents)
    * Button
    * Toggle
    * Slider
