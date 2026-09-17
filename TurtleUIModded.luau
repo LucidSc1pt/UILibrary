@@ -563,7 +563,7 @@ function library:Window(WinConfig)
     WinConfig.MultiWindow = WinConfig.MultiWindow or true
     WinConfig.Keybind = WinConfig.Keybind or Enum.KeyCode.LeftControl
     WinConfig.MobileUI = WinConfig.MobileUI or false
-    WinConfig.MobileUIText = WinConfig.MobileUIText or "Show OrionLib"
+    WinConfig.MobileUIText = WinConfig.MobileUIText or "Show TurtleUiLib"
     WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
 	if WinConfig.Theme and WinConfig.Theme ~= "" then
         library.SelectedTheme = WinConfig.Theme
