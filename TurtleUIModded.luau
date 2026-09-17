@@ -5,7 +5,7 @@
 
 local library = {
 	ThemeObjects = {},
-	Theme = {
+	Themes = {
 		Default = {
 			WindowBackground = Color3.fromRGB(47, 54, 64),
 			WindowBorder = Color3.fromRGB(47, 54, 64),
@@ -605,7 +605,7 @@ function library:Window(WinConfig)
     local Header = Instance.new("Frame")
     Header.Name = "Header"
     Header.Parent = UiWindow
-    Header.BackgroundColor3 = Color3.fromRGB(0, 168, 255)
+    --Header.BackgroundColor3 = Color3.fromRGB(0, 168, 255)
     Header.BorderSizePixel = 0
     Header.Position = UDim2.new(0, 0, 0, 0)
     Header.Size = UDim2.new(1, 0, 0, 33)
