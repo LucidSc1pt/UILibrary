@@ -100,6 +100,59 @@ local function MakeDraggable(DragPoint, Main)
 	end)
 end
 ]]
+local Icons
+
+local Success, Response = pcall(function()
+	Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/refs/heads/main/icons.lua"))()
+end)
+
+if not Success then
+	warn("\nFailed to load Feather Icons. Error code: " .. Response .. "\n")
+end
+
+local function getIcon(name : string): {id: number, imageRectSize: Vector2, imageRectOffset: Vector2}
+	if not Icons then
+		warn("Lucide Icons: Cannot use icons as icons library is not loaded")
+		return
+	end
+	name = string.match(string.lower(name), "^%s*(.*)%s*$") :: string
+	local sizedicons = Icons['48px']
+	local r = sizedicons[name]
+	if not r then
+		error(`Lucide Icons: Failed to find icon by the name of "{name}"`, 2)
+	end
+
+	local rirs = r[2]
+	local riro = r[3]
+
+	if type(r[1]) ~= "number" or type(rirs) ~= "table" or type(riro) ~= "table" then
+		error("Lucide Icons: Internal error: Invalid auto-generated asset entry")
+	end
+
+	local irs = Vector2.new(rirs[1], rirs[2])
+	local iro = Vector2.new(riro[1], riro[2])
+
+	local asset = {
+		id = r[1],
+		imageRectSize = irs,
+		imageRectOffset = iro,
+	}
+
+	return asset
+end
+
+local function getAssetUri(id: any): string
+	local assetUri = "rbxassetid://0" -- Default to empty image
+	if type(id) == "number" then
+		assetUri = "rbxassetid://" .. id
+	elseif type(id) == "string" and not Icons then
+		warn("Cannot use Lucide icons as icons library is not loaded")
+	else
+		warn("The icon argument must either be an icon ID (number) or a Lucide icon name (string)")
+	end
+	return assetUri
+end
+
 local function MakeDraggable(DragPoint, Main)
 	Main = Main or DragPoint
 	
@@ -248,6 +301,7 @@ function library:Notification(NotificationConfig)
 		NotificationConfig = NotificationConfig or {}
 		NotificationConfig.Title = NotificationConfig.Title or "Notification"
 		NotificationConfig.Content = NotificationConfig.Content or "Hello World"
+		NotificationConfig.Image = NotificationConfig.Image or 4384403532
 		NotificationConfig.Time = NotificationConfig.Time or 5
 
 		local notifDestroy = false
@@ -286,9 +340,25 @@ function library:Notification(NotificationConfig)
 		closeNotifButton.Text = "X"
 		closeNotifButton.Font = Enum.Font.GothamSemibold
 		closeNotifButton.TextSize = 14
+		
+		local textHolder = Create("Frame", {
+			Size = UDim2.new(1,0,0,0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			Parent = NotificationFrame
+		})
+	
+		local textLayoutHolder = Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Vertical,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Top,
+			Padding = UDim.new(0, 5),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = NotificationFrame
+		})
 
 		local Title = Instance.new("TextLabel")
-		Title.Parent = NotificationFrame
+		Title.Parent = textHolder
 		Title.Size = UDim2.new(1, -10, 0, 20)
 		Title.Position = UDim2.new(0,0,0,0)
 		Title.BackgroundTransparency = 1
@@ -299,7 +369,7 @@ function library:Notification(NotificationConfig)
 		Title.Text = NotificationConfig.Title
 
 		local Content = Instance.new("TextLabel")
-		Content.Parent = NotificationFrame
+		Content.Parent = textHolder
 		Content.Size = UDim2.new(1,0,0,0)
 		Content.Position = UDim2.new(0,0,0,25)
 		Content.AutomaticSize = Enum.AutomaticSize.Y
@@ -312,13 +382,51 @@ function library:Notification(NotificationConfig)
 		Content.Text = NotificationConfig.Content
 
 		local ProgressBar = Instance.new("Frame")
+		ProgressBar.AnchorPoint = Vector2.new(0,1)
 		ProgressBar.Parent = NotificationFrame
 		ProgressBar.Size = UDim2.new(1,0,0,3)
-		ProgressBar.Position = UDim2.new(0,0,1,3)
+		ProgressBar.Position = UDim2.new(0,0,1,0)
         ProgressBar.BackgroundTransparency = 0
 		ProgressBar.BackgroundColor3 = Color3.fromRGB(0,168,247)
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0,3)
+		
+		if NotificationConfig.Image ~= nil and NotificationConfig.Image then
+			local Icon = Create("ImageLabel",{
+				AnchorPoint = Vector2.new(0,0.5),
+				Size = UDim2.new(0, 20, 0, 20),
+				Position = UDim2.new(0,0,0.5,0),
+				ImageColor3 = Color3.fromRGB(240, 240, 240),
+				Name = "Icon",
+				Parent = NotificationFrame
+			})
+			textHolder.Position = UDim2.new(0,20,0,0)
+			if typeof(NotificationConfig.Image) == 'string' and Icons then
+				local asset = getIcon(NotificationConfig.Image)
+
+				Icon.Image = 'rbxassetid://'..asset.id
+				Icon.ImageRectOffset = asset.imageRectOffset
+				Icon.ImageRectSize = asset.imageRectSize
+			else
+				Icon.Image = getAssetUri(NotificationConfig.Image)
+			end
+		end
+
+		closeNotifButton.MouseButton1Click:Connect(function()
+           notifDestroy = true
+           
+           TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+		   TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.6}):Play()
+	       wait(0.3)
+           TweenService:Create(NotificationFrame.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 0.9}):Play()
+		   TweenService:Create(NotificationFrame.Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.4}):Play()
+		   TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
+		   wait(0.05)
+		   TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {Position = UDim2.new(1,50,0,0)}):Play()
+
+	       wait(.5)
+	       NotificationFrame:Destroy()
+	    end)
 
 		NotificationFrame.Position = UDim2.new(1,50,0,0)
 		TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(0,0,0,0)}):Play()
@@ -391,6 +499,9 @@ function library:Window(WinConfig)
     WinConfig.Size = WinConfig.Size or UDim2.new(0,220,0,288)
     WinConfig.MultiWindow = WinConfig.MultiWindow or true
     WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
+	if WinConfig.Theme then
+        library.SelectedTheme = WinConfig.Theme
+    end
 	
 	local winCount
     local zindex = 1000
@@ -1130,7 +1241,7 @@ function library:Window(WinConfig)
         	TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
 
         	if DropConfig.Floating then
-            	dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X / 2, Dropdown.AbsolutePosition.Y)
+            	dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X / 2, Dropdown.AbsolutePosition.Y - 2)
             	dragDropFrame.Visible = true
             	DropdownFrame.Visible = true
         	else
@@ -1367,7 +1478,7 @@ function library:Window(WinConfig)
         ColorPickerFrame.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.BorderColor3 = Color3.fromRGB(47, 54, 64)
         ColorPickerFrame.Position = ColConfig.Floating and UDim2.new(0, 0, 1, 0) or UDim2.new(0, 0, 0, 31)
-        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 135)
+        ColorPickerFrame.Size = UDim2.new(1, 0, 0, 145)
         ColorPickerFrame.ZIndex = 10 + zindex
         ColorPickerFrame.Active = true
         ColorPickerFrame.Visible = false
@@ -1377,7 +1488,7 @@ function library:Window(WinConfig)
         ToggleRGB.Parent = ColorPickerFrame
         ToggleRGB.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
         ToggleRGB.BorderColor3 = Color3.fromRGB(113, 128, 147)
-        ToggleRGB.Position = UDim2.new(1, 0, 0, 102)
+        ToggleRGB.Position = UDim2.new(1, 0, 0, 107)
         ToggleRGB.Size = UDim2.new(0, 22, 0, 22)
         ToggleRGB.Font = Enum.Font.SourceSans
         ToggleRGB.Text = ""
@@ -1397,14 +1508,14 @@ function library:Window(WinConfig)
         TextLabel.Parent = ColorPickerFrame
         TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         TextLabel.BackgroundTransparency = 1.000
-        TextLabel.Position = UDim2.new(0, 0, 0, 102)
+        TextLabel.Position = UDim2.new(0, 0, 0, 107)
         TextLabel.Size = UDim2.new(0, 106, 0, 22)
         TextLabel.Font = Enum.Font.SourceSans
         TextLabel.Text = "Rainbow"
         TextLabel.TextColor3 = Color3.fromRGB(245, 246, 250)
         TextLabel.TextSize = 16
         TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-        TextLabel.ZIndex = 4 + zindex
+        TextLabel.ZIndex = 10 + zindex
 
         CanvasGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 0)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))}
         CanvasGradient.Name = "CanvasGradient"
