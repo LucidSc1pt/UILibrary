@@ -4,6 +4,7 @@
 -- // MAIN CODE \\ --
 
 local library = {
+	ThemeObjects = {},
 	Theme = {
 		Default = {
 			WindowBackground = Color3.fromRGB(47, 54, 64),
@@ -11,7 +12,16 @@ local library = {
 		
 			UIWindow = Color3.fromRGB(0, 151, 230),
 			UIWindowBorder = Color3.fromRGB(0, 151, 230),
-		
+			
+			NotificationBackground = Color3.fromRGB(40,40,40),
+			NotificationStroke = Color3.fromRGB(0,168,247),
+			NotificationBar = Color3.fromRGB(0,168,247),
+			
+			ElementDivider = Color3.fromRGB(60, 60, 70),
+			ElementDividerText = Color3.fromRGB(60, 60, 70),
+			TabDivider = Color3.fromRGB(60, 60, 70),
+			TabDividerText = Color3.fromRGB(60, 60, 70),
+			
 			Header = Color3.fromRGB(0, 168, 255),
 			HeaderBorder = Color3.fromRGB(0, 168, 255),
 			HeaderText = Color3.fromRGB(47, 54, 64),
@@ -20,12 +30,13 @@ local library = {
 			NormalBackground = Color3.fromRGB(53, 59, 72),
 
 			BtnBorder = Color3.fromRGB(113, 128, 147),
-
+			
 			ToggleFiller = Color3.fromRGB(68, 189, 50),
 
 			SliderFiller = Color3.fromRGB(76, 209, 55)
 		}
-	}
+	},
+	SelectedTheme = "Default"
 }
 local windowCount = 0
 local sizes = {}
@@ -99,7 +110,6 @@ local function MakeDraggable(DragPoint, Main)
 
 	DragPoint.InputBegan:Connect(function(Input)
 		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-			-- Abaikan sentuhan jari lain jika UI sudah dalam posisi ter-drag
 			if Dragging then return end
 
 			Dragging = true
@@ -107,7 +117,6 @@ local function MakeDraggable(DragPoint, Main)
 			FramePos = Main.Position
 			DragInput = Input
 
-			-- Putus koneksi event setelah sentuhan dilepas agar tidak memory leak
 			local changedConnection
 			changedConnection = Input.Changed:Connect(function()
 				if Input.UserInputState == Enum.UserInputState.End then
@@ -123,7 +132,6 @@ local function MakeDraggable(DragPoint, Main)
 
 	DragPoint.InputChanged:Connect(function(Input)
 		if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-			-- Hanya perbarui DragInput jika belum ada proses drag yang aktif
 			if not Dragging then
 				DragInput = Input
 			end
@@ -131,7 +139,6 @@ local function MakeDraggable(DragPoint, Main)
 	end)
 
 	uis.InputChanged:Connect(function(Input)
-		-- Memastikan hanya input yang pertama kali menekan yang boleh menggerakkan UI
 		if Dragging and Input == DragInput then
 			local Delta = Input.Position - MousePos
 			Main.Position = UDim2.new(
@@ -143,8 +150,6 @@ local function MakeDraggable(DragPoint, Main)
 		end
 	end)
 end
-
--- // Instances:
 
 local function protect_gui(obj) 
 	if destroyed then
@@ -170,6 +175,46 @@ local function Create(Name, Properties)
 	end
 	return Object
 end
+
+local function ReturnProperty(Object)
+	if Object:IsA("Frame") or Object:IsA("TextButton") then
+		return "BackgroundColor3"
+	elseif Object:IsA("ScrollingFrame") then
+		return "ScrollBarImageColor3"
+	elseif Object:IsA("UIStroke") then
+		return "Color"
+	elseif Object:IsA("TextLabel") or Object:IsA("TextBox") then
+		return "TextColor3"
+	elseif Object:IsA("ImageLabel") or Object:IsA("ImageButton") then
+		return "ImageColor3"
+	end
+	return "BackgroundColor3"
+end
+
+local function AddThemeObject(Object, ThemeKey, SpecificProperty)
+	if not library.ThemeObjects[ThemeKey] then
+		library.ThemeObjects[ThemeKey] = {}
+	end
+	
+	local targetProperty = SpecificProperty or ReturnProperty(Object)
+	
+	-- Simpan referensi ke daftar tracking
+	table.insert(library.ThemeObjects[ThemeKey], {
+		Object = Object,
+		Property = targetProperty
+	})
+	
+	-- Terapkan warna tema yang sedang aktif secara instan
+	local currentTheme = library.Themes[library.SelectedTheme]
+	if currentTheme and currentTheme[ThemeKey] then
+		Object[targetProperty] = currentTheme[ThemeKey]
+	end
+	
+	-- KUNCI UTAMA: Wajib return Object agar bisa dirantai (chained/nested)
+	return Object
+end
+
+-- // Instances:
 
 -- // Making the ScreenGui \\ --
 local TurtleUiLib = Instance.new("ScreenGui")
@@ -205,28 +250,42 @@ function library:Notification(NotificationConfig)
 		NotificationConfig.Content = NotificationConfig.Content or "Hello World"
 		NotificationConfig.Time = NotificationConfig.Time or 5
 
-		local NotificationParent = Instance.new("Frame")
-		NotificationParent.Size = UDim2.new(1,0,0,0)
-		NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
-		NotificationParent.BackgroundTransparency = 1
-		NotificationParent.Parent = NotificationHolder
+		local notifDestroy = false
 
-		local NotificationFrame = Instance.new("Frame")
-		NotificationFrame.Size = UDim2.new(1,0,0,0)
-		NotificationFrame.AutomaticSize = Enum.AutomaticSize.Y
-		NotificationFrame.BackgroundColor3 = Color3.fromRGB(40,40,40)
-		NotificationFrame.BackgroundTransparency = 0.3
-		NotificationFrame.Parent = NotificationParent
-
+		local NotificationParent = Create("Frame", {
+			Size = UDim2.new(1,0,0,0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			Parent = NotificationHolder
+		})
+	
+		local NotificationFrame = Create("Frame", {
+			Size = UDim2.new(1,0,0,0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundColor3 = Color3.fromRGB(40,40,40),
+			BackgroundTransparency = 0,
+			Parent = NotificationParent
+		})
+		
 		local Stroke = Instance.new("UIStroke", NotificationFrame)
 		Stroke.Thickness = 2
 		Stroke.Color = Color3.fromRGB(0,168,247)
 
 		local Padding = Instance.new("UIPadding", NotificationFrame)
-		Padding.PaddingTop = UDim.new(0,10)
-		Padding.PaddingBottom = UDim.new(0,10)
-		Padding.PaddingLeft = UDim.new(0,10)
-		Padding.PaddingRight = UDim.new(0,10)
+		Padding.PaddingTop = UDim.new(0,5)
+		Padding.PaddingBottom = UDim.new(0,5)
+		Padding.PaddingLeft = UDim.new(0,5)
+		Padding.PaddingRight = UDim.new(0,5)
+		
+		local closeNotifButton = Instance.new("TextButton")
+		closeNotifButton.Size = UDim2.new(0, 20, 0, 20)
+		closeNotifButton.Position = UDim2.new(0.9, 5, 0, 0)
+		closeNotifButton.BackgroundTransparency = 1
+		closeNotifButton.Name = "CloseNotifications"
+		closeNotifButton.Parent = NotificationFrame
+		closeNotifButton.Text = "X"
+		closeNotifButton.Font = Enum.Font.GothamSemibold
+		closeNotifButton.TextSize = 14
 
 		local Title = Instance.new("TextLabel")
 		Title.Parent = NotificationFrame
@@ -302,6 +361,29 @@ function library:Keybind(key)
     end)
 end
 
+function library:SetTheme(ThemeName)
+	if not library.Themes[ThemeName] then return end
+	library.SelectedTheme = ThemeName
+	
+	local currentTheme = library.Themes[ThemeName]
+	
+	for themeKey, objectList in pairs(library.ThemeObjects) do
+		local targetColor = currentTheme[themeKey]
+		if targetColor then
+			-- Loop mundur untuk aman membersihkan objek yang sudah ter-Destroy
+			for i = #objectList, 1, -1 do
+				local item = objectList[i]
+				if item.Object and item.Object.Parent then
+					item.Object[item.Property] = targetColor
+				else
+					table.remove(objectList, i) -- Hapus dari memori jika UI sudah ditutup/dihapus
+				end
+			end
+		end
+	end
+end
+
+
 -- // Window Function \\ --
 function library:Window(WinConfig)
 	WinConfig = WinConfig or {}
@@ -311,23 +393,22 @@ function library:Window(WinConfig)
     WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
 	
 	local winCount
-    local zindex
+    local zindex = 1000
     local winPaddingLayout
     local winLayout
     
     if WinConfig.MultiWindow then
     	windowCount = windowCount + 1
     	winCount = windowCount
-    	zindex = winCount * 7
+    	zindex = zindex * winCount
    	else
-    	zindex = zindex * 7
-		for _, Interface in ipairs(TurtleUiLib:GetChildren()) do
-			if Interface.Name == "UiWindow" and Interface then
-				Interface.Visible = false
-				Interface.Active = false
-				Interface.Name = "UiWindow-Old"
+   		if gethui then
+   			for _, Interface in ipairs(gethui():GetChildren()) do
+				if Interface.Name == TurtleUiLib.Name and Interface ~= TurtleUiLib then
+					Interface:Destroy()
+				end
 			end
-		end
+   		end
 	end
   
 	local UiWindow = Instance.new("Frame")
@@ -1049,7 +1130,7 @@ function library:Window(WinConfig)
         	TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
 
         	if DropConfig.Floating then
-            	dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + 2)
+            	dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X / 2, Dropdown.AbsolutePosition.Y)
             	dragDropFrame.Visible = true
             	DropdownFrame.Visible = true
         	else
@@ -1706,7 +1787,10 @@ function library:Window(WinConfig)
     
 		return colorFuncs
     end
-
+    function functions:Destroy()
+    	UiWindow:Destroy()
+    end
+    
    return functions
 end
 
