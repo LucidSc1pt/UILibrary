@@ -42,6 +42,7 @@ local Window = library:Window({
 |---|---|---|---|
 | Name | string | "Window" | Judul utama jendela UI |
 | Size | UDim2 | Optional | Ukuran dimensi jendela |
+| MultiWindow | boolean | Optional | Mengatur banyaknya window dalam satu script |
 | Position | UDim2 | Optional | Posisi awal jendela di layar |
 
 ## 🧩 UI Components
@@ -120,6 +121,7 @@ local dropdown = Window:Dropdown({
         "Option 3"
     },
     MultiSelect = false,
+    Floating = false,
     Callback = function(selected)
         print("Selected:", selected)
     end
@@ -130,6 +132,7 @@ local dropdown = Window:Dropdown({
 | Name | string | "Dropdown" | Judul/Placeholder utama dropdown |
 | Items | table | {} | Daftar item string atau pembatas placeholder |
 | MultiSelect | boolean | false | Memungkinkan memilih lebih dari satu item |
+| Floating | boolean | Optional | Floating window |
 | Callback | function | - | Mengembalikan string/nil (single) atau table (multi) |
 
 **Dropdown Methods**<br>
@@ -156,6 +159,7 @@ Membuat pemilih warna RGB/HSV.
 Window:ColorPicker({
     Name = "ESP Color",
     Default = Color3.fromRGB(255, 0, 0),
+    Floating = false,
     Callback = function(color)
         print("Selected Color:", color)
     end
@@ -165,6 +169,7 @@ Window:ColorPicker({
 |---|---|---|---|
 | Name | string | "Color Picker" | Label pemilih warna |
 | Default | Color3 | Color3.fromRGB(255, 255, 255) | Warna awal |
+| Floating | boolean | Optional | Floating window |
 | Callback | function | - | Mengembalikan objek Color3 |
 
 ---
@@ -215,6 +220,7 @@ library:Notification({
 |---|---|---|---|
 | Title | string | "Notification" | Judul notifikasi |
 | Content | string | "" | Isi pesan |
+| Image | string / number | Optional | gambar lucide icon |
 | Time | number | 5 | Durasi notifikasi muncul (dalam detik) |
 
 ---
@@ -225,7 +231,18 @@ Menghapus seluruh antarmuka GUI dari memori.
 library:Destroy()
 ```
 
+Menghapus seluruh antarmuka Window GUI dari memori.
+```luau
+Window:Destroy()
+```
+
 # 📜 Change Log
+[September 17, 2026]
+* Added: Pengaturan Image pada Notification.
+* Added: Pengaturan Floating pada komponen Dropdown dan Color Picker.
+* Added: Window:Destroy() untuk menghapus window lain saat pengaturan MultiWindow true.
+* Fixed: Memperbaiki visual notifikasi.
+
 [September 12, 2026]
 * Added: Fitur MultiSelect pada komponen Dropdown.
 * Added: Pengaturan Loop pada komponen Toggle.
