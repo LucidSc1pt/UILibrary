@@ -283,7 +283,7 @@ local keybindConnection
 
 -- // Notification Function \\ --
 local NotificationHolder = Instance.new("Frame")
-NotificationHolder.Size = UDim2.new(0, 360, 1, -25)
+NotificationHolder.Size = UDim2.new(0, 300, 1, -25)
 NotificationHolder.Position = UDim2.new(1, -25, 1, -25)
 NotificationHolder.AnchorPoint = Vector2.new(1, 1)
 NotificationHolder.BackgroundTransparency = 1
@@ -323,7 +323,8 @@ function library:Notification(NotificationConfig)
 			Parent = NotificationParent
 		})
 
-		local Stroke = Instance.new("UIStroke", NotificationFrame)
+		local Stroke = Instance.new("UIStroke")
+		Stroke.Parent = NotificationFrame
 		Stroke.Thickness = 2
 		Stroke.Color = Color3.fromRGB(0, 168, 247)
 
@@ -414,35 +415,40 @@ function library:Notification(NotificationConfig)
 		Content.TextWrapped = true
 		Content.Text = NotificationConfig.Content
 
-		-- Progress Bar
+		local ProgressBarParent = Instance.new("Frame")
+		ProgressBarParent.AnchorPoint = Vector2.new(0, 1)
+		ProgressBarParent.Parent = NotificationFrame
+		ProgressBarParent.Size = UDim2.new(1, 0, 0, 3)
+		ProgressBarParent.Position = UDim2.new(0, 0, 1, 5)
+		ProgressBarParent.BackgroundTransparency = 0
+		ProgressBarParent.BackgroundColor3 = Color3.fromRGB(0, 128, 207)
+		ProgressBarParent.BorderSizePixel = 0
+		Instance.new("UICorner", ProgressBarParent).CornerRadius = UDim.new(0, 3)
+
 		local ProgressBar = Instance.new("Frame")
-		ProgressBar.AnchorPoint = Vector2.new(0, 1)
-		ProgressBar.Parent = NotificationFrame
-		ProgressBar.Size = UDim2.new(1, 0, 0, 3)
-		ProgressBar.Position = UDim2.new(0, 0, 1, 5) -- Diletakkan tepat di batas bawah padding
+		ProgressBar.Parent = ProgressBarParent
+		ProgressBar.Size = UDim2.new(1, 0, 1, 0)
+		ProgressBar.Position = UDim2.new(0, 0, 0, 0)
 		ProgressBar.BackgroundTransparency = 0
 		ProgressBar.BackgroundColor3 = Color3.fromRGB(0, 168, 247)
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
 
-		-- Animasi Masuk (Slide In)
 		TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 			Position = UDim2.new(0, 0, 0, 0)
 		}):Play()
 
 		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
-			Size = UDim2.new(0, 0, 0, 3)
+			Size = UDim2.new(0, 0, 1, 0)
 		})
 		barTween:Play()
 
-		-- Fungsi Terpusat untuk Menghapus Notifikasi secara Mulus
 		local function DismissNotification()
 			if isDismissed then return end
 			isDismissed = true
 
 			barTween:Cancel()
 
-			-- 1. Slide Out ke Kanan & Fade Out
 			TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
 				Position = UDim2.new(1, 50, 0, 0),
 				BackgroundTransparency = 1
@@ -457,7 +463,6 @@ function library:Notification(NotificationConfig)
 
 			task.wait(0.3)
 
-			-- 2. Ciutkan tinggi Frame agar notifikasi lain bergeser mulus (Tanpa Snap)
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
 			NotificationFrame:Destroy()
@@ -471,10 +476,8 @@ function library:Notification(NotificationConfig)
 			NotificationParent:Destroy()
 		end
 
-		-- Connect Tombol Close
 		closeNotifButton.MouseButton1Click:Connect(DismissNotification)
 
-		-- Auto Dismiss berdasarkan Waktu
 		task.delay(NotificationConfig.Time, function()
 			if not isDismissed then
 				DismissNotification()
@@ -482,178 +485,7 @@ function library:Notification(NotificationConfig)
 		end)
 	end)
 end
---[[
-function library:Notification(NotificationConfig)
-	task.spawn(function()
-		NotificationConfig = NotificationConfig or {}
-		NotificationConfig.Title = NotificationConfig.Title or "Notification"
-		NotificationConfig.Content = NotificationConfig.Content or "Hello World"
-		NotificationConfig.Image = NotificationConfig.Image or 4384403532
-		NotificationConfig.Time = NotificationConfig.Time or 5
 
-		local notifDestroy = false
-
-		local NotificationParent = Create("Frame", {
-			Size = UDim2.new(1,0,0,0),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundTransparency = 1,
-			Parent = NotificationHolder
-		})
-	
-		local NotificationFrame = Create("Frame", {
-			Size = UDim2.new(1,0,0,0),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundColor3 = Color3.fromRGB(40,40,40),
-			BackgroundTransparency = 0,
-			Parent = NotificationParent
-		})
-		
-		local Stroke = Instance.new("UIStroke", NotificationFrame)
-		Stroke.Thickness = 2
-		Stroke.Color = Color3.fromRGB(0,168,247)
-
-		local Padding = Instance.new("UIPadding", NotificationFrame)
-		Padding.PaddingTop = UDim.new(0,5)
-		Padding.PaddingBottom = UDim.new(0,5)
-		Padding.PaddingLeft = UDim.new(0,5)
-		Padding.PaddingRight = UDim.new(0,5)
-		
-		local closeNotifButton = Instance.new("TextButton")
-		closeNotifButton.AnchorPoint = Vector2.new(1,0)
-		closeNotifButton.Size = UDim2.new(0, 20, 0, 20)
-		closeNotifButton.Position = UDim2.new(1, 0, 0, 0)
-		closeNotifButton.BackgroundTransparency = 1
-		closeNotifButton.Name = "CloseNotifications"
-		closeNotifButton.Text = "X"
-		closeNotifButton.TextColor3 = Color3.fromRGB(255,255,255)
-		closeNotifButton.Font = Enum.Font.GothamSemibold
-		closeNotifButton.TextSize = 14
-		closeNotifButton.Parent = NotificationFrame
-		
-		local textHolder = Create("Frame", {
-			Size = UDim2.new(1,-25,0,30),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundTransparency = 1,
-			Parent = NotificationFrame
-		})
-	
-		local textLayoutHolder = Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
-			HorizontalAlignment = Enum.HorizontalAlignment.Left,
-			VerticalAlignment = Enum.VerticalAlignment.Top,
-			Padding = UDim.new(0, 5),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			Parent = textHolder
-		})
-		
-		local Icon = Create("ImageLabel",{
-			AnchorPoint = Vector2.new(0,0.5),
-			Size = UDim2.new(0, 30, 0, 30),
-			Position = UDim2.new(0,0,0.5,0),
-			BackgroundTransparency = 1,
-			ImageColor3 = Color3.fromRGB(240, 240, 240),
-			Name = "Icon",
-			Parent = textHolder
-		})
-
-		local Title = Instance.new("TextLabel")
-		Title.Parent = textHolder
-		Title.Size = UDim2.new(1, 0, 0, 0)
-		Title.Position = UDim2.new(0,0,0,0)
-		Title.AutomaticSize = Enum.AutomaticSize.Y
-		Title.BackgroundTransparency = 1
-		Title.Font = Enum.Font.GothamBold
-		Title.TextColor3 = Color3.fromRGB(255,255,255)
-		Title.TextSize = 14
-		Title.TextWrapped = true
-		Title.TextXAlignment = Enum.TextXAlignment.Left
-		Title.Text = NotificationConfig.Title
-
-		local Content = Instance.new("TextLabel")
-		Content.Parent = NotificationFrame
-		Content.Size = UDim2.new(1,0,0,0)
-		Content.Position = UDim2.new(0,0,0,35)
-		Content.BackgroundTransparency = 1
-		Content.AutomaticSize = Enum.AutomaticSize.Y
-		Content.Font = Enum.Font.GothamSemibold
-		Content.TextColor3 = Color3.fromRGB(220,220,220)
-		Content.TextSize = 12
-		Content.TextXAlignment = Enum.TextXAlignment.Left
-		Content.TextWrapped = true
-		Content.Text = NotificationConfig.Content
-
-		local ProgressBar = Instance.new("Frame")
-		ProgressBar.AnchorPoint = Vector2.new(0,1)
-		ProgressBar.Parent = NotificationFrame
-		ProgressBar.Size = UDim2.new(1,0,0,3)
-		ProgressBar.Position = UDim2.new(0,0,1,0)
-        ProgressBar.BackgroundTransparency = 0
-		ProgressBar.BackgroundColor3 = Color3.fromRGB(0,168,247)
-		ProgressBar.BorderSizePixel = 0
-		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0,3)
-		
-		if NotificationConfig.Image ~= nil and NotificationConfig.Image then
-			Title.Position = UDim2.new(0,35,0,0)
-			if typeof(NotificationConfig.Image) == 'string' and Icons then
-				local asset = getIcon(NotificationConfig.Image)
-
-				Icon.Image = 'rbxassetid://'..asset.id
-				Icon.ImageRectOffset = asset.imageRectOffset
-				Icon.ImageRectSize = asset.imageRectSize
-			else
-				Icon.Image = getAssetUri(NotificationConfig.Image)
-			end
-		else
-			Icon:Destroy()
-		end
-
-		closeNotifButton.MouseButton1Click:Connect(function()
-           notifDestroy = true
-        	
-        	if Icon then
-        		TweenService:Create(Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-        	end
-			TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.6}):Play()
-			TweenService:Create(ProgressBar, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.7}):Play()
-	    	task.wait(0.3)
-        	TweenService:Create(Stroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 0.9}):Play()
-			TweenService:Create(Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.4}):Play()
-			TweenService:Create(Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
-			task.wait(0.05)
-			TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {Position = UDim2.new(1,50,0,0)}):Play()
-
-	    	task.wait(.5)
-	    	NotificationFrame:Destroy()
-	    end)
-
-		NotificationFrame.Position = UDim2.new(1,50,0,0)
-		TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(0,0,0,0)}):Play()
-
-		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {Size = UDim2.new(0,0,0,3)})
-		barTween:Play()
-
-		task.wait(NotificationConfig.Time - 0.1)
-		
-		if notifDestroy ~= true then
-		    if Icon then
-        		TweenService:Create(Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-        	end
-		    TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.8}):Play()
-        	TweenService:Create(ProgressBar, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.7}):Play()
-			task.wait(0.3)
-			TweenService:Create(Stroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 0.6}):Play()
-			TweenService:Create(Title, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
-			TweenService:Create(Content, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
-			task.wait(0.05)
-			TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {Position = UDim2.new(1,50,0,0)}):Play()
-
-	    	task.wait(.5)
-            notifDestroy = false
-	    	NotificationFrame:Destroy()
-        end
-	end)
-end
-]]
 -- // Destroy Function \\ --
 function library:Destroy()
     TurtleUiLib:Destroy()
