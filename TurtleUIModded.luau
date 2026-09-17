@@ -730,15 +730,15 @@ function library:Window(WinConfig)
 
     	MobileUIButton.MouseButton1Click:Connect(function()
 			UiWindow.Visible = not UiWindow.Visible
-        	if WindowConfig.MobileUI then
+        	if WinConfig.MobileUI then
         		MobileUIToggle.Visible = false
         	end
     	end)
 	
 		CloseWindowBtn.MouseButton1Click:Connect(function()
     		UiWindow.Visible = not UiWindow.Visible
-    		if WindowConfig.MobileUI then
-        		MobileUIToggle.Visible = false
+    		if WinConfig.MobileUI then
+        		MobileUIToggle.Visible = true
         	end
 		end)
 	end
