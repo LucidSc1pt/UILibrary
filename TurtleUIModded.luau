@@ -347,12 +347,26 @@ function library:Notification(NotificationConfig)
 		closeNotifButton.ZIndex = 3
 		closeNotifButton.Parent = NotificationFrame
 
-		-- Header (Icon + Title)
-		local textHolder = Create("Frame", {
-			Size = UDim2.new(1, -25, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
+		local contentHolder = Create("Frame", {
+			Size = UDim2.new(1, -25, 1, -5),
 			BackgroundTransparency = 1,
 			Parent = NotificationFrame
+		})
+	
+		local textLayoutHolder = Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Vertical,
+			HorizontalAlignment = Enum.HorizontalAlignment.Left,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = contentHolder
+		})
+	
+		local textHolder = Create("Frame", {
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			Parent = contentHolder
 		})
 
 		local textLayoutHolder = Create("UIListLayout", {
@@ -386,7 +400,6 @@ function library:Notification(NotificationConfig)
 		Title.Text = NotificationConfig.Title
 		Title.LayoutOrder = 2
 
-		-- Handle Icon Image
 		if NotificationConfig.Image then
 			if typeof(NotificationConfig.Image) == "string" and Icons then
 				local asset = getIcon(NotificationConfig.Image)
@@ -403,7 +416,7 @@ function library:Notification(NotificationConfig)
 
 		-- Content Text
 		local Content = Instance.new("TextLabel")
-		Content.Parent = NotificationFrame
+		Content.Parent = contentHolder
 		Content.Size = UDim2.new(1, 0, 0, 0)
 		Content.Position = UDim2.new(0, 0, 0, 28)
 		Content.BackgroundTransparency = 1
