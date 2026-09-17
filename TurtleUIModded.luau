@@ -663,7 +663,7 @@ function library:Window(WinConfig)
     Minimise.Font = Enum.Font.SourceSansBold
     Minimise.Text = "–"
 	Minimise.TextSize = 20
-    AddThemeObject(Minimise, "Header", "TextColor3")
+    AddThemeObject(Minimise, "HeaderText", "TextColor3")
 	
 	if UiWindow.Size.X.Offset >= 400 then
 		CloseWindowBtn = Create("TextButton", {
@@ -675,6 +675,7 @@ function library:Window(WinConfig)
     		ZIndex = 7 + zindex,
 			Parent = utilityButt
 		})
+		AddThemeObject(CloseWindowBtn, "HeaderText", "TextColor3")
 	
 		CloseWindowBtn.MouseButton1Click:Connect(function()
     		UiWindow.Visible = not UiWindow.Visible
@@ -687,25 +688,29 @@ function library:Window(WinConfig)
 		local MobileUIToggle = Create("Frame", {
         	AnchorPoint = Vector2.new(0.5, 0.5),
         	AutomaticSize = Enum.AutomaticSize.X,
-        	Parent = Orion,
+        	Parent = TurtleUiLib,
 			Size = UDim2.new(0.1, 0, 0, 40),
 			Position = UDim2.new(0.5, 0, 0, -23),
 			BackgroundTransparency = 1,
         	Visible = false
 		})
+		AddThemeObject(MobileUIToggle, "WindowBackground", "BackgroundColor3")
         local MobileUIButton = Create("TextButton", {
+        	Parent = MobileUIToggle,
             AutomaticSize = Enum.AutomaticSize.X,
             Name = "Click",
             BackgroundTransparency = 0.05,
             Size = UDim2.new(1, 0, 1, 0)
 		})
 		local mobilePaddingui = Create("UIPadding", {
+			Parent = MobileUIToggle,
             PaddingTop = UDim.new(0, 8),
 			PaddingBottom = UDim.new(0, 12),
 			PaddingLeft = UDim.new(0, 10),
 			PaddingRight = UDim.new(0, 10)
 		})
 		local uiMobileDragPoint = Create("ImageLabel", {
+			Parent = MobileUIToggle,
             Name = "DragPoint",
             Active = true,
             AnchorPoint = Vector2.new(0, 0.5),
@@ -714,6 +719,7 @@ function library:Window(WinConfig)
 		    Image = "rbxassetid://7072725342"
 	    })
         local uiMobileTitle = Create("TextLabel", {
+        	Parent = MobileUIToggle,
             AnchorPoint = Vector2.new(0, 0.5),
             AutomaticSize = Enum.AutomaticSize.X,
 		    Size = UDim2.new(0, 0, 1, 0),
@@ -726,7 +732,7 @@ function library:Window(WinConfig)
 
 		MakeDraggable(uiMobileDragPoint, MobileUIToggle)
 
-    	MobileUIButton.Click.MouseButton1Click:Connect(function()
+    	MobileUIButton.MouseButton1Click:Connect(function()
 			UiWindow.Visible = not UiWindow.Visible
         	if WindowConfig.MobileUI then
         		MobileUIToggle.Visible = false
