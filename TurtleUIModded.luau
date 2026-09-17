@@ -522,7 +522,7 @@ function library:Window(WinConfig)
     WinConfig.Name = WinConfig.Name or "Window"
     WinConfig.Size = WinConfig.Size or UDim2.new(0,220,0,288)
     WinConfig.MultiWindow = WinConfig.MultiWindow or true
-    WinConfig.Keybind = WinConfig.Keybind or Enum.KeyCode.LeftControl
+    WinConfig.Keybind = WinConfig.Keybind or "LeftControl"
     WinConfig.MobileUI = WinConfig.MobileUI or false
     WinConfig.MobileUIText = WinConfig.MobileUIText or "Show TurtleUiLib"
     WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
@@ -677,10 +677,6 @@ function library:Window(WinConfig)
 		})
 		AddThemeObject(CloseWindowBtn, "HeaderText", "TextColor3")
 	
-		CloseWindowBtn.MouseButton1Click:Connect(function()
-    		UiWindow.Visible = not UiWindow.Visible
-		end)
-	
 		if WinConfig.Keybind then
 			uiKeybind(WinConfig.Keybind, UiWindow)
 		end
@@ -735,6 +731,13 @@ function library:Window(WinConfig)
     	MobileUIButton.MouseButton1Click:Connect(function()
 			UiWindow.Visible = not UiWindow.Visible
         	if WindowConfig.MobileUI then
+        		MobileUIToggle.Visible = false
+        	end
+    	end)
+	
+		CloseWindowBtn.MouseButton1Click:Connect(function()
+    		UiWindow.Visible = not UiWindow.Visible
+    		if WindowConfig.MobileUI then
         		MobileUIToggle.Visible = false
         	end
 		end)
