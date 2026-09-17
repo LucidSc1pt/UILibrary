@@ -283,7 +283,7 @@ local keybindConnection
 
 -- // Notification Function \\ --
 local NotificationHolder = Instance.new("Frame")
-NotificationHolder.Size = UDim2.new(0, 200, 1, -25)
+NotificationHolder.Size = UDim2.new(0, 360, 1, -25)
 NotificationHolder.Position = UDim2.new(1, -25, 1, -25)
 NotificationHolder.AnchorPoint = Vector2.new(1, 1)
 NotificationHolder.BackgroundTransparency = 1
@@ -296,6 +296,193 @@ ListLayout.Padding = UDim.new(0, 5)
 ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 ListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
 
+function library:Notification(NotificationConfig)
+	task.spawn(function()
+		NotificationConfig = NotificationConfig or {}
+		NotificationConfig.Title = NotificationConfig.Title or "Notification"
+		NotificationConfig.Content = NotificationConfig.Content or "Hello World"
+		NotificationConfig.Image = NotificationConfig.Image or 4384403532
+		NotificationConfig.Time = NotificationConfig.Time or 5
+
+		local isDismissed = false
+
+		local NotificationParent = Create("Frame", {
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			ClipsDescendants = true,
+			Parent = NotificationHolder
+		})
+
+		local NotificationFrame = Create("Frame", {
+			Size = UDim2.new(1, 0, 0, 0),
+			Position = UDim2.new(1, 50, 0, 0), -- Mulai dari luar layar sebelah kanan
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+			BackgroundTransparency = 0,
+			Parent = NotificationParent
+		})
+
+		local Stroke = Instance.new("UIStroke", NotificationFrame)
+		Stroke.Thickness = 2
+		Stroke.Color = Color3.fromRGB(0, 168, 247)
+
+		local Padding = Instance.new("UIPadding", NotificationFrame)
+		Padding.PaddingTop = UDim.new(0, 8)
+		Padding.PaddingBottom = UDim.new(0, 12)
+		Padding.PaddingLeft = UDim.new(0, 10)
+		Padding.PaddingRight = UDim.new(0, 10)
+
+		local closeNotifButton = Instance.new("TextButton")
+		closeNotifButton.AnchorPoint = Vector2.new(1, 0)
+		closeNotifButton.Size = UDim2.new(0, 20, 0, 20)
+		closeNotifButton.Position = UDim2.new(1, 0, 0, 0)
+		closeNotifButton.BackgroundTransparency = 1
+		closeNotifButton.Name = "CloseNotifications"
+		closeNotifButton.Text = "X"
+		closeNotifButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+		closeNotifButton.Font = Enum.Font.GothamSemibold
+		closeNotifButton.TextSize = 14
+		closeNotifButton.ZIndex = 3
+		closeNotifButton.Parent = NotificationFrame
+
+		-- Header (Icon + Title)
+		local textHolder = Create("Frame", {
+			Size = UDim2.new(1, -25, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			Parent = NotificationFrame
+		})
+
+		local textLayoutHolder = Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Left,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = textHolder
+		})
+
+		local Icon = Create("ImageLabel", {
+			Size = UDim2.new(0, 24, 0, 24),
+			BackgroundTransparency = 1,
+			ImageColor3 = Color3.fromRGB(240, 240, 240),
+			Name = "Icon",
+			LayoutOrder = 1,
+			Parent = textHolder
+		})
+
+		local Title = Instance.new("TextLabel")
+		Title.Parent = textHolder
+		Title.Size = UDim2.new(1, -32, 0, 0) -- Menyesuaikan lebar sisa setelah dikurangi Icon
+		Title.AutomaticSize = Enum.AutomaticSize.Y
+		Title.BackgroundTransparency = 1
+		Title.Font = Enum.Font.GothamBold
+		Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+		Title.TextSize = 14
+		Title.TextWrapped = true
+		Title.TextXAlignment = Enum.TextXAlignment.Left
+		Title.Text = NotificationConfig.Title
+		Title.LayoutOrder = 2
+
+		-- Handle Icon Image
+		if NotificationConfig.Image then
+			if typeof(NotificationConfig.Image) == "string" and Icons then
+				local asset = getIcon(NotificationConfig.Image)
+				Icon.Image = "rbxassetid://" .. asset.id
+				Icon.ImageRectOffset = asset.imageRectOffset
+				Icon.ImageRectSize = asset.imageRectSize
+			else
+				Icon.Image = getAssetUri(NotificationConfig.Image)
+			end
+		else
+			Icon:Destroy()
+			Title.Size = UDim2.new(1, 0, 0, 0)
+		end
+
+		-- Content Text
+		local Content = Instance.new("TextLabel")
+		Content.Parent = NotificationFrame
+		Content.Size = UDim2.new(1, 0, 0, 0)
+		Content.Position = UDim2.new(0, 0, 0, 28)
+		Content.BackgroundTransparency = 1
+		Content.AutomaticSize = Enum.AutomaticSize.Y
+		Content.Font = Enum.Font.GothamSemibold
+		Content.TextColor3 = Color3.fromRGB(220, 220, 220)
+		Content.TextSize = 12
+		Content.TextXAlignment = Enum.TextXAlignment.Left
+		Content.TextWrapped = true
+		Content.Text = NotificationConfig.Content
+
+		-- Progress Bar
+		local ProgressBar = Instance.new("Frame")
+		ProgressBar.AnchorPoint = Vector2.new(0, 1)
+		ProgressBar.Parent = NotificationFrame
+		ProgressBar.Size = UDim2.new(1, 0, 0, 3)
+		ProgressBar.Position = UDim2.new(0, 0, 1, 5) -- Diletakkan tepat di batas bawah padding
+		ProgressBar.BackgroundTransparency = 0
+		ProgressBar.BackgroundColor3 = Color3.fromRGB(0, 168, 247)
+		ProgressBar.BorderSizePixel = 0
+		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
+
+		-- Animasi Masuk (Slide In)
+		TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+			Position = UDim2.new(0, 0, 0, 0)
+		}):Play()
+
+		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
+			Size = UDim2.new(0, 0, 0, 3)
+		})
+		barTween:Play()
+
+		-- Fungsi Terpusat untuk Menghapus Notifikasi secara Mulus
+		local function DismissNotification()
+			if isDismissed then return end
+			isDismissed = true
+
+			barTween:Cancel()
+
+			-- 1. Slide Out ke Kanan & Fade Out
+			TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+				Position = UDim2.new(1, 50, 0, 0),
+				BackgroundTransparency = 1
+			}):Play()
+			TweenService:Create(Stroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
+			TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+			TweenService:Create(Content, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+			TweenService:Create(ProgressBar, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+			if Icon and Icon.Parent then
+				TweenService:Create(Icon, TweenInfo.new(0.3), {ImageTransparency = 1}):Play()
+			end
+
+			task.wait(0.3)
+
+			-- 2. Ciutkan tinggi Frame agar notifikasi lain bergeser mulus (Tanpa Snap)
+			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
+			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
+			NotificationFrame:Destroy()
+
+			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+				Size = UDim2.new(1, 0, 0, 0)
+			})
+			shrinkTween:Play()
+			shrinkTween.Completed:Wait()
+
+			NotificationParent:Destroy()
+		end
+
+		-- Connect Tombol Close
+		closeNotifButton.MouseButton1Click:Connect(DismissNotification)
+
+		-- Auto Dismiss berdasarkan Waktu
+		task.delay(NotificationConfig.Time, function()
+			if not isDismissed then
+				DismissNotification()
+			end
+		end)
+	end)
+end
+--[[
 function library:Notification(NotificationConfig)
 	task.spawn(function()
 		NotificationConfig = NotificationConfig or {}
@@ -377,7 +564,8 @@ function library:Notification(NotificationConfig)
 		Title.BackgroundTransparency = 1
 		Title.Font = Enum.Font.GothamBold
 		Title.TextColor3 = Color3.fromRGB(255,255,255)
-		Title.TextSize = 16
+		Title.TextSize = 14
+		Title.TextWrapped = true
 		Title.TextXAlignment = Enum.TextXAlignment.Left
 		Title.Text = NotificationConfig.Title
 
@@ -389,7 +577,7 @@ function library:Notification(NotificationConfig)
 		Content.AutomaticSize = Enum.AutomaticSize.Y
 		Content.Font = Enum.Font.GothamSemibold
 		Content.TextColor3 = Color3.fromRGB(220,220,220)
-		Content.TextSize = 14
+		Content.TextSize = 12
 		Content.TextXAlignment = Enum.TextXAlignment.Left
 		Content.TextWrapped = true
 		Content.Text = NotificationConfig.Content
@@ -465,7 +653,7 @@ function library:Notification(NotificationConfig)
         end
 	end)
 end
-
+]]
 -- // Destroy Function \\ --
 function library:Destroy()
     TurtleUiLib:Destroy()
