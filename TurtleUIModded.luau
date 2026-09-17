@@ -283,7 +283,7 @@ local keybindConnection
 
 -- // Notification Function \\ --
 local NotificationHolder = Instance.new("Frame")
-NotificationHolder.Size = UDim2.new(0, 300, 1, -25)
+NotificationHolder.Size = UDim2.new(0, 280, 1, -25)
 NotificationHolder.Position = UDim2.new(1, -25, 1, -25)
 NotificationHolder.AnchorPoint = Vector2.new(1, 1)
 NotificationHolder.BackgroundTransparency = 1
@@ -316,7 +316,7 @@ function library:Notification(NotificationConfig)
 
 		local NotificationFrame = Create("Frame", {
 			Size = UDim2.new(1, 0, 0, 0),
-			Position = UDim2.new(1, 50, 0, 0), -- Mulai dari luar layar sebelah kanan
+			Position = UDim2.new(1, 50, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundColor3 = Color3.fromRGB(40, 40, 40),
 			BackgroundTransparency = 0,
@@ -344,7 +344,6 @@ function library:Notification(NotificationConfig)
 		closeNotifButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 		closeNotifButton.Font = Enum.Font.GothamSemibold
 		closeNotifButton.TextSize = 14
-		closeNotifButton.ZIndex = 3
 		closeNotifButton.Parent = NotificationFrame
 
 		local contentHolder = Create("Frame", {
@@ -507,39 +506,54 @@ function library:Destroy()
     end
 end
 
--- // Keybind Function \\ --
-function library:Keybind(key)
-    if keybindConnection then keybindConnection:Disconnect() end
-
-    keybindConnection = uis.InputBegan:Connect(function(input, gp)
-        if not gp and input.KeyCode == Enum.KeyCode[key] then
-            TurtleUiLib.Enabled = not TurtleUiLib.Enabled
-        end
-    end)
+function library:AddTheme(themeName, themeTable)
+	if type(themeName) == "string" and type(themeTable) == "table" then
+		library.Themes[themeName] = themeTable
+	end
 end
 
-function library:SetTheme(ThemeName)
-	if not library.Themes[ThemeName] then return end
-	library.SelectedTheme = ThemeName
-	
-	local currentTheme = library.Themes[ThemeName]
-	
+function library:SetTheme(themeInput)
+	local targetTheme = nil
+
+	if type(themeInput) == "string" then
+		-- Jika user memasukkan nama tema (contoh: "Dark")
+		if library.Themes[themeInput] then
+			library.SelectedTheme = themeInput
+			targetTheme = library.Themes[themeInput]
+		end
+	elseif type(themeInput) == "table" then
+		-- Jika user memasukkan table Color3 secara langsung
+		targetTheme = themeInput
+		library.SelectedTheme = "Custom"
+	end
+
+	if not targetTheme then return end
+
+	-- Terapkan perubahan warna ke semua UI yang terdaftar di ThemeObjects
 	for themeKey, objectList in pairs(library.ThemeObjects) do
-		local targetColor = currentTheme[themeKey]
+		local targetColor = targetTheme[themeKey]
 		if targetColor then
-			-- Loop mundur untuk aman membersihkan objek yang sudah ter-Destroy
 			for i = #objectList, 1, -1 do
 				local item = objectList[i]
 				if item.Object and item.Object.Parent then
 					item.Object[item.Property] = targetColor
 				else
-					table.remove(objectList, i) -- Hapus dari memori jika UI sudah ditutup/dihapus
+					table.remove(objectList, i) -- Hapus jika UI sudah di-Destroy
 				end
 			end
 		end
 	end
 end
 
+local function uiKeybind(key, ui)
+    if keybindConnection then keybindConnection:Disconnect() end
+
+    keybindConnection = uis.InputBegan:Connect(function(input, gp)
+        if not gp and input.KeyCode == Enum.KeyCode[key] then
+            ui.Visible = not ui.Visible
+        end
+    end)
+end
 
 -- // Window Function \\ --
 function library:Window(WinConfig)
@@ -547,8 +561,11 @@ function library:Window(WinConfig)
     WinConfig.Name = WinConfig.Name or "Window"
     WinConfig.Size = WinConfig.Size or UDim2.new(0,220,0,288)
     WinConfig.MultiWindow = WinConfig.MultiWindow or true
+    WinConfig.Keybind = WinConfig.Keybind or Enum.KeyCode.LeftControl
+    WinConfig.MobileUI = WinConfig.MobileUI or false
+    WinConfig.MobileUIText = WinConfig.MobileUIText or "Show OrionLib"
     WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
-	if WinConfig.Theme then
+	if WinConfig.Theme and WinConfig.Theme ~= "" then
         library.SelectedTheme = WinConfig.Theme
     end
 	
@@ -571,27 +588,30 @@ function library:Window(WinConfig)
    		end
 	end
   
-	local UiWindow = Instance.new("Frame")
-    UiWindow.Name = "UiWindow"
-    UiWindow.Parent = TurtleUiLib
-    UiWindow.BackgroundTransparency = 1
-    UiWindow.BorderColor3 = Color3.fromRGB(0, 151, 230)
-    UiWindow.Position = WinConfig.Position
-    UiWindow.Size = WinConfig.Size
-    UiWindow.ZIndex = 4 + zindex
-    UiWindow.Active = false
-	
+	local UiWindow = Create("Frame", {
+    	Name = "UiWindow",
+    	Parent = TurtleUiLib,
+    	BackgroundTransparency = 1,
+    	BorderColor3 = Color3.fromRGB(0, 151, 230),
+    	Position = WinConfig.Position,
+    	Size = WinConfig.Size,
+    	ZIndex = 4 + zindex,
+    	Active = false,
+    	ClipsDescendants = true
+	})
+
     xOffset = xOffset + 230
 
     local Header = Instance.new("Frame")
     Header.Name = "Header"
     Header.Parent = UiWindow
     Header.BackgroundColor3 = Color3.fromRGB(0, 168, 255)
-    Header.BorderColor3 = Color3.fromRGB(0, 168, 255)
+    Header.BorderSizePixel = 0
     Header.Position = UDim2.new(0, 0, 0, 0)
     Header.Size = UDim2.new(1, 0, 0, 33)
     Header.Active = true
     Header.ZIndex = 5 + zindex
+    AddThemeObject(Header, "Header", "BackgroundColor3")
 
     local HeaderText = Instance.new("TextLabel")
     HeaderText.Name = "HeaderText"
@@ -605,7 +625,8 @@ function library:Window(WinConfig)
     HeaderText.Text = WinConfig.Name
     HeaderText.TextColor3 = Color3.fromRGB(47, 54, 64)
     HeaderText.TextXAlignment = Enum.TextXAlignment.Left
-    HeaderText.TextSize = 17
+    HeaderText.TextSize = 
+    AddThemeObject(HeaderText, "HeaderText", "TextColor3")
 
 	MakeDraggable(Header, UiWindow)
 
@@ -613,11 +634,12 @@ function library:Window(WinConfig)
     Window.Name = "Window"
     Window.Parent = UiWindow
     Window.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
-    Window.BorderColor3 = Color3.fromRGB(47, 54, 64)
+    Window.BorderSizePixel = 0
     Window.Position = UDim2.new(0, 0, 0, 33)
     Window.Size = UDim2.new(1, 0, 1, -33)
     Window.Active = false
     Window.ZIndex = 1 + zindex
+    AddThemeObject(Window, "WindowBackground", "BackgroundColor3")
     
     local WindowScroll = Instance.new("ScrollingFrame")
 	WindowScroll.Parent = Window
@@ -647,28 +669,116 @@ function library:Window(WinConfig)
 	winLayout.Padding = UDim.new(0, 5)
 	winLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	winLayout.Parent = WindowScroll
+	
+	local utilityButt = Create("Frame", {
+		AnchorPoint = Vector2.new(1,0.5),
+		Size = UDim2.new(0, 22, 0, 22),
+		Position = UDim2.new(1,-5,0.5,0),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+		Parent = Header
+	})
+
+	local textLayoutHolder = Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Left,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 2),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = utilityButt
+	})
 
     local Minimise = Instance.new("TextButton")
+    local CloseWindowBtn
+    
     Minimise.Name = "Minimise"
-    Minimise.Parent = Header
+    Minimise.Parent = utilityButt
     Minimise.BackgroundColor3 = Color3.fromRGB(0, 168, 255)
 	Minimise.BackgroundTransparency = 1
     Minimise.BorderColor3 = Color3.fromRGB(0, 168, 255)
-    Minimise.Position = UDim2.new(1, -25, 0, 2)
+    Minimise.Position = UDim2.new(0, 0, 0, 0)
     Minimise.Size = UDim2.new(0, 22, 0, 22)
     Minimise.ZIndex = 7 + zindex
     Minimise.Font = Enum.Font.SourceSansBold
     Minimise.Text = "–"
-    Minimise.TextColor3 = Color3.fromRGB(47, 54, 64)
-    Minimise.TextSize = 20.000
+	Minimise.TextSize = 20
+    AddThemeObject(Minimise, "Header", "TextColor3")
+	
+	if UiWindow.Size.X.Offset >= 400 then
+		CloseWindowBtn = Create("Frame", {
+			Size = UDim2.new(0, 22, 0, 22),
+			BackgroundTransparency = 1,
+			Font = Enum.Font.SourceSansBold,
+    		Text = "x",
+    		TextSize = 20,
+			Parent = utilityButt
+		})
+	
+		CloseWindowBtn.MouseButton1Click:Connect(function()
+    		UiWindow.Visible = not UiWindow.Visible
+		end)
+	
+		if WinConfig.Keybind then
+			uiKeybind(WinConfig.Keybind, UiWindow)
+		end
+		
+		local MobileUIToggle = Create("Frame", {
+        	AnchorPoint = Vector2.new(0.5, 0.5),
+        	AutomaticSize = Enum.AutomaticSize.X,
+        	Parent = Orion,
+			Size = UDim2.new(0.1, 0, 0, 40),
+			Position = UDim2.new(0.5, 0, 0, -23),
+			BackgroundTransparency = 1,
+        	Visible = false
+		})
+        local MobileUIButton = Create("TextButton", {
+            AutomaticSize = Enum.AutomaticSize.X,
+            Name = "Click",
+            BackgroundTransparency = 0.05,
+            Size = UDim2.new(1, 0, 1, 0)
+		})
+		local mobilePaddingui = Create("UIPadding", {
+            PaddingTop = UDim.new(0, 8),
+			PaddingBottom = UDim.new(0, 12),
+			PaddingLeft = UDim.new(0, 10),
+			PaddingRight = UDim.new(0, 10)
+		})
+		local uiMobileDragPoint = Create("ImageLabel", {
+            Name = "DragPoint",
+            Active = true,
+            AnchorPoint = Vector2.new(0, 0.5),
+		    Position = UDim2.new(0, 0, 0.5, 0),
+		    Size = UDim2.new(0, 20, 0, 20),
+		    Image = "rbxassetid://7072725342"
+	    })
+        local uiMobileTitle = Create("Label", {
+            AnchorPoint = Vector2.new(0, 0.5),
+            AutomaticSize = Enum.AutomaticSize.X,
+		    Size = UDim2.new(0, 0, 1, 0),
+	        Position = UDim2.new(0, 25, 0.5, 0),
+	        Font = Enum.Font.GothamBlack,
+	        TextSize = 14,
+	        Text = WinConfig.MobileUIText,
+	        TextSize = 14
+	    })
 
+		MakeDraggable(uiMobileDragPoint, MobileUIToggle)
+
+    	MobileUIToggle.Click.MouseButton1Click:Connect(function()
+			UiWindow.Visible = not UiWindow.Visible
+        	if WindowConfig.MobileUI then
+        		MobileUIToggle.Visible = false
+        	end
+		end)
+	end
+	
     Minimise.MouseButton1Click:Connect(function()
-       Window.Visible = not Window.Visible
-       if Window.Visible then
-          Minimise.Text = "–"
-       else
-          Minimise.Text = "+"
-       end
+    	Window.Visible = not Window.Visible
+    	if Window.Visible then
+        	Minimise.Text = "–"
+    	else
+        	Minimise.Text = "+"
+    	end
     end)
     
 	local contentParent = WindowScroll
@@ -696,17 +806,8 @@ function library:Window(WinConfig)
     ColorPickerParent.BackgroundTransparency = 1
 
     local functions = {}
-    sizes[winCount] = 33
-    listOffset[winCount] = 10
     local windowContentCount = 0
     
-	local function autoSizeWin(winC, sizeWin)
-		if windowContentCount <= 6 then
-			sizes[winCount] = sizes[winCount] + winC
-			Window.Size = UDim2.new(1,0,0,sizes[winCount] + sizeWin)
-		end
-	end
-
 	  -- // Button Function \\ --
     function functions:Button(ButConfig)
         ButConfig = ButConfig or {}
@@ -755,14 +856,13 @@ function library:Window(WinConfig)
         ButtonTitle.ZIndex = 2 + zindex
         
         Button.MouseButton1Click:Connect(ButConfig.Callback)
-
-        pastSliders[winCount] = false
     end
 
 	-- // Label Function \\ --
     function functions:Label(LabConfig)
         LabConfig = LabConfig or {}
         LabConfig.Name = LabConfig.Name or "Label"
+        LabConfig.XAlignment = LabConfig.XAlignment or "Center"
         LabConfig.Color = LabConfig.Color or Color3.fromRGB(220, 221, 225)
         
         local labelFrame = Instance.new("Frame")
@@ -784,6 +884,7 @@ function library:Window(WinConfig)
         Label.Font = Enum.Font.SourceSans
         Label.Text = LabConfig.Name
         Label.TextSize = 16
+        Label.TextXAlignment = Enum.TextXAlignment[LabConfig.XAlignment]
         Label.ZIndex = 2 + zindex
 
         if LabConfig.Color == "Rainbow" then
@@ -797,8 +898,6 @@ function library:Window(WinConfig)
         else
             Label.TextColor3 = LabConfig.Color
         end
-        
-        pastSliders[winCount] = false
     end
  
     -- // Toggle Function \\ --
@@ -889,8 +988,6 @@ function library:Window(WinConfig)
         ToggleFiller.Size = UDim2.new(0, 14, 0, 14)
         ToggleFiller.Visible = TogConfig.Default
         ToggleFiller.ZIndex = 2 + zindex
-        
-        pastSliders[winCount] = false
     end
 
 	-- // TextBox Function \\ --
@@ -948,8 +1045,6 @@ function library:Window(WinConfig)
         BoxDescription.TextSize = 16
         BoxDescription.TextXAlignment = Enum.TextXAlignment.Left
         BoxDescription.ZIndex = 2 + zindex
-        
-        pastSliders[winCount] = false
     end
 
 	-- // Slider Function \\ --
@@ -964,10 +1059,6 @@ function library:Window(WinConfig)
         local offset = 70
         local defaultAlpha = (SliConfig.Default - SliConfig.Min) / (SliConfig.Max - SliConfig.Min)
 
-        if pastSliders[winCount] then
-            offset = 60
-        end
-        
         local sliFrame = Instance.new("Frame")
 		sliFrame.Parent = contentParent
 		sliFrame.Size = UDim2.new(1, 0, 0, 60)
@@ -1098,8 +1189,6 @@ function library:Window(WinConfig)
         SilderFiller.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
         SilderFiller.Size = UDim2.new(defaultAlpha, 0, 1, 0)
         SilderFiller.ZIndex = 2 + zindex
-        
-        pastSliders[winCount] = true
     end
 
 	-- // Dropdown Function \\ --
