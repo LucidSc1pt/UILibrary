@@ -698,17 +698,19 @@ function library:Window(WinConfig)
             BackgroundTransparency = 0.05,
             Size = UDim2.new(1, 0, 1, 0)
 		})
+		AddThemeObject(MobileUIButton, "WindowBackground", "BackgroundColor3")
 		local mobilePaddingui = Create("UIPadding", {
 			Parent = MobileUIToggle,
-            PaddingTop = UDim.new(0, 8),
-			PaddingBottom = UDim.new(0, 12),
+            PaddingTop = UDim.new(0, 2),
+			PaddingBottom = UDim.new(0, 2),
 			PaddingLeft = UDim.new(0, 10),
-			PaddingRight = UDim.new(0, 10)
+			PaddingRight = UDim.new(0, 15)
 		})
 		local uiMobileDragPoint = Create("ImageLabel", {
 			Parent = MobileUIToggle,
             Name = "DragPoint",
             Active = true,
+            BackgroundTransparency = 1,
             AnchorPoint = Vector2.new(0, 0.5),
 		    Position = UDim2.new(0, 0, 0.5, 0),
 		    Size = UDim2.new(0, 20, 0, 20),
@@ -722,9 +724,11 @@ function library:Window(WinConfig)
 	        Position = UDim2.new(0, 25, 0.5, 0),
 	        Font = Enum.Font.GothamBlack,
 	        TextSize = 14,
+	        BackgroundTransparency = 1,
 	        Text = WinConfig.MobileUIText,
 	        TextSize = 14
 	    })
+	    AddThemeObject(uiMobileTitle, "NormalText", "TextColor3")
 
 		MakeDraggable(uiMobileDragPoint, MobileUIToggle)
 
