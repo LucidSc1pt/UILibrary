@@ -153,7 +153,7 @@ local function MakeDraggable(DragPoint, Main)
 	end)
 
 	uis.InputChanged:Connect(function(Input)
-		if Dragging and Input == DragInput then
+		if Dragging and activeInteraction == nil and Input == DragInput then
 			local Delta = Input.Position - MousePos
 			Main.Position = UDim2.new(
 				FramePos.X.Scale, 
@@ -726,7 +726,7 @@ function library:Window(WinConfig)
 
 		MakeDraggable(uiMobileDragPoint, MobileUIToggle)
 
-    	MobileUIToggle.Click.MouseButton1Click:Connect(function()
+    	MobileUIButton.Click.MouseButton1Click:Connect(function()
 			UiWindow.Visible = not UiWindow.Visible
         	if WindowConfig.MobileUI then
         		MobileUIToggle.Visible = false
