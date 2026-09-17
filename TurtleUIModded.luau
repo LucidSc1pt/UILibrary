@@ -752,7 +752,7 @@ function library:Window(WinConfig)
 		    Size = UDim2.new(0, 20, 0, 20),
 		    Image = "rbxassetid://7072725342"
 	    })
-        local uiMobileTitle = Create("Label", {
+        local uiMobileTitle = Create("TextLabel", {
             AnchorPoint = Vector2.new(0, 0.5),
             AutomaticSize = Enum.AutomaticSize.X,
 		    Size = UDim2.new(0, 0, 1, 0),
@@ -1268,7 +1268,7 @@ function library:Window(WinConfig)
         if DropConfig.Floating then
 			dragDropFrame = Instance.new("Frame")
 			dragDropFrame.Parent = TurtleUiLib
-			dragDropFrame.Size = UDim2.new(1, 0, 0, 33)
+			dragDropFrame.Size = UDim2.new(0, 192, 0, 33)
 			dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
 			dragDropFrame.Active = true
@@ -1578,8 +1578,8 @@ function library:Window(WinConfig)
         local dragColFrame = nil
         if ColConfig.Floating then
 			dragColFrame = Instance.new("Frame")
-			dragColFrame.Parent = ColorPickerParent
-			dragColFrame.Size = UDim2.new(1, 0, 0, 33)
+			dragColFrame.Parent = TurtleUiLib
+			dragColFrame.Size = UDim2.new(0, 192, 0, 33)
 			dragColFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 			dragColFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
 			dragColFrame.Active = true
