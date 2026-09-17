@@ -700,14 +700,14 @@ function library:Window(WinConfig)
 		})
 		AddThemeObject(MobileUIButton, "WindowBackground", "BackgroundColor3")
 		local mobilePaddingui = Create("UIPadding", {
-			Parent = MobileUIToggle,
+			Parent = MobileUIButton,
             PaddingTop = UDim.new(0, 2),
 			PaddingBottom = UDim.new(0, 2),
-			PaddingLeft = UDim.new(0, 10),
-			PaddingRight = UDim.new(0, 15)
+			PaddingLeft = UDim.new(0, 8),
+			PaddingRight = UDim.new(0, 8)
 		})
 		local uiMobileDragPoint = Create("ImageLabel", {
-			Parent = MobileUIToggle,
+			Parent = MobileUIButton,
             Name = "DragPoint",
             Active = true,
             BackgroundTransparency = 1,
@@ -717,7 +717,7 @@ function library:Window(WinConfig)
 		    Image = "rbxassetid://7072725342"
 	    })
         local uiMobileTitle = Create("TextLabel", {
-        	Parent = MobileUIToggle,
+        	Parent = MobileUIButton,
             AnchorPoint = Vector2.new(0, 0.5),
             AutomaticSize = Enum.AutomaticSize.X,
 		    Size = UDim2.new(0, 0, 1, 0),
@@ -1076,7 +1076,7 @@ function library:Window(WinConfig)
                     	local snappedValue = snapToIncrement(rawValue)
                     
                     	local snappedAlpha = (snappedValue - SliConfig.Min) / (SliConfig.Max - SliConfig.Min)
-                    	SliderButton.Position = UDim2.new(snappedAlpha, 0, -1.33333337, 0)
+                    	SliderButton.Position = UDim2.new(snappedAlpha, 0, 0, 0)
                     	SilderFiller.Size = UDim2.new(snappedAlpha, 0, 1, 0)
                     	Current.Text = tostring(snappedValue)
                 	else
@@ -1109,7 +1109,8 @@ function library:Window(WinConfig)
         Slider.InputBegan:Connect(SliderMovement) 
         Slider.InputEnded:Connect(SliderEnd)
 		
-        SliderButton.Position = UDim2.new(defaultAlpha, 0, -1.333337, 0)
+		SliderButton.AnchorPoint = Vector2.new(0.5, 0.5)
+        SliderButton.Position = UDim2.new(defaultAlpha, 0, 0, 0)
 		SliderButton.Name = "SliderButton"
 		SliderButton.Active = true
         SliderButton.Parent = Slider
