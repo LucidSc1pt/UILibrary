@@ -338,6 +338,7 @@ function library:Notification(NotificationConfig)
 		closeNotifButton.BackgroundTransparency = 1
 		closeNotifButton.Name = "CloseNotifications"
 		closeNotifButton.Text = "X"
+		closeNotifButton.TextColor3 = Color3.fromRGB(255,255,255)
 		closeNotifButton.Font = Enum.Font.GothamSemibold
 		closeNotifButton.TextSize = 14
 		closeNotifButton.Parent = NotificationFrame
@@ -370,7 +371,7 @@ function library:Notification(NotificationConfig)
 
 		local Title = Instance.new("TextLabel")
 		Title.Parent = textHolder
-		Title.Size = UDim2.new(1, 0, 1, 0)
+		Title.Size = UDim2.new(1, 0, 0, 0)
 		Title.Position = UDim2.new(0,0,0,0)
 		Title.AutomaticSize = Enum.AutomaticSize.Y
 		Title.BackgroundTransparency = 1
@@ -404,7 +405,7 @@ function library:Notification(NotificationConfig)
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0,3)
 		
 		if NotificationConfig.Image ~= nil and NotificationConfig.Image then
-			textHolder.Position = UDim2.new(0,20,0,0)
+			Title.Position = UDim2.new(0,35,0,0)
 			if typeof(NotificationConfig.Image) == 'string' and Icons then
 				local asset = getIcon(NotificationConfig.Image)
 
