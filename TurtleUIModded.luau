@@ -60,46 +60,7 @@ local player = players.LocalPlayer;
 local mouse = player:GetMouse();
 local run = game:service('RunService');
 local stepped = run.Stepped;
---[[
-local function MakeDraggable(DragPoint, Main)
-	pcall(function()
-		local Dragging = false
-		local DragInput
-		local MousePos
-		local FramePos
-		
-		DragPoint.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-				
-				Dragging = true
-				MousePos = Input.Position
-				FramePos = Main.Position
-				
-				Input.Changed:Connect(function()
-					if Input.UserInputState == Enum.UserInputState.End then
-						Dragging = false
-					end
-				end)
-			end
-		end)
-		
-		DragPoint.InputChanged:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-				DragInput = Input
-			end
-		end)
-		
-		uis.InputChanged:Connect(function(Input)
-			if Input == DragInput and Dragging then
-				local Delta = Input.Position - MousePos
 
-				local newPos = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
-			    Main.Position = newPos
-			end
-		end)
-	end)
-end
-]]
 local Icons
 
 local Success, Response = pcall(function()
@@ -163,7 +124,7 @@ local function MakeDraggable(DragPoint, Main)
 
 	DragPoint.InputBegan:Connect(function(Input)
 		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-			if Dragging then return end
+			if Dragging and activeInteraction ~= nil then return end
 
 			Dragging = true
 			MousePos = Input.Position
@@ -1380,7 +1341,7 @@ function library:Window(WinConfig)
         	TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
 
         	if DropConfig.Floating then
-            	dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X / 2, Dropdown.AbsolutePosition.Y - 2)
+            	dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y)
             	dragDropFrame.Visible = true
             	DropdownFrame.Visible = true
         	else
@@ -2000,6 +1961,7 @@ function library:Window(WinConfig)
         	end
 
         	if ColConfig.Floating then
+        		dragColFrame.Position = UDim2.fromOffset(colFrame.AbsolutePosition.X, colFrame.AbsolutePosition.Y)
             	dragColFrame.Visible = true
             	ColorPickerFrame.Visible = true
         	else
