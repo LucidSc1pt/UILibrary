@@ -7,13 +7,20 @@ pcall(function()
     end
 end)
 
+local function getService(name)
+	local service = game:GetService(name)
+	return if cloneref then cloneref(service) else service
+end
+
 -- Service
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
+local UserInputService = getService("UserInputService")
+local TweenService = getService("TweenService")
+local Players = getService("Players")
+local CoreGui = getService("CoreGui")
+local RunService = getService("RunService")
+local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
-local HttpService = game:GetService("HttpService")
+local HttpService = getService("HttpService")
 
 -- others var
 local orionDestroyed = false --true when OrionLib:Destroy() called
@@ -160,19 +167,24 @@ end
 local Orion = Instance.new("ScreenGui")
 Orion.Name = "Orion"
 
-if syn and syn.protect_gui then
-    syn.protect_gui(Orion)
-    Orion.Parent = game:GetService("CoreGui")
-elseif gethui then
-    Orion.Parent = gethui()
-else
-    local success = pcall(function()
-        Orion.Parent = game:GetService("CoreGui")
-    end)
-    if not success then
-        Orion.Parent = LocalPlayer:WaitForChild("RobloxGui")
-    end
+local function protect_gui(obj) 
+	if destroyed then
+		obj.Parent = game.CoreGui
+		return
+	end
+	if syn and syn.protect_gui then
+		syn.protect_gui(obj)
+		obj.Parent = game.CoreGui
+	elseif PROTOSMASHER_LOADED or get_hidden_gui then
+		obj.Parent = get_hidden_gui()
+	elseif gethui then
+		obj.Parent = gethui()
+	else
+		obj.Parent = game.CoreGui
+	end
 end
+
+protect_gui(Orion)
 
 function OrionLib:IsRunning()
 	if gethui then
@@ -1226,7 +1238,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					ToggleConfig.Callback(Toggle.Value)
 				end    
 
-				Toggle:Set(Toggle.Value)
+				--Toggle:Set(Toggle.Value)
 
 				AddConnection(Click.MouseEnter, function()
 					TweenService:Create(ToggleFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
@@ -1343,7 +1355,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					SliderConfig.Callback(self.Value)
 				end      
 
-				Slider:Set(Slider.Value)
+				--Slider:Set(Slider.Value)
 				if SliderConfig.Flag then				
 					OrionLib.Flags[SliderConfig.Flag] = Slider
 				end
@@ -1498,7 +1510,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				Dropdown:Refresh(Dropdown.Options, false)
-				Dropdown:Set(Dropdown.Value)
+				--Dropdown:Set(Dropdown.Value)
 				if DropdownConfig.Flag then				
 					OrionLib.Flags[DropdownConfig.Flag] = Dropdown
 				end
@@ -1617,7 +1629,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					BindBox.Value.Text = Bind.Value
 				end
 
-				Bind:Set(BindConfig.Default)
+				--Bind:Set(BindConfig.Default)
 				if BindConfig.Flag then				
 					OrionLib.Flags[BindConfig.Flag] = Bind
 				end
@@ -1881,7 +1893,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					ColorpickerConfig.Callback(Colorpicker.Value)
 				end
 
-				Colorpicker:Set(Colorpicker.Value)
+				--Colorpicker:Set(Colorpicker.Value)
 				if ColorpickerConfig.Flag then				
 					OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker
 				end
