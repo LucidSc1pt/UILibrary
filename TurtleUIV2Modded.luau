@@ -721,13 +721,12 @@ function makeToggle(option, parent)
 	})
 
 	function option:SetValue(state)
-		self.State = state
 		self.Default = state
 		if self.Flag then
 			library.Flags[self.Flag] = state
 		end
 
-		if type(self.Callback) == "function" then
+		if not self.Loop and type(self.Callback) == "function" then
 			self.Callback(state)
 		end
 
@@ -741,12 +740,10 @@ function makeToggle(option, parent)
 	end
 
 	ToggleButton.MouseButton1Click:Connect(function()
-		if not option.Loop then
-			option:SetValue(not option.Default)
-		end
+		option:SetValue(not option.Default)
 	end)
 
-	if typeof(option.Loop) == "boolean" and option.Loop then
+	if typeof(option.Loop) == "boolean" and option.Loop == true then
 		local lastTick = 0
 
 		game:GetService("RunService").Heartbeat:Connect(function()
@@ -2163,6 +2160,7 @@ function library:CreateWindow(WinConfig)
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "contentArea"
 	contentArea.ZIndex = 9 + zindex
+	contentArea.BackgroundTransparency = 1
 	contentArea.Position = UDim2.new(0, 0, 0, 0)
 	contentArea.Size = UDim2.new(1, 0, 1, 0)
 	contentArea.Parent = Window
