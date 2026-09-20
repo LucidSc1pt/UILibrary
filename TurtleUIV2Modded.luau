@@ -426,7 +426,7 @@ function library:Notification(NotificationConfig)
 			Title.Size = UDim2.new(1, 0, 0, 0)
 		end
 
-		local Content = Createnew("TextLabel", {
+		local Content = Create("TextLabel", {
 			Parent = contentHolder,
 			Size = UDim2.new(1, 0, 0, 0),
 			Position = UDim2.new(0, 0, 0, 28),
