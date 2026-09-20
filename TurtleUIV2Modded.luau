@@ -636,7 +636,7 @@ function makeLabel(option, parent)
 		TextColor3 = Color3.fromRGB(245, 246, 250),
 		TextSize = 16,
 		TextWrapped = true,
-		TextXAlignment = Enum.TextXAlignment[option.TextXAlignment],
+		TextXAlignment = Enum.TextXAlignment[option.XAlignment],
 		Active = false
 	})
 
@@ -1791,7 +1791,7 @@ local function injectElements(targetContainer)
 		config = type(config) == "table" and config or {}
 		config.type = "label"
 		config.Title = config.Title or "Label"
-		config.TextXAlignment = config.TextXAlignment or "Left"
+		config.XAlignment = config.XAlignment or "Left"
 		config.Color = config.Color or Color3.new(1,1,1)
 		
 		table.insert(self.options, config)
