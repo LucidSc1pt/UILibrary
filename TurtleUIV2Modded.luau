@@ -730,8 +730,8 @@ function makeToggle(option, parent)
 			self.Callback(state)
 		end
 
-		if self.ToggleFiller then 
-			self.ToggleFiller.Visible = state
+		if ToggleFiller then 
+			ToggleFiller.Visible = state
 		end
 	end
 
@@ -1777,6 +1777,7 @@ local function injectElements(targetContainer)
 		config.type = "toggle"
 		config.Title = config.text or "Toggle"
 		config.Default = config.Default or false
+		config.Delay = config.Delay or 0
 		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or function() end
 
