@@ -2263,7 +2263,7 @@ function library:CreateWindow(WinConfig)
 		})
 
 		local containerLayout = Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.[WinConfig.ContentFillDirection],
+			FillDirection = Enum.FillDirection[WinConfig.ContentFillDirection],
 			HorizontalAlignment = Enum.HorizontalAlignment.Left,
 			VerticalAlignment = Enum.VerticalAlignment.Top,
 			Padding = UDim.new(0, 6),
