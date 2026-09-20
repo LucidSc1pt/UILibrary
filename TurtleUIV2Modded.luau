@@ -570,6 +570,7 @@ function makeButton(option, parent)
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
+		ZIndex = 12 + zindex,
 		Name = "_ButtonHolder_"
 	})
 
@@ -586,6 +587,7 @@ function makeButton(option, parent)
 		TextSize = 16.000,
 		TextStrokeTransparency = 123.000,
 		TextWrapped = true,
+		ZIndex = 12 + zindex,
 		Text = ""
 	})
 
@@ -602,6 +604,7 @@ function makeButton(option, parent)
 		TextColor3 = Color3.fromRGB(245, 246, 250),
 		TextSize = 16,
 		TextWrapped = true,
+		ZIndex = 12 + zindex,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Active = false
 	})
@@ -621,6 +624,7 @@ function makeLabel(option, parent)
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
+		ZIndex = 12 + zindex,
 		Name = "_LabelHolder_"
 	})
 
@@ -637,6 +641,7 @@ function makeLabel(option, parent)
 		TextSize = 16,
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment[option.XAlignment],
+		ZIndex = 12 + zindex,
 		Active = false
 	})
 
@@ -665,6 +670,7 @@ function makeToggle(option, parent)
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
+		ZIndex = 12 + zindex,
 		Name = "_LabelHolder_"
 	})
 
@@ -681,6 +687,7 @@ function makeToggle(option, parent)
 		TextSize = 16,
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
+		ZIndex = 12 + zindex,
 		Active = false
 	})
 
@@ -691,6 +698,7 @@ function makeToggle(option, parent)
 		Position = UDim2.new(1,0,0.5,0),
 		Size = UDim2.new(0, 26, 0, 26),
 		Name = "ToggleButton",
+		ZIndex = 12 + zindex,
 		Text = ""
 	})
 
@@ -708,6 +716,7 @@ function makeToggle(option, parent)
 		BackgroundColor3 = Color3.fromRGB(68, 189, 50),
 		BorderSizePixel = 0,
 		Visible = option.Default,
+		ZIndex = 12 + zindex,
 		Size = UDim2.new(1, 0, 1, 0)
 	})
 
@@ -769,7 +778,8 @@ function makeBox(option, parent)
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
-		Name = "_BoxHolder_"
+		Name = "_BoxHolder_",
+		ZIndex = 12 + zindex
 	})
 
 	local TextBox = Create("TextBox", {
@@ -782,6 +792,7 @@ function makeBox(option, parent)
 		Font = Enum.Font.SourceSans,
 		PlaceholderText = "...",
 		Text = option.Default,
+		ZIndex = 12 + zindex,
 		TextColor3 = Color3.fromRGB(245, 246, 250),
 		TextSize = 14,
 		Name = "TextBox"
@@ -799,6 +810,7 @@ function makeBox(option, parent)
 		TextColor3 = Color3.fromRGB(245, 246, 250),
 		TextSize = 16,
 		TextWrapped = true,
+		ZIndex = 12 + zindex,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Active = false
 	})
@@ -1920,7 +1932,7 @@ function library:CreateWindow(WinConfig)
 		Position = UDim2.new(0, 5, 0.5, 0),
 		Size = UDim2.new(1, -67, 1, 0),
 		ZIndex = 5 + zindex,
-		Active = true
+		Active = false
 	})
 
 	Create("UIListLayout", {
@@ -1996,6 +2008,7 @@ function library:CreateWindow(WinConfig)
 		Position = UDim2.new(1,-5,0.5,0),
 		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundTransparency = 1,
+		
 		Parent = Header
 	})
 
@@ -2053,6 +2066,7 @@ function library:CreateWindow(WinConfig)
             AutomaticSize = Enum.AutomaticSize.X,
             Name = "Click",
             BackgroundTransparency = 0.05,
+            ZIndex = 15 + zindex,
             Size = UDim2.new(1, 0, 1, 0)
 		})
 		AddThemeObject(MobileUIButton, "WindowBackground", "BackgroundColor3")
@@ -2071,6 +2085,7 @@ function library:CreateWindow(WinConfig)
             AnchorPoint = Vector2.new(0, 0.5),
 		    Position = UDim2.new(0, 0, 0.5, 0),
 		    Size = UDim2.new(0, 20, 0, 20),
+		    ZIndex = 15 + zindex,
 		    Image = "rbxassetid://7072725342"
 	    })
         local uiMobileTitle = Create("TextLabel", {
@@ -2082,6 +2097,7 @@ function library:CreateWindow(WinConfig)
 	        Font = Enum.Font.GothamBlack,
 	        TextSize = 14,
 	        BackgroundTransparency = 1,
+	        ZIndex = 15 + zindex,
 	        Text = WinConfig.MobileUIText,
 	        TextSize = 14
 	    })
@@ -2146,6 +2162,7 @@ function library:CreateWindow(WinConfig)
 
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "contentArea"
+	contentArea.ZIndex = 9 + zindex
 	contentArea.Position = UDim2.new(0, 0, 0, 0)
 	contentArea.Size = UDim2.new(1, 0, 1, 0)
 	contentArea.Parent = Window
@@ -2191,6 +2208,7 @@ function library:CreateWindow(WinConfig)
 			Size = UDim2.new(0.24,0,0,30),
 			Font = Enum.Font.GothamSemibold,
 			TextTransparency = 1,
+			ZIndex = 8 + zindex,
 			Visible = true,
 			Active = true
 		})
@@ -2218,6 +2236,7 @@ function library:CreateWindow(WinConfig)
 			ImageColor3 = Color3.fromRGB(240, 240, 240),
 			Name = "Icon",
 			LayoutOrder = 1,
+			ZIndex = 8 + zindex,
 			Parent = textHolder
 		})
 
@@ -2245,6 +2264,7 @@ function library:CreateWindow(WinConfig)
 			Font = Enum.Font.GothamSemibold,
 			Text = TabConfig.Title,
 			TextSize = 14,
+			ZIndex = 8 + zindex,
 			Visible = true,
 			Active = true
 		})
@@ -2260,6 +2280,7 @@ function library:CreateWindow(WinConfig)
 			ScrollingDirection = Enum.ScrollingDirection.Y,
 			ElasticBehavior = Enum.ElasticBehavior.Never,
 			ScrollBarThickness = 0,
+			ZIndex = 10 + zindex,
 			Size = UDim2.new(1,0,1,0),
 			Visible = false,
 			Active = true
@@ -2335,7 +2356,7 @@ function library:CreateWindow(WinConfig)
 				ScrollBarThickness = 0,
 				ElasticBehavior = Enum.ElasticBehavior.Never,
 				Size = UDim2.new(1,0,1,0),
-				ZIndex = 1 + zindex,
+				ZIndex = 10 + zindex,
 				Visible = true,
 				Active = true
 			})
