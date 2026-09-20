@@ -636,7 +636,7 @@ function makeLabel(option, parent)
 		TextColor3 = Color3.fromRGB(245, 246, 250),
 		TextSize = 16,
 		TextWrapped = true,
-		TextXAlignment = Enum.TextXAlignment[option.XAlignment],
+		TextXAlignment = Enum.TextXAlignment[option.TextXAlignment],
 		Active = false
 	})
 
