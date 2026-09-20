@@ -612,7 +612,7 @@ function makeButton(option, parent)
 
 	Button.MouseButton1Click:Connect(option.Callback)
 	
-	--option.Instance = btnFrame
+	option.Instance = btnFrame
 	return btnFrame
 end
 
@@ -656,7 +656,7 @@ function makeLabel(option, parent)
 		Label.TextColor3 = option.Color
 	end
 	
-	--option.Instance = Label
+	option.Instance = Label
 	return Label
 end
 
@@ -760,7 +760,7 @@ function makeToggle(option, parent)
 		end)
 	end
 	
-	--option.Instance = togFrame
+	option.Instance = togFrame
 	return togFrame
 end
 
@@ -1938,14 +1938,15 @@ function library:CreateWindow(WinConfig)
 		BackgroundTransparency = 1,
 		Text = WinConfig.Title,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		ZIndex = 6 + zindex
+		ZIndex = 6 + zindex,
+		Active = false
 	})
     AddThemeObject(HeaderText, "HeaderText", "TextColor3")
 
 	local SubHeaderText = Create("TextLabel", {
 		LayoutOrder = 2,
 		Parent = HeaderTextHolder,
-		Name = "HeaderText",
+		Name = "SubHeaderText",
 		Size = UDim2.new(1, 0, 0.5, 0),
 		Position = UDim2.new(0, 0, 0, 0),
 		Font = Enum.Font.SourceSansBold,
@@ -1953,7 +1954,8 @@ function library:CreateWindow(WinConfig)
 		BackgroundTransparency = 1,
 		Text = WinConfig.SubTitle,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		ZIndex = 6 + zindex
+		ZIndex = 6 + zindex,
+		Active = false
 	})
     AddThemeObject(SubHeaderText, "SubHeaderText", "TextColor3")
     
@@ -2117,6 +2119,7 @@ function library:CreateWindow(WinConfig)
 			ElasticBehavior = Enum.ElasticBehavior.Never,
 			ScrollBarThickness = 0,
 			Size = UDim2.new(1,0,0,35),
+			ZIndex = 8 + zindex,
 			Visible = true,
 			Active = true
 	})
@@ -2137,6 +2140,7 @@ function library:CreateWindow(WinConfig)
 	})
 
 	local contentArea = Instance.new("Frame")
+	contentArea.Name = "contentArea"
 	contentArea.Position = UDim2.new(0, 0, 0, 0)
 	contentArea.Size = UDim2.new(1, -135, 1, 0)
 	contentArea.Parent = Window
@@ -2324,7 +2328,7 @@ function library:CreateWindow(WinConfig)
 				ElasticBehavior = Enum.ElasticBehavior.Never,
 				Size = UDim2.new(1,0,1,0),
 				ZIndex = 1 + zindex,
-				Visible = false,
+				Visible = true,
 				Active = true
 			})
 
