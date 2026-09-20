@@ -1972,7 +1972,7 @@ function library:CreateWindow(WinConfig)
 	
 	local Window = Create("Frame", {
 		Name = "Window",
-		Parent = UIWindow,
+		Parent = UiWindow,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 0, 0, 0),
 		Size = UDim2.new(1, 0, 1, -33),
@@ -2147,7 +2147,7 @@ function library:CreateWindow(WinConfig)
 	local contentArea = Instance.new("Frame")
 	contentArea.Name = "contentArea"
 	contentArea.Position = UDim2.new(0, 0, 0, 0)
-	contentArea.Size = UDim2.new(1, -135, 1, 0)
+	contentArea.Size = UDim2.new(1, 0, 1, 0)
 	contentArea.Parent = Window
 
 	local window = {
