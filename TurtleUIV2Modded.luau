@@ -1803,7 +1803,7 @@ local function injectElements(targetContainer)
 		config.type = "box"
 		config.Title = config.Title or "TextBox"
 		config.Default = config.Default or ""
-		config.Flag = config.Flag or 
+		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or function() end
 		
 		registerFlag(config)
