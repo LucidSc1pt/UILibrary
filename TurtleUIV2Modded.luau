@@ -808,11 +808,15 @@ function makeBox(option, parent)
 	function option:SetValue(value)
 		self.Default = value
 		if self.Flag then
-			library.Flags[self.Flag] = Value
+			library.Flags[self.Flag] = value
 		end
 
 		if type(self.Callback) == "function" then
-			self.Callback(Value)
+			self.Callback(value)
+		end
+		
+		if self.TextBox then
+			self.TextBox.Text = value
 		end
 	end
 
@@ -1786,7 +1790,7 @@ local function injectElements(targetContainer)
 	function targetContainer:AddLabel(config)
 		config = type(config) == "table" and config or {}
 		config.type = "label"
-		config.Title = config.Title or "Button"
+		config.Title = config.Title or "Label"
 		config.TextXAlignment = config.TextXAlignment or "Left"
 		config.Color = config.Color or Color3.new(1,1,1)
 		
@@ -1797,8 +1801,9 @@ local function injectElements(targetContainer)
 	function targetContainer:AddTextBox(config)
 		config = type(config) == "table" and config or {}
 		config.type = "box"
-		config.Title = config.Title or "Button"
+		config.Title = config.Title or "TextBox"
 		config.Default = config.Default or ""
+		config.Flag = config.Flag or 
 		config.Callback = config.Callback or function() end
 		
 		registerFlag(config)
@@ -1889,7 +1894,7 @@ function library:CreateWindow(WinConfig)
 		FillDirection = Enum.FillDirection.Vertical,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
 		VerticalAlignment = Enum.VerticalAlignment.Top,
-		Padding = UDim.new(0, 2),
+		Padding = UDim.new(0, 0),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = UiWindow
 	})
@@ -1967,10 +1972,10 @@ function library:CreateWindow(WinConfig)
 	
 	local Window = Create("Frame", {
 		Name = "Window",
-		Parent = Header,
+		Parent = UIWindow,
 		BorderSizePixel = 0,
 		Position = UDim2.new(0, 0, 0, 0),
-		Size = UDim2.new(1, 0, 1, 0),
+		Size = UDim2.new(1, 0, 1, -33),
 		ZIndex = 1 + zindex,
 		Active = false
 	})
@@ -2109,19 +2114,19 @@ function library:CreateWindow(WinConfig)
     end)
 
 	local TabHolder = Create("ScrollingFrame", {
-			Name = "TabFrame",
-			Parent = Window,
-			BackgroundColor3 = Color3.fromRGB(45,45,45),
-			BorderSizePixel = 0,
-			CanvasSize = UDim2.new(0,0,0,0),
-			AutomaticCanvasSize = Enum.AutomaticSize.X,
-			ScrollingDirection = Enum.ScrollingDirection.X,
-			ElasticBehavior = Enum.ElasticBehavior.Never,
-			ScrollBarThickness = 0,
-			Size = UDim2.new(1,0,0,35),
-			ZIndex = 8 + zindex,
-			Visible = true,
-			Active = true
+		Name = "TabFrame",
+		Parent = Window,
+		BackgroundColor3 = Color3.fromRGB(45,45,45),
+		BorderSizePixel = 0,
+		CanvasSize = UDim2.new(0,0,0,0),
+		AutomaticCanvasSize = Enum.AutomaticSize.X,
+		ScrollingDirection = Enum.ScrollingDirection.X,
+		ElasticBehavior = Enum.ElasticBehavior.Never,
+		ScrollBarThickness = 0,
+		Size = UDim2.new(1,0,0,35),
+		ZIndex = 8 + zindex,
+		Visible = true,
+		Active = true
 	})
 
 	local TabHolderListLayout = Create("UIListLayout", {
@@ -2152,6 +2157,7 @@ function library:CreateWindow(WinConfig)
 		sidebarFrame = TabHolder,
 		tabs = {},
 		options = {},
+		isInitialized = false,
 		isTabMode = false,
 		activeTab = nil
 	}
@@ -2311,6 +2317,8 @@ function library:CreateWindow(WinConfig)
 	end
 
 	function window:Init()
+		if window.isInitialized then return end
+		window.isInitialized = true
 		if not window.isTabMode then
 			window.sidebarFrame.Visible = false
 			window.contentArea.Position = UDim2.new(0, 0, 0, 0)
@@ -2343,7 +2351,7 @@ function library:CreateWindow(WinConfig)
 			local winLayout = Create("UIListLayout", {
 				FillDirection = Enum.FillDirection.Vertical,
 				HorizontalAlignment = Enum.HorizontalAlignment.Left,
-				VerticalAlignment = Enum.VerticalAlignment.Center,
+				VerticalAlignment = Enum.VerticalAlignment.Top,
 				Padding = UDim.new(0, 6),
 				SortOrder = Enum.SortOrder.LayoutOrder,
 				Parent = WindowScroll
@@ -2353,10 +2361,13 @@ function library:CreateWindow(WinConfig)
 		end
 	end
 	
-	if typeof(WinConfig.AutoInit) == "boolean" and WinConfig.AutoInit and not window.isTabMode then
-		window:Init()
+	if WinConfig.AutoInit ~= false then
+		task.defer(function()
+			if not window.isTabMode and not window.isInitialized then
+				window:Init()
+			end
+		end)
 	end
-
 	return window
 end
 
