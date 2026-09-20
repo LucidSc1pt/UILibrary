@@ -50,6 +50,7 @@ local dropdowns = {}
 local dropdownSizes = {}
 local colorPickers = {}
 local activeInteraction = nil
+local zindex = 1000
 
 function Lerp(a, b, c)
 	return a + ((b - a) * c)
