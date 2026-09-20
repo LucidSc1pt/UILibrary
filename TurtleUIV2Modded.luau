@@ -274,7 +274,7 @@ local function registerFlag(option)
 	option.Flag = option.Flag or option.Title
 	
 	-- Set nilai awal ke Flags global
-	library.Flags[option.Flag] = option.Default or option.Value or config.State or false
+	library.Flags[option.Flag] = option.Default or option.Value or option.State or false
 	
 	-- Simpan referensi tabel option berdasarkan nama Flag-nya
 	library.FlagsObjects[option.Flag] = option
@@ -285,11 +285,9 @@ end
 -- // Making the ScreenGui \\ --
 local TurtleUiLib = Instance.new("ScreenGui")
 TurtleUiLib.Name = "TurtleUiLib"
-
 protect_gui(TurtleUiLib)
 
 local xOffset = 20
-
 local keybindConnection
 
 -- // ⚠️ Function ⚠️ \\ --
@@ -607,9 +605,13 @@ function makeButton(option, parent)
 		Active = false
 	})
 
+	function option:SetTitle(newTitle)
+		ButtonTitle.Text = tostring(newTitle)
+	end
+
 	Button.MouseButton1Click:Connect(option.Callback)
 	
-	option.Instance = btnFrame
+	--option.Instance = btnFrame
 	return btnFrame
 end
 
@@ -637,6 +639,10 @@ function makeLabel(option, parent)
 		Active = false
 	})
 
+	function option:SetTitle(newTitle)
+		Label.Text = tostring(newTitle)
+	end
+
 	if typeof(option.Color) == "string" and option.Color == "Rainbow" then
 		spawn(function()
 			while Label.Parent do
@@ -649,7 +655,7 @@ function makeLabel(option, parent)
 		Label.TextColor3 = option.Color
 	end
 	
-	option.Instance = Label
+	--option.Instance = Label
 	return Label
 end
 
@@ -720,7 +726,7 @@ function makeToggle(option, parent)
 		end
 	end
 
-	function option:SetTitle(newTitle: string)
+	function option:SetTitle(newTitle)
 		ToggleTitle.Text = tostring(newTitle)
 	end
 
@@ -753,7 +759,7 @@ function makeToggle(option, parent)
 		end)
 	end
 	
-	option.Instance = togFrame
+	--option.Instance = togFrame
 	return togFrame
 end
 
@@ -777,10 +783,10 @@ function makeBox(option, parent)
 		Text = option.Default,
 		TextColor3 = Color3.fromRGB(245, 246, 250),
 		TextSize = 14,
-		Name = "_BoxHolder_"
+		Name = "TextBox"
 	})
 	
-	local BoxDescription = Create("TextLabel", {
+	local BoxTitle = Create("TextLabel", {
 		AnchorPoint = Vector2.new(0,0.5),
 		Name = "BoxTitle",
 		Parent = boxFrame,
@@ -819,7 +825,7 @@ function makeBox(option, parent)
 		option.Callback(TextBox.Text, true)
 	end)
 	
-	function option:SetTitle(newTitle: string)
+	function option:SetTitle(newTitle)
 		BoxTitle.Text = tostring(newTitle)
 	end
 	
@@ -1791,7 +1797,7 @@ local function injectElements(targetContainer)
 		config = type(config) == "table" and config or {}
 		config.type = "box"
 		config.Title = config.Title or "Button"
-		config.Default = config.Default or "Yes"
+		config.Default = config.Default or ""
 		config.Callback = config.Callback or function() end
 		
 		registerFlag(config)
@@ -1847,6 +1853,7 @@ function library:CreateWindow(WinConfig)
 	WinConfig.MobileUIText = WinConfig.MobileUIText or "Show TurtleUiLib"
 	WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
 	WinConfig.ContentFillDirection = WinConfig.ContentFillDirection or "Vertical"
+	WinConfig.AutoInit = WinConfig.AutoInit or true
 	if typeof(WinConfig.Theme) == "string" and (WinConfig.Theme and WinConfig.Theme ~= "") then
 		library.SelectedTheme = WinConfig.Theme
 	end
