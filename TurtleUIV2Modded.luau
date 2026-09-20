@@ -2001,7 +2001,7 @@ function library:CreateWindow(WinConfig)
 		Parent = utilityButt
 	})
 
-    local Minimise = Instance.new("Button")
+    local Minimise = Instance.new("TextButton")
     local CloseWindowBtn
     
     Minimise.Name = "Minimise"
