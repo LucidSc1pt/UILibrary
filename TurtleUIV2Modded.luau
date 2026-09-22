@@ -933,7 +933,7 @@ function makeSlider(option, parent)
 	SliderButton.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 	SliderButton.BorderColor3 = Color3.fromRGB(113, 128, 147)
 	SliderButton.Size = UDim2.new(0, 6, 0, 22)
-	SliderButton.ZIndex = 12 + zindex
+	SliderButton.ZIndex = 13 + zindex
 	SliderButton.InputBegan:Connect(SliderMovement)
 	SliderButton.InputEnded:Connect(SliderEnd)    
 
@@ -1039,7 +1039,7 @@ local function makeDropdown(option, parentContainer)
 	Dropdown.BorderColor3 = Color3.fromRGB(113, 128, 147)
 	Dropdown.Text = ""
 	Dropdown.Font = Enum.Font.SourceSans
-	Dropdown.ZIndex = 3
+	Dropdown.ZIndex = 12 + zindex
 	Dropdown.Parent = droFrame
 
 	local DroTitle = Instance.new("TextLabel")
@@ -1053,7 +1053,7 @@ local function makeDropdown(option, parentContainer)
 	DroTitle.TextSize = 16
 	DroTitle.TextXAlignment = Enum.TextXAlignment.Left
 	DroTitle.TextTruncate = Enum.TextTruncate.AtEnd
-	DroTitle.ZIndex = 4
+	DroTitle.ZIndex = 12 + zindex
 	DroTitle.Parent = Dropdown
 
 	local DownSign = Instance.new("TextLabel")
@@ -1068,7 +1068,7 @@ local function makeDropdown(option, parentContainer)
 	DownSign.TextColor3 = Color3.fromRGB(220, 221, 225)
 	DownSign.TextSize = 20
 	DownSign.TextYAlignment = Enum.TextYAlignment.Bottom
-	DownSign.ZIndex = 4
+	DownSign.ZIndex = 12 + zindex
 	DownSign.Parent = Dropdown
 
 	-- Floating Drag Frame Logic
@@ -1080,7 +1080,7 @@ local function makeDropdown(option, parentContainer)
 		dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 		dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
 		dragDropFrame.Active = true
-		dragDropFrame.ZIndex = 10
+		dragDropFrame.ZIndex = 15 + zindex
 		dragDropFrame.Visible = false
 		dragDropFrame.Parent = library.Gui or parentContainer:FindFirstAncestorWhichIsA("ScreenGui")
 
@@ -1094,7 +1094,7 @@ local function makeDropdown(option, parentContainer)
 		dragDroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
 		dragDroTitle.TextSize = 14
 		dragDroTitle.TextXAlignment = Enum.TextXAlignment.Left
-		dragDroTitle.ZIndex = 10
+		dragDroTitle.ZIndex = 15 + zindex
 		dragDroTitle.Parent = dragDropFrame
 
 		if MakeDraggable then
@@ -1114,7 +1114,7 @@ local function makeDropdown(option, parentContainer)
 	DropdownFrame.ScrollingDirection = Enum.ScrollingDirection.Y
 	DropdownFrame.ScrollBarImageColor3 = Color3.fromRGB(220, 221, 225)
 	DropdownFrame.Visible = false
-	DropdownFrame.ZIndex = 10
+	DropdownFrame.ZIndex = 13 + zindex
 	DropdownFrame.Parent = option.floating and dragDropFrame or droFrame
 
 	local listLayout = Instance.new("UIListLayout")
@@ -1174,7 +1174,7 @@ local function makeDropdown(option, parentContainer)
 	end
 
 	function option:Open()
-		for _, otherDrop in ipairs(library.Dropdowns) do
+		for _, otherDrop in ipairs(dropdowns) do
 			if otherDrop ~= option and otherDrop.Close then
 				otherDrop:Close()
 			end
@@ -1205,7 +1205,7 @@ local function makeDropdown(option, parentContainer)
 		itemBtn.TextColor3 = Color3.fromRGB(245, 246, 250)
 		itemBtn.TextSize = 14
 		itemBtn.TextTruncate = Enum.TextTruncate.AtEnd
-		itemBtn.ZIndex = 11
+		itemBtn.ZIndex = 13 + zindex
 		itemBtn.Parent = DropdownFrame
 
 		local btnStroke = Instance.new("UIStroke")
@@ -1275,7 +1275,7 @@ local function makeDropdown(option, parentContainer)
 		PlaceholderLabel.TextSize = 14
 		PlaceholderLabel.Text = tostring(labelText)
 		PlaceholderLabel.TextXAlignment = Enum.TextXAlignment.Left
-		PlaceholderLabel.ZIndex = 11
+		PlaceholderLabel.ZIndex = 13 + zindex
 		PlaceholderLabel.Parent = DropdownFrame
 	end
 
