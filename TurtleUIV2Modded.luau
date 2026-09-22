@@ -1090,7 +1090,7 @@ local function makeDropdown(option, parentContainer)
 		dragDroTitle.Position = UDim2.new(0, 5, 0, 0)
 		dragDroTitle.BackgroundTransparency = 1
 		dragDroTitle.Font = Enum.Font.SourceSans
-		dragDroTitle.Text = tostring(option.text)
+		dragDroTitle.Text = tostring(option.Title)
 		dragDroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
 		dragDroTitle.TextSize = 14
 		dragDroTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -1106,7 +1106,7 @@ local function makeDropdown(option, parentContainer)
 	local DropdownFrame = Instance.new("ScrollingFrame")
 	DropdownFrame.Name = "DropdownFrame"
 	DropdownFrame.Size = UDim2.new(1, 0, 0, 0)
-	DropdownFrame.Position = option.floating and UDim2.new(0, 0, 1, 0) or UDim2.new(0, 0, 0, 26)
+	DropdownFrame.Position = option.Floating and UDim2.new(0, 0, 1, 0) or UDim2.new(0, 0, 0, 26)
 	DropdownFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 	DropdownFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
 	DropdownFrame.ScrollBarThickness = 2
@@ -1115,7 +1115,7 @@ local function makeDropdown(option, parentContainer)
 	DropdownFrame.ScrollBarImageColor3 = Color3.fromRGB(220, 221, 225)
 	DropdownFrame.Visible = false
 	DropdownFrame.ZIndex = 13 + zindex
-	DropdownFrame.Parent = option.floating and dragDropFrame or droFrame
+	DropdownFrame.Parent = option.Floating and dragDropFrame or droFrame
 
 	local listLayout = Instance.new("UIListLayout")
 	listLayout.FillDirection = Enum.FillDirection.Vertical
