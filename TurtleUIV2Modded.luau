@@ -671,7 +671,7 @@ function makeToggle(option, parent)
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
 		ZIndex = 12 + zindex,
-		Name = "_LabelHolder_"
+		Name = "_ToggleHolder_"
 	})
 
 	local ToggleTitle = Create("TextLabel", {
@@ -824,8 +824,8 @@ function makeBox(option, parent)
 			self.Callback(value)
 		end
 		
-		if self.TextBox then
-			self.TextBox.Text = value
+		if TextBox then
+			TextBox.Text = value
 		end
 	end
 
@@ -846,464 +846,515 @@ function makeBox(option, parent)
 	option.Instance = boxFrame
 	return boxFrame
 end
---[[]
-function makeSlider(SliConfig)
-SliConfig = SliConfig or {}
-SliConfig.Name = SliConfig.Name or "Slider"
-SliConfig.Min = SliConfig.Min or 1
-SliConfig.Max = SliConfig.Max or 100
-SliConfig.Increment = SliConfig.Increment or 1
-SliConfig.Default = math.clamp(SliConfig.Default, SliConfig.Min, SliConfig.Max)
-SliConfig.Callback = SliConfig.Callback or function() end
-local offset = 70
-local defaultAlpha = (SliConfig.Default - SliConfig.Min) / (SliConfig.Max - SliConfig.Min)
 
-local sliFrame = Instance.new("Frame")
-sliFrame.Parent = contentParent
-sliFrame.Size = UDim2.new(1, 0, 0, 60)
-sliFrame.BackgroundTransparency = 1
-sliFrame.Name = tostring(windowContentCount) .. "_SliderHolder_"
-windowContentCount = windowContentCount + 1
+function makeSlider(option, parent)
+	local offset = 70
+	local defaultAlpha = (option.Default - option.Min) / (option.Max - option.Min)
 
-local Slider = Instance.new("Frame")
-local SliderButton = Instance.new("Frame")
-local Description = Instance.new("TextLabel")
-local SilderFiller = Instance.new("Frame")
-local Current = Instance.new("TextBox")
+	local sliFrame = Instance.new("Frame")
+	sliFrame.Parent = parent
+	sliFrame.Size = UDim2.new(1, 0, 0, 60)
+	sliFrame.BackgroundTransparency = 1
+	sliFrame.Name = "_SliderHolder_"
 
-local function snapToIncrement(val)
-local stepped = math.round((val - SliConfig.Min) / SliConfig.Increment) * SliConfig.Increment + SliConfig.Min
-return math.clamp(stepped, SliConfig.Min, SliConfig.Max)
-end
+	local Slider = Instance.new("Frame")
+	local SliderButton = Instance.new("Frame")
+	local Description = Instance.new("TextLabel")
+	local SilderFiller = Instance.new("Frame")
+	local Current = Instance.new("TextBox")
 
-local function updateSliderFromValue(val)
-local snappedValue = snapToIncrement(val)
-local alpha = (snappedValue - SliConfig.Min) / (SliConfig.Max - SliConfig.Min)
+	local function snapToIncrement(val)
+		local stepped = math.round((val - option.Min) / option.Increment) * option.Increment + option.Min
+		return math.clamp(stepped, option.Min, option.Max)
+	end
 
-SliderButton.Position = UDim2.new(alpha, 0, -1.33333337, 0)
-SilderFiller.Size = UDim2.new(alpha, 0, 1, 0)
-Current.Text = tostring(snappedValue)
-return snappedValue
-end
+	local function updateSliderFromValue(val)
+		local snappedValue = snapToIncrement(val)
+		local alpha = (snappedValue - option.Min) / (option.Max - option.Min)
 
-function SliderMovement(input)
-if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-isdragging = true
-local con
-con = stepped:Connect(function()
-if isdragging then
-local sliderWidth = Slider.AbsoluteSize.X - 20
-local mousePosX = mouse.X - Slider.AbsolutePosition.X - 20
-local alpha = math.clamp(mousePosX / sliderWidth, 0, 1)
+		SliderButton.Position = UDim2.new(alpha, 0, -1.33333337, 0)
+		SilderFiller.Size = UDim2.new(alpha, 0, 1, 0)
+		Current.Text = tostring(snappedValue)
+		return snappedValue
+	end
 
-local rawValue = Lerp(SliConfig.Min, SliConfig.Max, alpha)
-local snappedValue = snapToIncrement(rawValue)
+	function SliderMovement(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			isdragging = true
+			local con
+			con = stepped:Connect(function()
+				if isdragging then
+					local sliderWidth = Slider.AbsoluteSize.X - 20
+					local mousePosX = mouse.X - Slider.AbsolutePosition.X - 20
+					local alpha = math.clamp(mousePosX / sliderWidth, 0, 1)
 
-local snappedAlpha = (snappedValue - SliConfig.Min) / (SliConfig.Max - SliConfig.Min)
-SliderButton.Position = UDim2.new(snappedAlpha, 0, 0, 0)
-SilderFiller.Size = UDim2.new(snappedAlpha, 0, 1, 0)
-Current.Text = tostring(snappedValue)
-else
-con:Disconnect()
-end
-end)
-input.Changed:Connect(function()
-if input.UserInputState == Enum.UserInputState.End then
-isdragging = false
-end
-end)
-end
-end
+					local rawValue = Lerp(option.Min, option.Max, alpha)
+					local snappedValue = snapToIncrement(rawValue)
 
-function SliderEnd(input)
-if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-local val = tonumber(Current.Text) or SliConfig.Default
-SliConfig.Callback(val)
-end
-end
+					local snappedAlpha = (snappedValue - option.Min) / (option.Max - option.Min)
+					SliderButton.Position = UDim2.new(snappedAlpha, 0, 0, 0)
+					SilderFiller.Size = UDim2.new(snappedAlpha, 0, 1, 0)
+					Current.Text = tostring(snappedValue)
+				else
+					con:Disconnect()
+				end
+			end)
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					isdragging = false
+				end
+			end)
+		end
+	end
 
-Slider.Name = "Slider"
-Slider.Parent = sliFrame
-Slider.Active = true
-Slider.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
-Slider.BorderColor3 = Color3.fromRGB(113, 128, 147)
-Slider.Position = UDim2.new(0, 0, 0.5, 0)
-Slider.Size = UDim2.new(1, 0, 0, 6)
-Slider.ZIndex = 2 + zindex
-Slider.InputBegan:Connect(SliderMovement) 
-Slider.InputEnded:Connect(SliderEnd)
+	function SliderEnd(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			local val = tonumber(Current.Text) or option.Default
+			option.Callback(val)
+		end
+	end
 
-SliderButton.AnchorPoint = Vector2.new(0.5, 0.5)
-SliderButton.Position = UDim2.new(defaultAlpha, 0, 0, 0)
-SliderButton.Name = "SliderButton"
-SliderButton.Active = true
-SliderButton.Parent = Slider
-SliderButton.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
-SliderButton.BorderColor3 = Color3.fromRGB(113, 128, 147)
-SliderButton.Size = UDim2.new(0, 6, 0, 22)
-SliderButton.ZIndex = 3 + zindex
-SliderButton.InputBegan:Connect(SliderMovement)
-SliderButton.InputEnded:Connect(SliderEnd)    
+	Slider.Name = "Slider"
+	Slider.Parent = sliFrame
+	Slider.Active = true
+	Slider.BackgroundColor3 = Color3.fromRGB(47, 54, 64)
+	Slider.BorderColor3 = Color3.fromRGB(113, 128, 147)
+	Slider.Position = UDim2.new(0, 0, 0.5, 0)
+	Slider.Size = UDim2.new(1, 0, 0, 6)
+	Slider.ZIndex = 12 + zindex
+	Slider.InputBegan:Connect(SliderMovement) 
+	Slider.InputEnded:Connect(SliderEnd)
 
-Current.AnchorPoint = Vector2.new(1,0)
-Current.Name = "Current"
-Current.Parent = Slider
-Current.BackgroundColor3 = Color3.fromRGB(35, 40, 48)
-Current.BackgroundTransparency = 1
-Current.BorderColor3 = Color3.fromRGB(113, 128, 147)
-Current.Position = UDim2.new(1, 0, 0, -33)
-Current.Size = UDim2.new(0, 45, 0, 20)
-Current.Font = Enum.Font.SourceSans
-Current.Text = tostring(SliConfig.Default)
-Current.TextColor3 = Color3.fromRGB(220, 221, 225)
-Current.TextSize = 14
-Current.ZIndex = 2 + zindex
-Current.ClearTextOnFocus = false
+	SliderButton.AnchorPoint = Vector2.new(0.5, 0.5)
+	SliderButton.Position = UDim2.new(defaultAlpha, 0, 0, 0)
+	SliderButton.Name = "SliderButton"
+	SliderButton.Active = true
+	SliderButton.Parent = Slider
+	SliderButton.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+	SliderButton.BorderColor3 = Color3.fromRGB(113, 128, 147)
+	SliderButton.Size = UDim2.new(0, 6, 0, 22)
+	SliderButton.ZIndex = 12 + zindex
+	SliderButton.InputBegan:Connect(SliderMovement)
+	SliderButton.InputEnded:Connect(SliderEnd)    
 
-Current.FocusLost:Connect(function(enterPressed)
-local inputNum = tonumber(Current.Text)
-if inputNum then
-local finalVal = updateSliderFromValue(inputNum)
-SliConfig.Callback(finalVal)
-else
-Current.Text = tostring(snapToIncrement(Lerp(SliConfig.Min, SliConfig.Max, SliderButton.Position.X.Scale)))
-end
-end)
+	Current.AnchorPoint = Vector2.new(1,0)
+	Current.Name = "Current"
+	Current.Parent = Slider
+	Current.BackgroundColor3 = Color3.fromRGB(35, 40, 48)
+	Current.BackgroundTransparency = 1
+	Current.BorderColor3 = Color3.fromRGB(113, 128, 147)
+	Current.Position = UDim2.new(1, 0, 0, -33)
+	Current.Size = UDim2.new(0, 45, 0, 20)
+	Current.Font = Enum.Font.SourceSans
+	Current.Text = tostring(option.Default)
+	Current.TextColor3 = Color3.fromRGB(220, 221, 225)
+	Current.TextSize = 14
+	Current.ZIndex = 12 + zindex
+	Current.ClearTextOnFocus = false
 
-Description.AnchorPoint = Vector2.new(0, 0)
-Description.Name = "Description"
-Description.Parent = Slider
-Description.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Description.BackgroundTransparency = 1.000
-Description.Position = UDim2.new(0, 0, 0, -35)
-Description.Size = UDim2.new(0, 180, 0, 21)
-Description.Font = Enum.Font.SourceSans
-Description.Text = SliConfig.Name
-Description.TextColor3 = Color3.fromRGB(245, 246, 250)
-Description.TextSize = 16
-Description.TextXAlignment = Enum.TextXAlignment.Left
-Description.ZIndex = 2 + zindex
+	Current.FocusLost:Connect(function(enterPressed)
+		local inputNum = tonumber(Current.Text)
+		if inputNum then
+			local finalVal = updateSliderFromValue(inputNum)
+			option.Callback(finalVal)
+		else
+			Current.Text = tostring(snapToIncrement(Lerp(option.Min, option.Max, SliderButton.Position.X.Scale)))
+		end
+	end)
 
-SilderFiller.Name = "SilderFiller"
-SilderFiller.Parent = Slider
-SilderFiller.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
-SilderFiller.Size = UDim2.new(defaultAlpha, 0, 1, 0)
-SilderFiller.ZIndex = 2 + zindex
+	Description.AnchorPoint = Vector2.new(0, 0)
+	Description.Name = "Description"
+	Description.Parent = Slider
+	Description.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Description.BackgroundTransparency = 1.000
+	Description.Position = UDim2.new(0, 0, 0, -35)
+	Description.Size = UDim2.new(0, 180, 0, 21)
+	Description.Font = Enum.Font.SourceSans
+	Description.Text = option.Title
+	Description.TextColor3 = Color3.fromRGB(245, 246, 250)
+	Description.TextSize = 16
+	Description.TextXAlignment = Enum.TextXAlignment.Left
+	Description.ZIndex = 12 + zindex
+
+	SilderFiller.Name = "SilderFiller"
+	SilderFiller.Parent = Slider
+	SilderFiller.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
+	SilderFiller.Size = UDim2.new(defaultAlpha, 0, 1, 0)
+	SilderFiller.ZIndex = 12 + zindex
+	
+	function option:SetValue(value)
+		self.Default = value
+		if self.Flag then
+			library.Flags[self.Flag] = value
+		end
+
+		updateSliderFromValue(value)
+		if type(self.Callback) == "function" then
+			self.Callback(value)
+		end
+	end
+
+	function option:SetTitle(newTitle)
+		Description.Text = tostring(newTitle)
+	end
 end
 
 -- // Dropdown Function \\ --
-function Dropdown(DropConfig)
-DropConfig = DropConfig or {}
-DropConfig.Name = DropConfig.Name or "Dropdown"
-DropConfig.Items = DropConfig.Items or {}
-DropConfig.MultiSelect = DropConfig.MultiSelect or false
-DropConfig.Floating = DropConfig.Floating or false
-DropConfig.Callback = DropConfig.Callback or function() end
+local function makeDropdown(option, parentContainer)
+	local contentParent = parentContainer
+	local selectedItems = {}
+	local selectedSingle = nil
+	local itemButtons = {}
 
-local droFrame = Instance.new("Frame")
-droFrame.Parent = contentParent
-droFrame.Size = UDim2.new(1, 0, 0, 32)
-droFrame.BackgroundTransparency = 1
-droFrame.AutomaticSize = Enum.AutomaticSize.Y
-droFrame.Name = tostring(windowContentCount) .. "_DropdownHolder_"
-windowContentCount = windowContentCount + 1
+	-- Jika nilai awal dalam bentuk tabel (multi-select) atau string (single)
+	if option.MultiSelect and type(option.Value) == "table" then
+		for _, val in ipairs(option.Value) do
+			selectedItems[val] = true
+		end
+	elseif not option.MultiSelect and type(option.Value) == "string" then
+		selectedSingle = option.Value
+	end
 
-local droLayout = Instance.new("UIListLayout")
-droLayout.FillDirection = Enum.FillDirection.Vertical
-droLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-droLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-droLayout.Padding = UDim.new(0, 5)
-droLayout.SortOrder = Enum.SortOrder.LayoutOrder
-droLayout.Parent = droFrame
+	-- Frame Utama Holder
+	local droFrame = Instance.new("Frame")
+	droFrame.Name = option.Title .. "_DropdownHolder"
+	droFrame.Size = UDim2.new(1, 0, 0, 32)
+	droFrame.BackgroundTransparency = 1
+	droFrame.AutomaticSize = Enum.AutomaticSize.Y
+	droFrame.Parent = contentParent
 
-local Dropdown = Instance.new("TextButton")
-local DroTitle = Instance.new("TextLabel")
-local DownSign = Instance.new("TextLabel")
-local DropdownFrame = Instance.new("ScrollingFrame")
+	local droLayout = Instance.new("UIListLayout")
+	droLayout.FillDirection = Enum.FillDirection.Vertical
+	droLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	droLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	droLayout.Padding = UDim.new(0, 5)
+	droLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	droLayout.Parent = droFrame
 
-Dropdown.AnchorPoint = Vector2.new(0,0)
-Dropdown.Name = "Dropdown"
-Dropdown.Parent = droFrame
-Dropdown.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
-Dropdown.BorderColor3 = Color3.fromRGB(113, 128, 147)
-Dropdown.Position = UDim2.new(0, 0, 0, 0)
-Dropdown.Size = UDim2.new(1, 0, 0, 26)
-Dropdown.Selected = true
-Dropdown.Font = Enum.Font.SourceSans
-Dropdown.Text = ""
-Dropdown.ZIndex = 3 + zindex
+	-- Header Button
+	local Dropdown = Instance.new("TextButton")
+	Dropdown.Name = "Dropdown"
+	Dropdown.Size = UDim2.new(1, 0, 0, 26)
+	Dropdown.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+	Dropdown.BorderColor3 = Color3.fromRGB(113, 128, 147)
+	Dropdown.Text = ""
+	Dropdown.Font = Enum.Font.SourceSans
+	Dropdown.ZIndex = 3
+	Dropdown.Parent = droFrame
 
-DroTitle.Name = "Title"
-DroTitle.Parent = Dropdown
-DroTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-DroTitle.BackgroundTransparency = 1.000
-DroTitle.Position = UDim2.new(0, 5, 0, 0)
-DroTitle.Size = UDim2.new(1, -30, 1, 0)
-DroTitle.Font = Enum.Font.SourceSans
-DroTitle.Text = tostring(DropConfig.Name)
-DroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
-DroTitle.TextSize = 16
-DroTitle.ZIndex = 4 + zindex
-DroTitle.TextWrapped = false
-DroTitle.TextXAlignment = Enum.TextXAlignment.Left
-DroTitle.TextTruncate = Enum.TextTruncate.AtEnd
+	local DroTitle = Instance.new("TextLabel")
+	DroTitle.Name = "Title"
+	DroTitle.Size = UDim2.new(1, -30, 1, 0)
+	DroTitle.Position = UDim2.new(0, 5, 0, 0)
+	DroTitle.BackgroundTransparency = 1
+	DroTitle.Font = Enum.Font.SourceSans
+	DroTitle.Text = tostring(option.Title)
+	DroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
+	DroTitle.TextSize = 16
+	DroTitle.TextXAlignment = Enum.TextXAlignment.Left
+	DroTitle.TextTruncate = Enum.TextTruncate.AtEnd
+	DroTitle.ZIndex = 4
+	DroTitle.Parent = Dropdown
 
-DownSign.AnchorPoint = Vector2.new(1,0.5)
-DownSign.Name = "DownSign"
-DownSign.Parent = Dropdown
-DownSign.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-DownSign.BackgroundTransparency = 1.000
-DownSign.Position = UDim2.new(1, -5, 0.5, 0)
-DownSign.Size = UDim2.new(0, 27, 0, 22)
-DownSign.Font = Enum.Font.SourceSans
-DownSign.Text = "^"
-DownSign.Rotation = 180
-DownSign.TextColor3 = Color3.fromRGB(220, 221, 225)
-DownSign.TextSize = 20.000
-DownSign.ZIndex = 4 + zindex
-DownSign.TextYAlignment = Enum.TextYAlignment.Bottom
+	local DownSign = Instance.new("TextLabel")
+	DownSign.Name = "DownSign"
+	DownSign.Size = UDim2.new(0, 27, 0, 22)
+	DownSign.Position = UDim2.new(1, -5, 0.5, 0)
+	DownSign.AnchorPoint = Vector2.new(1, 0.5)
+	DownSign.BackgroundTransparency = 1
+	DownSign.Font = Enum.Font.SourceSans
+	DownSign.Text = "^"
+	DownSign.Rotation = 180
+	DownSign.TextColor3 = Color3.fromRGB(220, 221, 225)
+	DownSign.TextSize = 20
+	DownSign.TextYAlignment = Enum.TextYAlignment.Bottom
+	DownSign.ZIndex = 4
+	DownSign.Parent = Dropdown
 
-local dragDropFrame = nil
-if DropConfig.Floating then
-dragDropFrame = Instance.new("Frame")
-dragDropFrame.Parent = TurtleUiLib
-dragDropFrame.Size = UDim2.new(0, 192, 0, 33)
-dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
-dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
-dragDropFrame.Active = true
-dragDropFrame.ZIndex = 10 + zindex
-dragDropFrame.Visible = false
+	-- Floating Drag Frame Logic
+	local dragDropFrame = nil
+	if option.Floating then
+		dragDropFrame = Instance.new("Frame")
+		dragDropFrame.Name = "FloatingDropdown"
+		dragDropFrame.Size = UDim2.new(0, 192, 0, 33)
+		dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+		dragDropFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
+		dragDropFrame.Active = true
+		dragDropFrame.ZIndex = 10
+		dragDropFrame.Visible = false
+		dragDropFrame.Parent = library.Gui or parentContainer:FindFirstAncestorWhichIsA("ScreenGui")
 
-local dragDroTitle = Instance.new("TextLabel")
-dragDroTitle.Name = "DragTitle"
-dragDroTitle.Parent = dragDropFrame
-dragDroTitle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-dragDroTitle.BackgroundTransparency = 1.000
-dragDroTitle.Position = UDim2.new(0, 5, 0, 0)
-dragDroTitle.Size = UDim2.new(1, -30, 1, 0)
-dragDroTitle.Font = Enum.Font.SourceSans
-dragDroTitle.Text = tostring(DropConfig.Name)
-dragDroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
-dragDroTitle.TextSize = 14
-dragDroTitle.ZIndex = 10 + zindex
-dragDroTitle.TextWrapped = false
-dragDroTitle.Active = false
-dragDroTitle.TextXAlignment = Enum.TextXAlignment.Left
+		local dragDroTitle = Instance.new("TextLabel")
+		dragDroTitle.Name = "DragTitle"
+		dragDroTitle.Size = UDim2.new(1, -30, 1, 0)
+		dragDroTitle.Position = UDim2.new(0, 5, 0, 0)
+		dragDroTitle.BackgroundTransparency = 1
+		dragDroTitle.Font = Enum.Font.SourceSans
+		dragDroTitle.Text = tostring(option.text)
+		dragDroTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
+		dragDroTitle.TextSize = 14
+		dragDroTitle.TextXAlignment = Enum.TextXAlignment.Left
+		dragDroTitle.ZIndex = 10
+		dragDroTitle.Parent = dragDropFrame
 
-MakeDraggable(dragDropFrame, dragDropFrame)
+		if MakeDraggable then
+			MakeDraggable(dragDropFrame, dragDropFrame)
+		end
+	end
+
+	-- ScrollingFrame untuk list item
+	local DropdownFrame = Instance.new("ScrollingFrame")
+	DropdownFrame.Name = "DropdownFrame"
+	DropdownFrame.Size = UDim2.new(1, 0, 0, 0)
+	DropdownFrame.Position = option.floating and UDim2.new(0, 0, 1, 0) or UDim2.new(0, 0, 0, 26)
+	DropdownFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+	DropdownFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
+	DropdownFrame.ScrollBarThickness = 2
+	DropdownFrame.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
+	DropdownFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+	DropdownFrame.ScrollBarImageColor3 = Color3.fromRGB(220, 221, 225)
+	DropdownFrame.Visible = false
+	DropdownFrame.ZIndex = 10
+	DropdownFrame.Parent = option.floating and dragDropFrame or droFrame
+
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.FillDirection = Enum.FillDirection.Vertical
+	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	listLayout.Padding = UDim.new(0, 3)
+	listLayout.Parent = DropdownFrame
+
+	local listPaddingLayout = Instance.new("UIPadding")
+	listPaddingLayout.PaddingBottom = UDim.new(0, 5)
+	listPaddingLayout.PaddingTop = UDim.new(0, 5)
+	listPaddingLayout.PaddingRight = UDim.new(0, 5)
+	listPaddingLayout.PaddingLeft = UDim.new(0, 5)
+	listPaddingLayout.Parent = DropdownFrame
+
+	-- Helper internal untuk update visual
+	local function updateDropdownText()
+		if option.MultiSelect then
+			local chosenList = {}
+			for name, isSelected in pairs(selectedItems) do
+				if isSelected then
+					table.insert(chosenList, name)
+				end
+			end
+
+			if #chosenList > 0 then
+				DroTitle.Text = table.concat(chosenList, ", ")
+			else
+				DroTitle.Text = tostring(option.Title)
+			end
+		else
+			if selectedSingle then
+				DroTitle.Text = selectedSingle
+			else
+				DroTitle.Text = tostring(option.Title)
+			end
+		end
+	end
+
+	local function updateDropdownSize()
+		local contentHeight = listLayout.AbsoluteContentSize.Y + 10
+		DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
+		DropdownFrame.Size = UDim2.new(1, 0, 0, math.min(contentHeight, 100))
+	end
+
+	listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateDropdownSize)
+
+	-- Method Open & Close
+	function option:Close()
+		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
+		if dragDropFrame then
+			dragDropFrame.Visible = false
+		end
+		DropdownFrame.Visible = false
+	end
+
+	function option:Open()
+		for _, otherDrop in ipairs(library.Dropdowns) do
+			if otherDrop ~= option and otherDrop.Close then
+				otherDrop:Close()
+			end
+		end
+
+		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
+
+		if option.Floating and dragDropFrame then
+			dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y)
+			dragDropFrame.Visible = true
+			DropdownFrame.Visible = true
+		else
+			DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + 2)
+			DropdownFrame.Visible = true
+		end
+	end
+
+	-- Method pembuatan Button Item
+	local function createItemButton(name)
+		local name = tostring(name or "")
+		local itemBtn = Instance.new("TextButton")
+		itemBtn.Name = "Button_" .. name
+		itemBtn.Size = UDim2.new(0, 180, 0, 26)
+		itemBtn.Position = UDim2.new(0, 6, 0, 0)
+		itemBtn.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+		itemBtn.Font = Enum.Font.SourceSans
+		itemBtn.Text = name
+		itemBtn.TextColor3 = Color3.fromRGB(245, 246, 250)
+		itemBtn.TextSize = 14
+		itemBtn.TextTruncate = Enum.TextTruncate.AtEnd
+		itemBtn.ZIndex = 11
+		itemBtn.Parent = DropdownFrame
+
+		local btnStroke = Instance.new("UIStroke")
+		btnStroke.Color = Color3.fromRGB(113, 128, 147)
+		btnStroke.Thickness = 1
+		btnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		btnStroke.Parent = itemBtn
+
+		itemButtons[name] = itemBtn
+
+		-- Set Highlight jika sudah terpilih
+		if (option.MultiSelect and selectedItems[name]) or (not option.MultiSelect and selectedSingle == name) then
+			itemBtn.BackgroundColor3 = Color3.fromRGB(76, 79, 92)
+		end
+
+		itemBtn.MouseButton1Click:Connect(function()
+			if option.MultiSelect then
+				selectedItems[name] = not selectedItems[name]
+				itemBtn.BackgroundColor3 = selectedItems[name] and Color3.fromRGB(76, 79, 92) or Color3.fromRGB(53, 59, 72)
+
+				updateDropdownText()
+
+				local activeTable = {}
+				for itemName, isSelected in pairs(selectedItems) do
+					if isSelected then
+						table.insert(activeTable, itemName)
+					end
+				end
+
+				option.Value = activeTable
+				library.Flags[option.Flag] = activeTable
+				option.Callback(activeTable)
+			else
+				if selectedSingle == name then
+					selectedSingle = nil
+					itemBtn.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+					updateDropdownText()
+
+					option.Value = nil
+					library.Flags[option.Flag] = nil
+					option.Callback(nil)
+				else
+					if selectedSingle and itemButtons[selectedSingle] then
+						itemButtons[selectedSingle].BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+					end
+
+					selectedSingle = name
+					itemBtn.BackgroundColor3 = Color3.fromRGB(76, 79, 92)
+					updateDropdownText()
+
+					option.Value = name
+					library.Flags[option.Flag] = name
+					option.Callback(name)
+				end
+			end
+		end)
+	end
+
+	local function addPlaceholder(labelText)
+		local PlaceholderLabel = Instance.new("TextLabel")
+		PlaceholderLabel.Name = "Placeholder"
+		PlaceholderLabel.Size = UDim2.new(0, 180, 0, 26)
+		PlaceholderLabel.Position = UDim2.new(0, 6, 0, 0)
+		PlaceholderLabel.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+		PlaceholderLabel.Font = Enum.Font.SourceSansItalic
+		PlaceholderLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+		PlaceholderLabel.TextSize = 14
+		PlaceholderLabel.Text = tostring(labelText)
+		PlaceholderLabel.TextXAlignment = Enum.TextXAlignment.Left
+		PlaceholderLabel.ZIndex = 11
+		PlaceholderLabel.Parent = DropdownFrame
+	end
+
+	-- Method Refresh untuk memperbarui daftar isi item
+	function option:Refresh(newItems)
+		option.Items = newItems or {}
+		table.clear(itemButtons)
+
+		for _, child in ipairs(DropdownFrame:GetChildren()) do
+			if child:IsA("TextButton") or child:IsA("TextLabel") then
+				child:Destroy()
+			end
+		end
+
+		for _, item in ipairs(option.Items) do
+			if typeof(item) == "string" then
+				createItemButton(item)
+			elseif typeof(item) == "table" and item.PlaceHolder then
+				addPlaceholder(item.PlaceHolder)
+			end
+		end
+		updateDropdownSize()
+	end
+
+	-- Timpa SetValue untuk update visual & flag secara manual
+	function option:SetValue(val)
+		option.Value = val
+		library.Flags[option.Flag] = val
+
+		if option.MultiSelect and type(val) == "table" then
+			table.clear(selectedItems)
+			for _, v in ipairs(val) do
+				selectedItems[v] = true
+			end
+		elseif not option.MultiSelect then
+			selectedSingle = val
+		end
+
+		-- Refresh tampilan tombol
+		for btnName, btnObj in pairs(itemButtons) do
+			if (option.MultiSelect and selectedItems[btnName]) or (not option.MultiSelect and selectedSingle == btnName) then
+				btnObj.BackgroundColor3 = Color3.fromRGB(76, 79, 92)
+			else
+				btnObj.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+			end
+		end
+
+		updateDropdownText()
+
+		if type(option.Callback) == "function" then
+			option.Callback(val)
+		end
+	end
+
+	function option:SetTitle(newTitle)
+		option.Title = newTitle
+		DroTitle.Text = tostring(newTitle)
+	end
+
+	-- Render item awal
+	option:Refresh(option.Items)
+	updateDropdownText()
+
+	-- Register ke penampung dropdown global
+	table.insert(library.Dropdowns, option)
+
+	-- Event Klik Header
+	Dropdown.MouseButton1Click:Connect(function()
+		if DropdownFrame.Visible or (dragDropFrame and dragDropFrame.Visible) then
+			option:Close()
+		else
+			option:Open()
+		end
+	end)
+
+	option.Instance = droFrame
+	return droFrame
 end
-DropdownFrame.Name = "DropdownFrame"
-DropdownFrame.Parent = DropConfig.Floating and dragDropFrame or droFrame
-DropdownFrame.Active = true
-DropdownFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
-DropdownFrame.BorderColor3 = Color3.fromRGB(53, 59, 72)
-DropdownFrame.Position = DropConfig.Floating and UDim2.new(0, 0, 1, 0) or UDim2.new(0, 0, 0, 26)
-DropdownFrame.Size = UDim2.new(1, 0, 0, 0)
-DropdownFrame.Visible = false
-DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-DropdownFrame.ScrollBarThickness = 2
-DropdownFrame.VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Left
-DropdownFrame.ZIndex = 10 + zindex
-DropdownFrame.ScrollingDirection = Enum.ScrollingDirection.Y
-DropdownFrame.ScrollBarImageColor3 = Color3.fromRGB(220, 221, 225)
-
-local listLayout = Instance.new("UIListLayout")
-listLayout.Parent = DropdownFrame
-listLayout.FillDirection = Enum.FillDirection.Vertical
-listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-listLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-listLayout.SortOrder = Enum.SortOrder.LayoutOrder
-listLayout.Padding = UDim.new(0, 3)
-
-local listPaddingLayout = Instance.new("UIPadding")
-listPaddingLayout.Parent = DropdownFrame
-listPaddingLayout.PaddingBottom = UDim.new(0, 5)
-listPaddingLayout.PaddingTop = UDim.new(0, 5)
-listPaddingLayout.PaddingRight = UDim.new(0, 5)
-listPaddingLayout.PaddingLeft = UDim.new(0, 5)
-
-local dropFunctions = {}
-local selectedItems = {}
-local selectedSingle = nil
-local itemButtons = {}
-
-table.insert(dropdowns, dropFunctions)
-
-local function updateDropdownText()
-if DropConfig.MultiSelect then
-local chosenList = {}
-for name, isSelected in pairs(selectedItems) do
-if isSelected then
-table.insert(chosenList, name)
-end
-end
-
-if #chosenList > 0 then
-DroTitle.Text = table.concat(chosenList, ", ")
-else
-DroTitle.Text = tostring(DropConfig.Name)
-end
-else
-if selectedSingle then
-DroTitle.Text = selectedSingle
-else
-DroTitle.Text = tostring(DropConfig.Name)
-end
-end
-end
-local function updateDropdownSize()
-local contentHeight = listLayout.AbsoluteContentSize.Y + 10
-DropdownFrame.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
-
-local maxHeight = math.min(contentHeight, 100)
-DropdownFrame.Size = UDim2.new(1, 0, 0, maxHeight)
-end
-
-listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateDropdownSize)
-
-function dropFunctions:Close()
-TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
-if DropConfig.Floating then
-dragDropFrame.Visible = false
-end
-DropdownFrame.Visible = false
-end
-
-function dropFunctions:Open()
-for _, otherDrop in ipairs(dropdowns) do
-if otherDrop ~= dropFunctions then
-otherDrop:Close()
-end
-end
-
-TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
-
-if DropConfig.Floating then
-dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y)
-dragDropFrame.Visible = true
-DropdownFrame.Visible = true
-else
-DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + 2)
-DropdownFrame.Visible = true
-end
-end
-function dropFunctions:Button(name)
-local name = name or ""
-local Button_2 = Instance.new("TextButton")
-Button_2.Name = "Button"
-Button_2.Parent = DropdownFrame
-Button_2.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
-Button_2.BorderColor3 = Color3.fromRGB(113, 128, 147)
-Button_2.BorderSizePixel = 0
-Button_2.Position = UDim2.new(0, 6, 0, 0)
-Button_2.Size = UDim2.new(0, 180, 0, 26)
-Button_2.Selected = true
-Button_2.Font = Enum.Font.SourceSans
-Button_2.TextColor3 = Color3.fromRGB(245, 246, 250)
-Button_2.TextSize = 14
-Button_2.TextStrokeTransparency = 123.000
-Button_2.ZIndex = 11 + zindex
-Button_2.Text = name
-Button_2.TextWrapped = true
-Button_2.TextTruncate = Enum.TextTruncate.AtEnd
-
-local btn_2_stroke = Instance.new("UIStroke")
-btn_2_stroke.Parent = Button_2
-btn_2_stroke.Color = Color3.fromRGB(113, 128, 147)
-btn_2_stroke.Thickness = 1
-btn_2_stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
-itemButtons[name] = Button_2
-
-Button_2.MouseButton1Click:Connect(function()
-if DropConfig.MultiSelect then
-selectedItems[name] = not selectedItems[name]
-
-if selectedItems[name] then
-Button_2.BackgroundColor3 = Color3.fromRGB(76, 79, 92)
-else
-Button_2.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
-end
-
-updateDropdownText()
-
-local activeTable = {}
-for itemName, isSelected in pairs(selectedItems) do
-if isSelected then
-table.insert(activeTable, itemName)
-end
-end
-DropConfig.Callback(activeTable)
-else
-if selectedSingle == name then
-selectedSingle = nil
-Button_2.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
-updateDropdownText()
-DropConfig.Callback(nil)
-else
-if selectedSingle and itemButtons[selectedSingle] then
-itemButtons[selectedSingle].BackgroundColor3 = Color3.fromRGB(53, 59, 72)
-end
-
-selectedSingle = name
-Button_2.BackgroundColor3 = Color3.fromRGB(76, 79, 92)
-updateDropdownText()
-DropConfig.Callback(name)
-end
-end
-end)
-end
-function dropFunctions:Remove(name)
-if selectedSingle == name then
-selectedSingle = nil
-end
-selectedItems[name] = nil
-itemButtons[name] = nil
-updateDropdownText()
-
-for _, v in pairs(DropdownFrame:GetChildren()) do
-if v:IsA("TextButton") and v.Text == name then
-v:Destroy()
-break
-end
-end
-end
-function dropFunctions:AddPlaceholder(labelText)
-local PlaceholderLabel = Instance.new("TextLabel")
-PlaceholderLabel.Name = "Placeholder"
-PlaceholderLabel.Parent = DropdownFrame
-PlaceholderLabel.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
-PlaceholderLabel.BorderSizePixel = 0
-PlaceholderLabel.Size = UDim2.new(0, 180, 0, 26)
-PlaceholderLabel.Position = UDim2.new(0, 6, 0, 0)
-PlaceholderLabel.Font = Enum.Font.SourceSansItalic
-PlaceholderLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-PlaceholderLabel.TextSize = 14
-PlaceholderLabel.Text = tostring(labelText)
-PlaceholderLabel.ZIndex = 11 + zindex
-PlaceholderLabel.TextWrapped = true
-PlaceholderLabel.TextXAlignment = Enum.TextXAlignment.Left
-end
-
-for _, item in ipairs(DropConfig.Items) do
-if typeof(item) == "string" then
-dropFunctions:Button(item)
-elseif typeof(item) == "table" and item.PlaceHolder then
-dropFunctions:AddPlaceholder(item.PlaceHolder)
-end
-end
-
-Dropdown.MouseButton1Click:Connect(function()
-if DropdownFrame.Visible or (dragDropFrame ~= nil and dragDropFrame.Visible) then
-dropFunctions:Close()
-else
-dropFunctions:Open()
-end
-end)
-
-return dropFunctions
-end
-
+--[[
 function ColorPicker(ColConfig)
 ColConfig = ColConfig or {}
 ColConfig.Name = ColConfig.Name or "Color picker"
@@ -1821,6 +1872,59 @@ local function injectElements(targetContainer)
 		table.insert(self.options, config)
 		return config
 	end
+	
+	function targetContainer:AddSlider(config)
+		config = type(config) == "table" and config or {}
+		config.type = "slider"
+		config.Title = config.Title or "TextBox"
+		config.Min = config.Min or 1
+		config.Max = config.Max or 100
+		config.Increment = config.Increment or 1
+		config.Default = config.Default or (config.Max / 2)
+		config.Flag = config.Flag or config.Title
+		config.Callback = config.Callback or function() end
+		
+		registerFlag(config)
+		
+		table.insert(self.options, config)
+		return config
+	end
+	
+	function targetContainer:AddDropdown(config)
+		config = type(config) == "table" and config or {}
+		config.type = "dropdown"
+		config.Title = config.Title or config.text or "Dropdown"
+		config.Items = config.Items or config.items or {}
+		config.MultiSelect = config.MultiSelect or config.multiSelect or false
+		config.Floating = config.Floating or config.floating or false
+		config.Flag = config.flag or config.Flag or config.text
+		config.Callback = config.callback or config.Callback or function() end
+		config.Value = config.Value or config.Default or (config.MultiSelect and {} or nil)
+
+		-- Mendaftarkan Flag global
+		registerFlag(config)
+
+		-- Dummy Methods (Aman dipanggil sebelum UI di-render)
+		function config:SetValue(val)
+			self.Value = val
+			library.Flags[self.Flag] = val
+			if type(self.Callback) == "function" then
+				self.Callback(val)
+			end
+		end
+
+		function config:SetTitle(newTitle)
+			self.Title = newTitle
+		end
+
+		function config:Refresh(newItems)
+			self.Items = newItems or {}
+		end
+
+		table.insert(self.options, config)
+		return config
+	end
+
 
 	function targetContainer:AddFolder(title)
 		local folder = {
@@ -1849,6 +1953,12 @@ local function renderOptions(optionsList, parentContainerFrame)
 
 		elseif option.type == "box" then
 			makeBox(option, parentContainerFrame)
+			
+		elseif option.type == "slider" then
+			makeSlider(option, parentContainerFrame)
+
+		elseif option.type == "dropdown" then
+			makeDropdown(option, parentContainerFrame)
 
 		elseif option.type == "folder" then
 			local folderContentContainer = makeFolderUI(option, parentContainerFrame)
