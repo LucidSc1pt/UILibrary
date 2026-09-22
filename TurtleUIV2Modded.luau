@@ -1340,7 +1340,7 @@ local function makeDropdown(option, parentContainer)
 	updateDropdownText()
 
 	-- Register ke penampung dropdown global
-	table.insert(library.Dropdowns, option)
+	table.insert(dropdowns, option)
 
 	-- Event Klik Header
 	Dropdown.MouseButton1Click:Connect(function()
