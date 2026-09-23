@@ -2313,31 +2313,35 @@ function library:CreateWindow(WinConfig)
 		injectElements(tab)
 		
 		if WinConfig.TabPosition == "Top" then
-			sidebarFrame.LayoutOrder = 1
-			contentArea.Size = UDim2.new(1, 0, 1, -35)
-			contentArea.LayoutOrder = 2
-			sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Horizontal
-			sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+			winsLayoutHolder.FillDirection = Enum.FillDirection.Vertical
+			window.sidebarFrame.LayoutOrder = 1
+			window.contentArea.Size = UDim2.new(1, 0, 1, -35)
+			window.contentArea.LayoutOrder = 2
+			window.sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Horizontal
+			window.sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 		elseif WinConfig.TabPosition == "Bottom" then
-			sidebarFrame.LayoutOrder = 2
-			contentArea.Size = UDim2.new(1, 0, 1, -35)
-			contentArea.LayoutOrder = 1
-			sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Vertical
-			sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+			winsLayoutHolder.FillDirection = Enum.FillDirection.Vertical
+			window.sidebarFrame.LayoutOrder = 2
+			window.contentArea.Size = UDim2.new(1, 0, 1, -35)
+			window.contentArea.LayoutOrder = 1
+			window.sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Horizontal
+			window.sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 		elseif WinConfig.TabPosition == "Left" then
-			sidebarFrame.LayoutOrder = 1
-			sidebarFrame.Size = UDim2.new(0, 65, 1, 0)
-			contentArea.Size = UDim2.new(1, -65, 1, 0)
-			contentArea.LayoutOrder = 2
-			sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Vertical
-			sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+			winsLayoutHolder.FillDirection = Enum.FillDirection.Horizontal
+			window.sidebarFrame.LayoutOrder = 1
+			window.sidebarFrame.Size = UDim2.new(0, 65, 1, 0)
+			window.contentArea.Size = UDim2.new(1, -65, 1, 0)
+			window.contentArea.LayoutOrder = 2
+			window.sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Vertical
+			window.sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 		elseif WinConfig.TabPosition == "Right" then
-			sidebarFrame.LayoutOrder = 2
-			sidebarFrame.Size = UDim2.new(0, 65, 1, 0)
-			contentArea.Size = UDim2.new(1, -65, 1, 0)
-			contentArea.LayoutOrder = 1
-			sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Vertical
-			sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+			winsLayoutHolder.FillDirection = Enum.FillDirection.Horizontal
+			window.sidebarFrame.LayoutOrder = 2
+			window.sidebarFrame.Size = UDim2.new(0, 65, 1, 0)
+			window.contentArea.Size = UDim2.new(1, -65, 1, 0)
+			window.contentArea.LayoutOrder = 1
+			window.sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Vertical
+			window.sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 		end
 		
 		local tabButton = Create("TextButton", {
