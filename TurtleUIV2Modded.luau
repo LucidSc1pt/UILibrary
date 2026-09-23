@@ -1166,7 +1166,7 @@ local function makeDropdown(option, parentContainer)
 
 	-- Method Open & Close
 	function option:Close()
-		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
+		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
 		if dragDropFrame then
 			dragDropFrame.Visible = false
 		end
@@ -1180,7 +1180,7 @@ local function makeDropdown(option, parentContainer)
 			end
 		end
 
-		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
+		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
 
 		if option.Floating and dragDropFrame then
 			dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + 2)
@@ -2325,7 +2325,7 @@ function library:CreateWindow(WinConfig)
 		local ListLayouttt = Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Left,
-			VerticalAlignment = Enum.VerticalAlignment.Left,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
 			Padding = UDim.new(0, 6),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 			Parent = tabContainer
