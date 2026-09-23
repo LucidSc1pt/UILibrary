@@ -1879,7 +1879,7 @@ local function injectElements(targetContainer)
 	function targetContainer:AddSlider(config)
 		config = type(config) == "table" and config or {}
 		config.type = "slider"
-		config.Title = config.Title or "TextBox"
+		config.Title = config.Title or "Slider"
 		config.Min = config.Min or 1
 		config.Max = config.Max or 100
 		config.Increment = config.Increment or 1
@@ -1981,6 +1981,7 @@ function library:CreateWindow(WinConfig)
 	WinConfig.MobileUI = WinConfig.MobileUI or false
 	WinConfig.MobileUIText = WinConfig.MobileUIText or "Show TurtleUiLib"
 	WinConfig.Position = WinConfig.Position or UDim2.new(0, xOffset, 0, 20)
+	WinConfig.TabPosition = WinConfig.TabPosition or "Top"
 	WinConfig.ContentFillDirection = WinConfig.ContentFillDirection or "Vertical"
 	WinConfig.AutoInit = WinConfig.AutoInit or true
 	if typeof(WinConfig.Theme) == "string" and (WinConfig.Theme and WinConfig.Theme ~= "") then
@@ -2257,6 +2258,7 @@ function library:CreateWindow(WinConfig)
 	})
 
 	local TabHolderListLayout = Create("UIListLayout", {
+		Name = "TabHolderListLayout",
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Left,
 		VerticalAlignment = Enum.VerticalAlignment.Center,
@@ -2310,6 +2312,34 @@ function library:CreateWindow(WinConfig)
 
 		injectElements(tab)
 		
+		if WinConfig.TabPosition == "Top" then
+			sidebarFrame.LayoutOrder = 1
+			contentArea.Size = UDim2.new(1, 0, 1, -35)
+			contentArea.LayoutOrder = 2
+			sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Horizontal
+			sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+		elseif WinConfig.TabPosition == "Bottom" then
+			sidebarFrame.LayoutOrder = 2
+			contentArea.Size = UDim2.new(1, 0, 1, -35)
+			contentArea.LayoutOrder = 1
+			sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Vertical
+			sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+		elseif WinConfig.TabPosition == "Left" then
+			sidebarFrame.LayoutOrder = 1
+			sidebarFrame.Size = UDim2.new(0, 65, 1, 0)
+			contentArea.Size = UDim2.new(1, -65, 1, 0)
+			contentArea.LayoutOrder = 2
+			sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Vertical
+			sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+		elseif WinConfig.TabPosition == "Right" then
+			sidebarFrame.LayoutOrder = 2
+			sidebarFrame.Size = UDim2.new(0, 65, 1, 0)
+			contentArea.Size = UDim2.new(1, -65, 1, 0)
+			contentArea.LayoutOrder = 1
+			sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Vertical
+			sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+		end
+		
 		local tabButton = Create("TextButton", {
 			Name = "_TabButton_",
 			Parent = window.sidebarFrame,
@@ -2317,7 +2347,7 @@ function library:CreateWindow(WinConfig)
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			Position = UDim2.new(0,0,0,0),
-			Size = UDim2.new(0.24,0,0,30),
+			Size = UDim2.new(0.25,0,0,30),
 			Font = Enum.Font.GothamSemibold,
 			TextTransparency = 1,
 			ZIndex = 8 + zindex,
@@ -2369,13 +2399,14 @@ function library:CreateWindow(WinConfig)
 			LayoutOrder = 2,
 			Parent = tabButton,
 			BackgroundColor3 = Color3.fromRGB(25,25,25),
-			BackgroundTransparency = 0,
+			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			Position = UDim2.new(0,0,0,0),
 			Size = UDim2.new(1,-29,1,0),
 			Font = Enum.Font.GothamSemibold,
 			Text = TabConfig.Title,
 			TextSize = 14,
+			TextXAlignment = Enum.TextXAlignment.Left,
 			ZIndex = 8 + zindex,
 			Visible = true,
 			Active = true
@@ -2444,7 +2475,11 @@ function library:CreateWindow(WinConfig)
 		table.insert(window.tabs, tab)
 
 		if #window.tabs == 1 then
-			tab:Select()
+			task.defer(function()
+				if window.activeTab == nil then
+					tab:Select()
+				end
+			end)
 		end
 
 		return tab
