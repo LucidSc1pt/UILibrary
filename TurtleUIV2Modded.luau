@@ -21,11 +21,11 @@ local library = {
 			
 			ElementDivider = Color3.fromRGB(60, 60, 70),
 			ElementDividerText = Color3.fromRGB(60, 60, 70),
+			
 			TabDivider = Color3.fromRGB(60, 60, 70),
 			TabDividerText = Color3.fromRGB(60, 60, 70),
-			
-			TabBackground = Color3.fromRGB(40, 148, 215),
-			TabBackgroundSelect = Color3.fromRGB(0, 168, 255),
+			TabBtnBackground = Color3.fromRGB(40, 148, 215),
+			TabBtnBackgroundSelect = Color3.fromRGB(0, 168, 255),
 			
 			Header = Color3.fromRGB(0, 168, 255),
 			HeaderBorder = Color3.fromRGB(0, 168, 255),
@@ -1984,7 +1984,7 @@ function library:CreateWindow(WinConfig)
 	WinConfig.ContentFillDirection = WinConfig.ContentFillDirection or "Vertical"
 	WinConfig.AutoInit = WinConfig.AutoInit or true
 	if typeof(WinConfig.Theme) == "string" and (WinConfig.Theme and WinConfig.Theme ~= "") then
-		library.SelectedTheme = WinConfig.Theme
+		library.SelectedTheme = WinConfig.Theme or "Default"
 	end
 	
 	if WinConfig.MultiWindow then
@@ -2423,7 +2423,7 @@ function library:CreateWindow(WinConfig)
 					otherTab.containerInstance.Visible = false
 				end
 				if otherTab.buttonInstance then
-					otherTab.buttonInstance.BackgroundColor3 = library.Themes[SelectedTheme].TabBackground
+					otherTab.buttonInstance.BackgroundColor3 = library.Themes[library.SelectedTheme].TabBtnBackground
 				end
 			end
 
@@ -2433,7 +2433,7 @@ function library:CreateWindow(WinConfig)
 			end
 
 			tab.containerInstance.Visible = true
-			tab.buttonInstance.BackgroundColor3 = library.Themes[SelectedTheme].TabBackgroundSelect
+			tab.buttonInstance.BackgroundColor3 = library.Themes[library.SelectedTheme].TabBtnBackgroundSelect
 			window.activeTab = tab
 		end
 
