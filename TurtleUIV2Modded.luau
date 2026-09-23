@@ -892,7 +892,7 @@ function makeSlider(option, parent)
 					local snappedValue = snapToIncrement(rawValue)
 
 					local snappedAlpha = (snappedValue - option.Min) / (option.Max - option.Min)
-					SliderButton.Position = UDim2.new(snappedAlpha, 0, 0, 0)
+					SliderButton.Position = UDim2.new(snappedAlpha, 0, 0.5, 0)
 					SilderFiller.Size = UDim2.new(snappedAlpha, 0, 1, 0)
 					Current.Text = tostring(snappedValue)
 				else
@@ -926,7 +926,7 @@ function makeSlider(option, parent)
 	Slider.InputEnded:Connect(SliderEnd)
 
 	SliderButton.AnchorPoint = Vector2.new(0.5, 0.5)
-	SliderButton.Position = UDim2.new(defaultAlpha, 0, 0, 0)
+	SliderButton.Position = UDim2.new(defaultAlpha, 0, 0.5, 0)
 	SliderButton.Name = "SliderButton"
 	SliderButton.Active = true
 	SliderButton.Parent = Slider
@@ -1056,17 +1056,17 @@ local function makeDropdown(option, parentContainer)
 	DroTitle.ZIndex = 12 + zindex
 	DroTitle.Parent = Dropdown
 
-	local DownSign = Instance.new("TextLabel")
+	local DownSign = Instance.new("ImageLabel")
 	DownSign.Name = "DownSign"
-	DownSign.Size = UDim2.new(0, 27, 0, 22)
+	DownSign.Size = UDim2.new(0, 22, 0, 22)
 	DownSign.Position = UDim2.new(1, -5, 0.5, 0)
 	DownSign.AnchorPoint = Vector2.new(1, 0.5)
 	DownSign.BackgroundTransparency = 1
-	DownSign.Font = Enum.Font.SourceSans
-	DownSign.Text = "^"
+	DownSign.Image = "rbxassetid://4918373417"
+	DownSign.ImageColor3 = Color3.fromRGB(140, 140, 140)
+	DownSign.ScaleType = Enum.ScaleType.Fit
 	DownSign.Rotation = 180
-	DownSign.TextColor3 = Color3.fromRGB(220, 221, 225)
-	DownSign.TextSize = 20
+	DownSign.ImageColor3Color3 = Color3.fromRGB(220, 221, 225)
 	DownSign.TextYAlignment = Enum.TextYAlignment.Bottom
 	DownSign.ZIndex = 12 + zindex
 	DownSign.Parent = Dropdown
@@ -1075,6 +1075,7 @@ local function makeDropdown(option, parentContainer)
 	local dragDropFrame = nil
 	if option.Floating then
 		dragDropFrame = Instance.new("Frame")
+		dragDropFrame.AnchorPoint = Vector2.new(0,0)
 		dragDropFrame.Name = "FloatingDropdown"
 		dragDropFrame.Size = UDim2.new(0, 192, 0, 33)
 		dragDropFrame.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
@@ -1183,7 +1184,7 @@ local function makeDropdown(option, parentContainer)
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
 
 		if option.Floating and dragDropFrame then
-			dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y)
+			dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + 2)
 			dragDropFrame.Visible = true
 			DropdownFrame.Visible = true
 		else
