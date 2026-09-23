@@ -24,6 +24,9 @@ local library = {
 			TabDivider = Color3.fromRGB(60, 60, 70),
 			TabDividerText = Color3.fromRGB(60, 60, 70),
 			
+			TabBackground = Color3.fromRGB(40, 148, 215),
+			TabBackgroundSelect = Color3.fromRGB(0, 168, 255),
+			
 			Header = Color3.fromRGB(0, 168, 255),
 			HeaderBorder = Color3.fromRGB(0, 168, 255),
 			HeaderText = Color3.fromRGB(47, 54, 64),
@@ -1017,7 +1020,7 @@ local function makeDropdown(option, parentContainer)
 
 	-- Frame Utama Holder
 	local droFrame = Instance.new("Frame")
-	droFrame.Name = option.Title .. "_DropdownHolder"
+	droFrame.Name = "_DropdownHolder"
 	droFrame.Size = UDim2.new(1, 0, 0, 32)
 	droFrame.BackgroundTransparency = 1
 	droFrame.AutomaticSize = Enum.AutomaticSize.Y
@@ -2104,7 +2107,7 @@ function library:CreateWindow(WinConfig)
 	local winsLayoutHolder = Create("UIListLayout", {
 		FillDirection = Enum.FillDirection.Vertical,
 		HorizontalAlignment = Enum.HorizontalAlignment.Left,
-		VerticalAlignment = Enum.VerticalAlignment.Center,
+		VerticalAlignment = Enum.VerticalAlignment.Top,
 		Padding = UDim.new(0, 2),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = Window
@@ -2308,7 +2311,7 @@ function library:CreateWindow(WinConfig)
 		injectElements(tab)
 		
 		local tabButton = Create("TextButton", {
-			Name = TabConfig.Title .. "_TabButton_",
+			Name = "_TabButton_",
 			Parent = window.sidebarFrame,
 			BackgroundColor3 = Color3.fromRGB(25,25,25),
 			BackgroundTransparency = 0,
@@ -2321,14 +2324,14 @@ function library:CreateWindow(WinConfig)
 			Visible = true,
 			Active = true
 		})
-
+		
 		local ListLayouttt = Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Left,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 			Padding = UDim.new(0, 6),
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			Parent = tabContainer
+			Parent = tabButton
 		})
 
 		local PadLayouttt = Create("UIPadding", {
@@ -2346,7 +2349,7 @@ function library:CreateWindow(WinConfig)
 			Name = "Icon",
 			LayoutOrder = 1,
 			ZIndex = 8 + zindex,
-			Parent = textHolder
+			Parent = tabButton
 		})
 
 		if TabConfig.Icon then
@@ -2369,7 +2372,7 @@ function library:CreateWindow(WinConfig)
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			Position = UDim2.new(0,0,0,0),
-			Size = UDim2.new(0.24,0,1,0),
+			Size = UDim2.new(1,-29,1,0),
 			Font = Enum.Font.GothamSemibold,
 			Text = TabConfig.Title,
 			TextSize = 14,
@@ -2377,6 +2380,7 @@ function library:CreateWindow(WinConfig)
 			Visible = true,
 			Active = true
 		})
+		AddThemeObject(tabButtonTitle, "NormalText", "TextColor3")
 		tab.buttonInstance = tabButton
 		
 		local tabContainer = Create("ScrollingFrame", {
@@ -2419,7 +2423,7 @@ function library:CreateWindow(WinConfig)
 					otherTab.containerInstance.Visible = false
 				end
 				if otherTab.buttonInstance then
-					otherTab.buttonInstance.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+					otherTab.buttonInstance.BackgroundColor3 = library.Themes[SelectedTheme].TabBackground
 				end
 			end
 
@@ -2429,7 +2433,7 @@ function library:CreateWindow(WinConfig)
 			end
 
 			tab.containerInstance.Visible = true
-			tab.buttonInstance.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+			tab.buttonInstance.BackgroundColor3 = library.Themes[SelectedTheme].TabBackgroundSelect
 			window.activeTab = tab
 		end
 
