@@ -1067,7 +1067,6 @@ local function makeDropdown(option, parentContainer)
 	DownSign.ScaleType = Enum.ScaleType.Fit
 	DownSign.Rotation = 180
 	DownSign.ImageColor3 = Color3.fromRGB(220, 221, 225)
-	DownSign.TextYAlignment = Enum.TextYAlignment.Bottom
 	DownSign.ZIndex = 12 + zindex
 	DownSign.Parent = Dropdown
 
