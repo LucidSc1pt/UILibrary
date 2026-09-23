@@ -1058,13 +1058,13 @@ local function makeDropdown(option, parentContainer)
 
 	local DownSign = Instance.new("ImageLabel")
 	DownSign.Name = "DownSign"
-	DownSign.Size = UDim2.new(0, 22, 0, 22)
+	DownSign.Size = UDim2.new(0, 12, 0, 12)
 	DownSign.Position = UDim2.new(1, -5, 0.5, 0)
 	DownSign.AnchorPoint = Vector2.new(1, 0.5)
 	DownSign.BackgroundTransparency = 1
 	DownSign.Image = "rbxassetid://4918373417"
 	DownSign.ImageColor3 = Color3.fromRGB(140, 140, 140)
-	--DownSign.ScaleType = Enum.ScaleType.Fit
+	DownSign.ScaleType = Enum.ScaleType.Fit
 	DownSign.Rotation = 0
 	DownSign.ImageColor3 = Color3.fromRGB(220, 221, 225)
 	DownSign.ZIndex = 12 + zindex
