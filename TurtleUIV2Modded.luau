@@ -1064,8 +1064,8 @@ local function makeDropdown(option, parentContainer)
 	DownSign.BackgroundTransparency = 1
 	DownSign.Image = "rbxassetid://4918373417"
 	DownSign.ImageColor3 = Color3.fromRGB(140, 140, 140)
-	DownSign.ScaleType = Enum.ScaleType.Fit
-	DownSign.Rotation = 180
+	--DownSign.ScaleType = Enum.ScaleType.Fit
+	DownSign.Rotation = 0
 	DownSign.ImageColor3 = Color3.fromRGB(220, 221, 225)
 	DownSign.ZIndex = 12 + zindex
 	DownSign.Parent = Dropdown
@@ -1166,7 +1166,7 @@ local function makeDropdown(option, parentContainer)
 
 	-- Method Open & Close
 	function option:Close()
-		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
+		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
 		if dragDropFrame then
 			dragDropFrame.Visible = false
 		end
