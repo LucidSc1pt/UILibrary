@@ -2273,7 +2273,7 @@ function library:CreateWindow(WinConfig)
 		Parent = HeaderContentHolder,
 		BackgroundTransparency = 1,
 		Position = UDim2.new(0, 0, 0, 0),
-		Size = UDim2.new(1, 0, 1, 0),
+		Size = UDim2.new(0, 30, 1, 0),
 		ZIndex = 5 + zindex,
 		Active = false
 	})
@@ -2589,15 +2589,14 @@ function library:CreateWindow(WinConfig)
 		local BagdeTitle = Create("TextLabel", {
 			LayoutOrder = 2,
 			Parent = BagdeFrame,
-			BackgroundColor3 = Color3.fromRGB(25,25,25),
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			Position = UDim2.new(0,0,0,0),
 			Size = UDim2.new(1,-29,1,0),
-			Font = Enum.Font.GothamSemibold,
+			Font = Enum.Font.Gotham,
 			Text = BadgeConfig.Title,
 			TextSize = 14,
-			TextColor3 = BadgeConfig.TextColor,
+			TextColor3 = BadgeConfig.TitleColor,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			ZIndex = 8 + zindex,
 			Visible = true,
