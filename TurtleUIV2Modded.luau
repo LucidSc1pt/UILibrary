@@ -2530,7 +2530,7 @@ function library:CreateWindow(WinConfig)
 		BagdeConfig.Title = BagdeConfig.Title or "V1.0.0"
 		BagdeConfig.Color = BagdeConfig.Color or Color3.fromRGB(255,68,68)
 		BagdeConfig.TitleColor = BagdeConfig.TitleColor or Color3.fromRGB(255,255,255)
-		BagdeConfig.Icon = BagdeConfig.Icon or "sword"
+		BagdeConfig.Icon = BagdeConfig.Icon or ""
 		
 		local BagdeFrame = Create("Frame", {
 			Name = BagdeConfig.Title,
@@ -2573,7 +2573,7 @@ function library:CreateWindow(WinConfig)
 			Parent = BagdeFrame
 		})
 
-		if BagdeConfig.Icon then
+		if BagdeConfig.Icon and BagdeConfig.Icon ~= nil and BagdeConfig.Icon ~= "" then
 			if typeof(BagdeConfig.Icon) == "string" and Icons then
 				local asset = getIcon(BagdeConfig.Icon)
 				Iccon.Image = "rbxassetid://" .. asset.id
@@ -2711,7 +2711,7 @@ function library:CreateWindow(WinConfig)
 			Parent = tabButton
 		})
 
-		if TabConfig.Icon then
+		if TabConfig.Icon and TabConfig.Icon ~= nil and TabConfig.Icon ~= "" then
 			if typeof(TabConfig.Icon) == "string" and Icons then
 				local asset = getIcon(TabConfig.Icon)
 				Iccon.Image = "rbxassetid://" .. asset.id
