@@ -2170,7 +2170,7 @@ function library:CreateWindow(WinConfig)
 	WinConfig.TabPosition = WinConfig.TabPosition or "Top"
 	WinConfig.ContentFillDirection = WinConfig.ContentFillDirection or "Vertical"
 	WinConfig.AutoInit = WinConfig.AutoInit or true
-	WinConfig.HeaderIcon = WinConfig.HeaderIcon or ""
+	WinConfig.HeaderIcon = WinConfig.HeaderIcon or "home"
 	if typeof(WinConfig.Theme) == "string" and (WinConfig.Theme and WinConfig.Theme ~= "") then
 		library.SelectedTheme = WinConfig.Theme or "Default"
 	end
@@ -2252,7 +2252,7 @@ function library:CreateWindow(WinConfig)
 		Parent = HeaderContentHolder
 	})
 
-	if WinConfig.HeaderIcon and (WinConfig.HeaderIcon ~= nil or WinConfig.HeaderIcon ~= "") then
+	if WinConfig.HeaderIcon and (WinConfig.HeaderIcon ~= nil and WinConfig.HeaderIcon ~= "") then
 		if typeof(WinConfig.HeaderIcon) == "string" and Icons then
 			local asset = getIcon(WinConfig.HeaderIcon)
 			HeaderIconLabel.Image = "rbxassetid://" .. asset.id
