@@ -327,7 +327,7 @@ function library:Notification(NotificationConfig)
 			Size = UDim2.new(1, 0, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
-			ClipsDescendants = true,
+			ClipsDescendants = false,
 			Parent = NotificationHolder
 		})
 
@@ -348,7 +348,8 @@ function library:Notification(NotificationConfig)
 			Enabled = true
 		})
 
-		local Padding = Instance.new("UIPadding", NotificationFrame)
+		local Padding = Instance.new("UIPadding")
+		Padding.Parent = NotificationFrame
 		Padding.PaddingTop = UDim.new(0, 8)
 		Padding.PaddingBottom = UDim.new(0, 12)
 		Padding.PaddingLeft = UDim.new(0, 10)
@@ -537,39 +538,168 @@ local function uiKeybind(key, ui)
     end)
 end
 
-local function makeFolderUI(option, parentFrame)
-	local folderFrame = Instance.new("Frame")
-	folderFrame.Name = option.title .. "_Folder"
-	folderFrame.Size = UDim2.new(1, 0, 0, 33)
-	folderFrame.AutomaticSize = Enum.AutomaticSize.Y
-	folderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	folderFrame.Parent = parentFrame
+local function makeGroupUI(option, parentContainer)
+	local groupFrame = Instance.new("Frame")
+	groupFrame.Name = option.Title .. "_Group"
+	groupFrame.Size = UDim2.new(1, 0, 0, 0)
+	groupFrame.AutomaticSize = Enum.AutomaticSize.Y
+	groupFrame.BackgroundColor3 = Color3.fromRGB(35, 39, 42)
+	groupFrame.BorderColor3 = Color3.fromRGB(54, 57, 63)
+	groupFrame.Parent = parentContainer
+
+	local groupCorner = Instance.new("UICorner")
+	groupCorner.CornerRadius = UDim.new(0, 6)
+	groupCorner.Parent = groupFrame
+
+	local groupStroke = Instance.new("UIStroke")
+	groupStroke.Color = Color3.fromRGB(60, 64, 72)
+	groupStroke.Thickness = 1
+	groupStroke.Parent = groupFrame
 
 	local header = Instance.new("TextButton")
+	header.Name = "Header"
 	header.Size = UDim2.new(1, 0, 0, 30)
-	header.Text = "> " .. option.title
-	header.TextColor3 = Color3.fromRGB(200, 200, 200)
-	header.Font = Enum.Font.GothamBold
-	header.Parent = folderFrame
+	header.BackgroundTransparency = 1
+	header.Text = ""
+	header.Parent = groupFrame
+
+	local headerTitle = Instance.new("TextLabel")
+	headerTitle.Name = "Title"
+	headerTitle.Size = UDim2.new(1, -30, 1, 0)
+	headerTitle.Position = UDim2.new(0, 10, 0, 0)
+	headerTitle.BackgroundTransparency = 1
+	headerTitle.Font = Enum.Font.SourceSansBold
+	headerTitle.Text = tostring(option.Title)
+	headerTitle.TextColor3 = Color3.fromRGB(245, 246, 250)
+	headerTitle.TextSize = 15
+	headerTitle.TextXAlignment = Enum.TextXAlignment.Left
+	headerTitle.Parent = header
 
 	local contentHolder = Instance.new("Frame")
+	contentHolder.Name = "Content"
 	contentHolder.Size = UDim2.new(1, 0, 0, 0)
-	contentHolder.AutomaticSize = Enum.AutomaticSize.Y
 	contentHolder.Position = UDim2.new(0, 0, 0, 30)
-	contentHolder.Visible = true
-	contentHolder.Parent = folderFrame
+	contentHolder.AutomaticSize = Enum.AutomaticSize.Y
+	contentHolder.BackgroundTransparency = 1
+	contentHolder.Visible = option.Open
+	contentHolder.Parent = groupFrame
 
-	local layout = Instance.new("UIListLayout")
-	layout.Padding = UDim.new(0, 5)
-	layout.Parent = contentHolder
+	local contentLayout = Instance.new("UIListLayout")
+	contentLayout.FillDirection = Enum.FillDirection.Vertical
+	contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	contentLayout.Padding = UDim.new(0, 6)
+	contentLayout.Parent = contentHolder
 
-	header.MouseButton1Click:Connect(function()
-		contentHolder.Visible = not contentHolder.Visible
-	end)
+	local contentPadding = Instance.new("UIPadding")
+	contentPadding.PaddingLeft = UDim.new(0, 8)
+	contentPadding.PaddingRight = UDim.new(0, 8)
+	contentPadding.PaddingBottom = UDim.new(0, 8)
+	contentPadding.Parent = contentHolder
 
-	option.Instance = folderFrame
+	if option.Collapsible then
+		local arrow = Instance.new("TextLabel")
+		arrow.Name = "Arrow"
+		arrow.Size = UDim2.new(0, 20, 1, 0)
+		arrow.Position = UDim2.new(1, -25, 0, 0)
+		arrow.BackgroundTransparency = 1
+		arrow.Font = Enum.Font.SourceSansBold
+		arrow.Text = option.Open and "v" or ">"
+		arrow.TextColor3 = Color3.fromRGB(180, 180, 180)
+		arrow.TextSize = 14
+		arrow.Parent = header
 
-	return contentHolder
+		header.MouseButton1Click:Connect(function()
+			option.Open = not option.Open
+			contentHolder.Visible = option.Open
+			arrow.Text = option.Open and "v" or ">"
+		end)
+	end
+
+	renderOptions(option.options, contentHolder)
+
+	option.Instance = groupFrame
+	return groupFrame
+end
+
+local function makeColumnsUI(option, parentContainer)
+	local columnsFrame = Instance.new("Frame")
+	columnsFrame.Name = "ColumnsHolder"
+	columnsFrame.Size = UDim2.new(1, 0, 0, 0)
+	columnsFrame.AutomaticSize = Enum.AutomaticSize.Y
+	columnsFrame.BackgroundTransparency = 1
+	columnsFrame.Parent = parentContainer
+
+	local colLayout = Instance.new("UIListLayout")
+	colLayout.FillDirection = Enum.FillDirection.Horizontal
+	colLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	colLayout.Padding = UDim.new(0, 6)
+	colLayout.Parent = columnsFrame
+
+	local columnWidth = (1 / #option.Columns)
+
+	for i, colData in ipairs(option.Columns) do
+		local colFrame = Instance.new("Frame")
+		colFrame.Name = "Column_" .. i
+		colFrame.Size = UDim2.new(columnWidth, -(((#option.Columns - 1) * 6) / #option.Columns), 0, 0)
+		colFrame.AutomaticSize = Enum.AutomaticSize.Y
+		colFrame.BackgroundTransparency = 1
+		colFrame.Parent = columnsFrame
+
+		local listLayout = Instance.new("UIListLayout")
+		listLayout.FillDirection = Enum.FillDirection.Vertical
+		listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+		listLayout.Padding = UDim.new(0, 6)
+		listLayout.Parent = colFrame
+
+		renderOptions(colData.options, colFrame)
+	end
+
+	option.Instance = columnsFrame
+	return columnsFrame
+end
+
+-- RENDERER UNTUK ROW
+local function createRowUI(option, parentContainer)
+	local rowFrame = Instance.new("Frame")
+	rowFrame.Name = "RowHolder"
+	rowFrame.Size = UDim2.new(1, 0, 0, 0)
+	rowFrame.AutomaticSize = Enum.AutomaticSize.Y
+	rowFrame.BackgroundTransparency = 1
+	rowFrame.Parent = parentContainer
+
+	local rowLayout = Instance.new("UIListLayout")
+	rowLayout.FillDirection = Enum.FillDirection.Horizontal
+	rowLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	rowLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	rowLayout.Padding = UDim.new(0, option.Padding)
+	rowLayout.Parent = rowFrame
+
+	renderOptions(option.options, rowFrame)
+
+	option.Instance = rowFrame
+	return rowFrame
+end
+
+local function makeGridUI(option, parentContainer)
+	local gridFrame = Instance.new("Frame")
+	gridFrame.Name = "GridHolder"
+	gridFrame.Size = UDim2.new(1, 0, 0, 0)
+	gridFrame.AutomaticSize = Enum.AutomaticSize.Y
+	gridFrame.BackgroundTransparency = 1
+	gridFrame.Parent = parentContainer
+
+	local gridLayout = Instance.new("UIGridLayout")
+	gridLayout.CellSize = option.CellSize
+	gridLayout.CellPadding = option.CellPadding
+	gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	gridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+	gridLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	gridLayout.Parent = gridFrame
+
+	renderOptions(option.options, gridFrame)
+
+	option.Instance = gridFrame
+	return gridFrame
 end
 
 function makeButton(option, parent)
@@ -1910,10 +2040,8 @@ local function injectElements(targetContainer)
 		config.Callback = config.callback or config.Callback or function() end
 		config.Value = config.Value or config.Default or (config.MultiSelect and {} or nil)
 
-		-- Mendaftarkan Flag global
 		registerFlag(config)
 
-		-- Dummy Methods (Aman dipanggil sebelum UI di-render)
 		function config:SetValue(val)
 			self.Value = val
 			library.Flags[self.Flag] = val
@@ -1934,18 +2062,63 @@ local function injectElements(targetContainer)
 		return config
 	end
 
+	function targetContainer:AddColumns(config)
+		config = type(config) == "table" and config or {}
+		config.type = "columns"
+		config.Count = config.Count or config.count or 2 -- Default 2 kolom
+		config.Columns = {}
 
-	function targetContainer:AddFolder(title)
-		local folder = {
-			type = "folder",
-			title = title or "Folder",
-			options = {}
-		}
+		for i = 1, config.Count do
+			local col = {
+				type = "column",
+				options = {}
+			}
+			injectElements(col) -- Suntikkan method AddButton, AddToggle, dll ke tiap kolom
+			table.insert(config.Columns, col)
+		end
 
-		injectElements(folder)
+		table.insert(self.options, config)
+		return unpack(config.Columns) -- Mengembalikan tabel kolom agar bisa diisi
+	end
+	
+	function targetContainer:AddRow(config)
+		config = type(config) == "table" and config or {}
+		config.type = "row"
+		config.Padding = config.Padding or config.padding or 6
+		config.options = {}
 
-		table.insert(self.options, folder)
-		return folder
+		injectElements(config)
+
+		table.insert(self.options, config)
+		return config
+	end
+
+	function targetContainer:AddGrid(config)
+		config = type(config) == "table" and config or {}
+		config.type = "grid"
+		config.CellSize = config.CellSize or config.cellSize or UDim2.new(0, 80, 0, 80)
+		config.CellPadding = config.CellPadding or config.cellPadding or UDim2.new(0, 6, 0, 6)
+		config.options = {}
+
+		injectElements(config)
+
+		table.insert(self.options, config)
+		return config
+	end
+
+	function targetContainer:AddGroup(config)
+		config = type(config) == "table" and config or {}
+		config.type = "group"
+		config.Title = config.Title or config.Name or config.text or "Group Box"
+		config.Collapsible = config.Collapsible or false
+		config.Open = config.Open ~= nil and config.Open or true
+		config.options = {}
+
+		-- REKURSIF: Objek Group ini disuntikkan fungsi AddButton, AddToggle, dll.
+		injectElements(config)
+
+		table.insert(self.options, config)
+		return config
 	end
 end
 
@@ -1969,10 +2142,17 @@ local function renderOptions(optionsList, parentContainerFrame)
 		elseif option.type == "dropdown" then
 			makeDropdown(option, parentContainerFrame)
 
-		elseif option.type == "folder" then
-			local folderContentContainer = makeFolderUI(option, parentContainerFrame)
+		elseif option.type == "columns" then
+			makeColumnsUI(option, parentContainer)
 
-			renderOptions(option.options, folderContentContainer)
+		elseif option.type == "row" then
+			createRowUI(option, parentContainer)
+
+		elseif option.type == "grid" then
+			createGridUI(option, parentContainer)
+
+		elseif option.type == "group" then
+			makeGroupUI(option, parentContainer)
 		end
 	end
 end
