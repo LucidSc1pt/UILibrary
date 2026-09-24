@@ -2525,18 +2525,18 @@ function library:CreateWindow(WinConfig)
 
 	injectElements(window)
 	
-	function window:AddBagde(BagdeConfig)
-		BagdeConfig = BagdeConfig or {}
-		BagdeConfig.Title = BagdeConfig.Title or "V1.0.0"
-		BagdeConfig.Color = BagdeConfig.Color or Color3.fromRGB(255,68,68)
-		BagdeConfig.TitleColor = BagdeConfig.TitleColor or Color3.fromRGB(255,255,255)
-		BagdeConfig.Icon = BagdeConfig.Icon or ""
+	function window:AddBadge(BadgeConfig)
+		BadgeConfig = BadgeConfig or {}
+		BadgeConfig.Title = BadgeConfig.Title or "V1.0.0"
+		BadgeConfig.Color = BadgeConfig.Color or Color3.fromRGB(255,68,68)
+		BadgeConfig.TitleColor = BadgeConfig.TitleColor or Color3.fromRGB(255,255,255)
+		BadgeConfig.Icon = BadgeConfig.Icon or ""
 		
 		local BagdeFrame = Create("Frame", {
 			Name = BagdeConfig.Title,
 			LayoutOrder = 3,
 			Parent = HeaderContentHolder,
-			BackgroundColor3 = BagdeConfig.Color,
+			BackgroundColor3 = BadgeConfig.Color,
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			Position = UDim2.new(0,0,0,0),
@@ -2595,9 +2595,9 @@ function library:CreateWindow(WinConfig)
 			Position = UDim2.new(0,0,0,0),
 			Size = UDim2.new(1,-29,1,0),
 			Font = Enum.Font.GothamSemibold,
-			Text = BagdeConfig.Title,
+			Text = BadgeConfig.Title,
 			TextSize = 14,
-			TextColor3 = BagdeConfig.TextColor,
+			TextColor3 = BadgeConfig.TextColor,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			ZIndex = 8 + zindex,
 			Visible = true,
