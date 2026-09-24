@@ -1,5 +1,5 @@
 -- // Credits to Intrer#0421 for the source \\ --
--- // This UI is updated by me (LucidSc1pt) \\ --
+-- // This UI is updated by me (LucidSc1pt) with some vibecode \\ --
 
 -- // MAIN CODE \\ --
 
@@ -289,6 +289,7 @@ end
 -- // Making the ScreenGui \\ --
 local TurtleUiLib = Instance.new("ScreenGui")
 TurtleUiLib.Name = "TurtleUiLib"
+TurtleUiLib.ZIndexBehaviour = Enum.ZIndexBehaviour.Sibling
 protect_gui(TurtleUiLib)
 
 local xOffset = 20
@@ -339,10 +340,13 @@ function library:Notification(NotificationConfig)
 			Parent = NotificationParent
 		})
 
-		local Stroke = Instance.new("UIStroke")
-		Stroke.Parent = NotificationFrame
-		Stroke.Thickness = 2
-		Stroke.Color = Color3.fromRGB(0, 168, 247)
+		local NotificationFrame_Stroke = Create("UIStroke", {
+			Parent = NotificationFrame,
+			Thickness = 1,
+			Color = Color3.fromRGB(0, 168, 247),
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Enabled = true
+		})
 
 		local Padding = Instance.new("UIPadding", NotificationFrame)
 		Padding.PaddingTop = UDim.new(0, 8)
@@ -715,12 +719,14 @@ function makeToggle(option, parent)
 
 	local ToggleFiller = Create("Frame", {
 		Name = "ToggleFiller",
+		AnchorPoint = Vector2.new(0.5,0.5),
 		Parent = ToggleButton,
 		BackgroundColor3 = Color3.fromRGB(68, 189, 50),
 		BorderSizePixel = 0,
 		Visible = option.Default,
 		ZIndex = 12 + zindex,
-		Size = UDim2.new(1, 0, 1, 0)
+		Size = UDim2.new(0.8, 0, 0.8, 0),
+		Position = UDim2.fromScale(0.5,0.5)
 	})
 
 	function option:SetValue(state)
@@ -2169,7 +2175,7 @@ function library:CreateWindow(WinConfig)
         	Parent = TurtleUiLib,
 			Size = UDim2.new(0.1, 0, 0, 40),
 			Position = UDim2.new(0.5, 0, 0, -23),
-			BackgroundTransparency = 1,
+			BackgroundTransparency = 0.05,
         	Visible = false
 		})
 		AddThemeObject(MobileUIToggle, "WindowBackground", "BackgroundColor3")
@@ -2177,11 +2183,10 @@ function library:CreateWindow(WinConfig)
         	Parent = MobileUIToggle,
             AutomaticSize = Enum.AutomaticSize.X,
             Name = "Click",
-            BackgroundTransparency = 0.05,
+            BackgroundTransparency = 1,
             ZIndex = 15 + zindex,
             Size = UDim2.new(1, 0, 1, 0)
 		})
-		AddThemeObject(MobileUIButton, "WindowBackground", "BackgroundColor3")
 		local mobilePaddingui = Create("UIPadding", {
 			Parent = MobileUIButton,
             PaddingTop = UDim.new(0, 2),
@@ -2344,19 +2349,32 @@ function library:CreateWindow(WinConfig)
 			window.sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 		end
 		
-		local tabButton = Create("TextButton", {
-			Name = "_TabButton_",
+		local tabButtonFrame = Create("Frame", {
+			Name = TabConfig.Title,
 			Parent = window.sidebarFrame,
 			BackgroundColor3 = Color3.fromRGB(25,25,25),
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			Position = UDim2.new(0,0,0,0),
 			Size = UDim2.new(0.25,0,0,30),
+			ZIndex = 8 + zindex,
+			Visible = true,
+			Active = true
+		})
+		
+		local tabButton = Create("TextButton", {
+			Name = "_Button",
+			Parent = tabButtonFrame,
+			BackgroundColor3 = Color3.fromRGB(25,25,25),
+			BackgroundTransparency = 0,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0,0,0,0),
+			Size = UDim2.new(1,0,1,0),
 			Font = Enum.Font.GothamSemibold,
 			TextTransparency = 1,
 			ZIndex = 8 + zindex,
 			Visible = true,
-			Active = true
+			Active = false
 		})
 		
 		local ListLayouttt = Create("UIListLayout", {
@@ -2413,10 +2431,10 @@ function library:CreateWindow(WinConfig)
 			TextXAlignment = Enum.TextXAlignment.Left,
 			ZIndex = 8 + zindex,
 			Visible = true,
-			Active = true
+			Active = false
 		})
 		AddThemeObject(tabButtonTitle, "NormalText", "TextColor3")
-		tab.buttonInstance = tabButton
+		tab.buttonInstance = tabButtonFrame
 		
 		local tabContainer = Create("ScrollingFrame", {
 			Name = "Content_" .. TabConfig.Title,
