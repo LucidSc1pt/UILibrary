@@ -2529,7 +2529,7 @@ function library:CreateWindow(WinConfig)
 		BagdeConfig = BagdeConfig or {}
 		BagdeConfig.Title = BagdeConfig.Title or "V1.0.0"
 		BagdeConfig.Color = BagdeConfig.Color or Color3.fromRGB(255,68,68)
-		BagdeConfig.TitleColor = BagdeConfig.Color = BagdeConfig.Color or Color3.fromRGB(255,68,68).TitleColor or Color3.fromRGB(255,255,255)
+		BagdeConfig.TitleColor = BagdeConfig.TitleColor or Color3.fromRGB(255,255,255)
 		BagdeConfig.Icon = BagdeConfig.Icon or "sword"
 		
 		local BagdeFrame = Create("Frame", {
