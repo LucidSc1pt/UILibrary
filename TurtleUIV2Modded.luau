@@ -2533,7 +2533,7 @@ function library:CreateWindow(WinConfig)
 		BadgeConfig.Icon = BadgeConfig.Icon or ""
 		
 		local BagdeFrame = Create("Frame", {
-			Name = BagdeConfig.Title,
+			Name = BadgeConfig.Title,
 			LayoutOrder = 3,
 			Parent = HeaderContentHolder,
 			BackgroundColor3 = BadgeConfig.Color,
@@ -2573,14 +2573,14 @@ function library:CreateWindow(WinConfig)
 			Parent = BagdeFrame
 		})
 
-		if BagdeConfig.Icon and BagdeConfig.Icon ~= nil and BagdeConfig.Icon ~= "" then
-			if typeof(BagdeConfig.Icon) == "string" and Icons then
-				local asset = getIcon(BagdeConfig.Icon)
+		if BadgeConfig.Icon and BadgeConfig.Icon ~= nil and BadgeConfig.Icon ~= "" then
+			if typeof(BadgeConfig.Icon) == "string" and Icons then
+				local asset = getIcon(BadgeConfig.Icon)
 				Iccon.Image = "rbxassetid://" .. asset.id
 				Iccon.ImageRectOffset = asset.imageRectOffset
 				Iccon.ImageRectSize = asset.imageRectSize
 			else
-				Iccon.Image = getAssetUri(BagdeConfig.Icon)
+				Iccon.Image = getAssetUri(BadgeConfig.Icon)
 			end
 		else
 			Iccon:Destroy()
