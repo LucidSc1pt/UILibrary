@@ -289,7 +289,7 @@ end
 -- // Making the ScreenGui \\ --
 local TurtleUiLib = Instance.new("ScreenGui")
 TurtleUiLib.Name = "TurtleUiLib"
-TurtleUiLib.ZIndexBehaviour = Enum.ZIndexBehaviour.Sibling
+TurtleUiLib.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 protect_gui(TurtleUiLib)
 
 local xOffset = 20
