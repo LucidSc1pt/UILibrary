@@ -2260,7 +2260,7 @@ function library:CreateWindow(WinConfig)
 			HeaderIconLabel.ImageRectOffset = asset.imageRectOffset
 			HeaderIconLabel.ImageRectSize = asset.imageRectSize
 		else
-			HeaderIconLabel.Image = getAssetUri(WinConfig.Icon)
+			HeaderIconLabel.Image = getAssetUri(WinConfig.HeaderIcon)
 		end
 	else
 		HeaderIconLabel:Destroy()
@@ -2270,7 +2270,7 @@ function library:CreateWindow(WinConfig)
 		LayoutOrder = 2,
 		AnchorPoint = Vector2.new(0, 0),
 		Name = "HeaderTextHolder",
-		AutomaticSize = Enum.AutomaticSize.X
+		AutomaticSize = Enum.AutomaticSize.X,
 		Parent = HeaderContentHolder,
 		BackgroundTransparency = 1,
 		Position = UDim2.new(0, 0, 0, 0),
