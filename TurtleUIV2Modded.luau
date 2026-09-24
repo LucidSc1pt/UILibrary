@@ -35,6 +35,10 @@ local library = {
 			NormalText = Color3.fromRGB(245, 246, 250),
 			NormalBackground = Color3.fromRGB(53, 59, 72),
 
+			DropdownOptionBackground = Color3.fromRGB(53, 59, 72),
+			DropdownOptionTextHolder = Color3.fromRGB(180, 180, 180),
+			DropdownOptionSelect = Color3.fromRGB(73, 79, 92),
+
 			BtnBorder = Color3.fromRGB(113, 128, 147),
 			
 			ToggleFiller = Color3.fromRGB(68, 189, 50),
@@ -317,7 +321,7 @@ function library:Notification(NotificationConfig)
 	task.spawn(function()
 		NotificationConfig = NotificationConfig or {}
 		NotificationConfig.Title = NotificationConfig.Title or "Notification"
-		NotificationConfig.Desc = NotificationConfig.Desc or "Hello World"
+		NotificationConfig.Content = NotificationConfig.Content or "Hello World"
 		NotificationConfig.Image = NotificationConfig.Image or 4384403532
 		NotificationConfig.Time = NotificationConfig.Time or 5
 
@@ -355,16 +359,13 @@ function library:Notification(NotificationConfig)
 		Padding.PaddingLeft = UDim.new(0, 10)
 		Padding.PaddingRight = UDim.new(0, 10)
 
-		local closeNotifButton = Instance.new("TextButton")
+		local closeNotifButton = Instance.new("ImageButton")
 		closeNotifButton.AnchorPoint = Vector2.new(1, 0)
 		closeNotifButton.Size = UDim2.new(0, 20, 0, 20)
 		closeNotifButton.Position = UDim2.new(1, 0, 0, 0)
 		closeNotifButton.BackgroundTransparency = 1
-		closeNotifButton.Name = "CloseNotifications"
-		closeNotifButton.Text = "X"
-		closeNotifButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-		closeNotifButton.Font = Enum.Font.GothamSemibold
-		closeNotifButton.TextSize = 14
+		closeNotifButton.Image = "rbxassetid://7072725342"
+		closeNotifButton.ImageColor3 = Color3.fromRGB(255, 255, 255)
 		closeNotifButton.Parent = NotificationFrame
 
 		local contentHolder = Create("Frame", {
@@ -1197,7 +1198,7 @@ local function makeDropdown(option, parentContainer)
 
 	local DownSign = Instance.new("ImageLabel")
 	DownSign.Name = "DownSign"
-	DownSign.Size = UDim2.new(0, 12, 0, 12)
+	DownSign.Size = UDim2.new(0, 8, 0, 8)
 	DownSign.Position = UDim2.new(1, -5, 0.5, 0)
 	DownSign.AnchorPoint = Vector2.new(1, 0.5)
 	DownSign.BackgroundTransparency = 1
@@ -1357,13 +1358,13 @@ local function makeDropdown(option, parentContainer)
 
 		-- Set Highlight jika sudah terpilih
 		if (option.MultiSelect and selectedItems[name]) or (not option.MultiSelect and selectedSingle == name) then
-			itemBtn.BackgroundColor3 = Color3.fromRGB(76, 79, 92)
+			itemBtn.BackgroundColor3 = library.Themes[library.SelectedTheme].DropdownOptionSelect
 		end
 
 		itemBtn.MouseButton1Click:Connect(function()
 			if option.MultiSelect then
 				selectedItems[name] = not selectedItems[name]
-				itemBtn.BackgroundColor3 = selectedItems[name] and Color3.fromRGB(76, 79, 92) or Color3.fromRGB(53, 59, 72)
+				itemBtn.BackgroundColor3 = selectedItems[name] and library.Themes[library.SelectedTheme].DropdownOptionSelect or Color3.fromRGB(53, 59, 72)
 
 				updateDropdownText()
 
@@ -1392,7 +1393,7 @@ local function makeDropdown(option, parentContainer)
 					end
 
 					selectedSingle = name
-					itemBtn.BackgroundColor3 = Color3.fromRGB(76, 79, 92)
+					itemBtn.BackgroundColor3 = library.Themes[library.SelectedTheme].DropdownOptionSelect
 					updateDropdownText()
 
 					option.Value = name
@@ -1408,9 +1409,9 @@ local function makeDropdown(option, parentContainer)
 		PlaceholderLabel.Name = "Placeholder"
 		PlaceholderLabel.Size = UDim2.new(0, 180, 0, 26)
 		PlaceholderLabel.Position = UDim2.new(0, 6, 0, 0)
-		PlaceholderLabel.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
+		PlaceholderLabel.BackgroundTransparency = 1
 		PlaceholderLabel.Font = Enum.Font.SourceSansItalic
-		PlaceholderLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+		PlaceholderLabel.TextColor3 = library.Themes[library.SelectedTheme].DropdownOptionTextHolder
 		PlaceholderLabel.TextSize = 14
 		PlaceholderLabel.Text = tostring(labelText)
 		PlaceholderLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -2170,6 +2171,7 @@ function library:CreateWindow(WinConfig)
 	WinConfig.TabPosition = WinConfig.TabPosition or "Top"
 	WinConfig.ContentFillDirection = WinConfig.ContentFillDirection or "Vertical"
 	WinConfig.AutoInit = WinConfig.AutoInit or true
+	WinConfig.HeaderIcon = WinConfig.HeaderIcon or ""
 	if typeof(WinConfig.Theme) == "string" and (WinConfig.Theme and WinConfig.Theme ~= "") then
 		library.SelectedTheme = WinConfig.Theme or "Default"
 	end
@@ -2189,7 +2191,7 @@ function library:CreateWindow(WinConfig)
 	end
 	
 	local UiWindow = Create("Frame", {
-    	Name = "UiWindow",
+    	Name = "UiWindow" .. windowCount,
     	Parent = TurtleUiLib,
     	BackgroundTransparency = 1,
     	BorderColor3 = Color3.fromRGB(0, 151, 230),
@@ -2221,19 +2223,63 @@ function library:CreateWindow(WinConfig)
 	})
 	AddThemeObject(Header, "Header", "BackgroundColor3")
 
-	local HeaderTextHolder = Create("Frame", {
+	local HeaderContentHolder = Create("Frame", {
 		AnchorPoint = Vector2.new(0, 0.5),
-		Name = "Header",
+		Name = "HeaderContentHolder",
 		Parent = Header,
 		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
 		Position = UDim2.new(0, 5, 0.5, 0),
 		Size = UDim2.new(1, -67, 1, 0),
 		ZIndex = 5 + zindex,
 		Active = false
 	})
 
-	Create("UIListLayout", {
+	local HeaderContentHolder_Layout = Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Left,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 2),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = HeaderContentHolder
+	})
+
+	local HeaderIconLabel = Create("ImageLabel", {
+		Size = UDim2.new(1, -3, 0, 30),
+		BackgroundTransparency = 1,
+		ImageColor3 = Color3.fromRGB(240, 240, 240),
+		Name = "HeaderIconLabel",
+		LayoutOrder = 1,
+		ZIndex = 8 + zindex,
+		Parent = HeaderContentHolder
+	})
+
+	if WinConfig.HeaderIcon then
+		if typeof(WinConfig.HeaderIcon) == "string" and Icons then
+			local asset = getIcon(WinConfig.HeaderIcon)
+			HeaderIconLabel.Image = "rbxassetid://" .. asset.id
+			HeaderIconLabel.ImageRectOffset = asset.imageRectOffset
+			HeaderIconLabel.ImageRectSize = asset.imageRectSize
+		else
+			HeaderIconLabel.Image = getAssetUri(WinConfig.Icon)
+		end
+	else
+		HeaderIconLabel:Destroy()
+	end
+
+	local HeaderTextHolder = Create("Frame", {
+		LayoutOrder = 2,
+		AnchorPoint = Vector2.new(0, 0),
+		Name = "HeaderTextHolder",
+		AutomaticSize = Enum.AutomaticSize.X
+		Parent = HeaderContentHolder,
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0, 0, 0, 0),
+		Size = UDim2.new(1, 0, 1, 0),
+		ZIndex = 5 + zindex,
+		Active = false
+	})
+
+	local HeaderTextHolder_Layout = Create("UIListLayout", {
 		FillDirection = Enum.FillDirection.Vertical,
 		HorizontalAlignment = Enum.HorizontalAlignment.Left,
 		VerticalAlignment = Enum.VerticalAlignment.Top,
@@ -2265,7 +2311,7 @@ function library:CreateWindow(WinConfig)
 		Size = UDim2.new(1, 0, 0.5, 0),
 		Position = UDim2.new(0, 0, 0, 0),
 		Font = Enum.Font.SourceSansBold,
-		TextSize = 15,
+		TextSize = 12,
 		BackgroundTransparency = 1,
 		Text = WinConfig.SubTitle,
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -2479,6 +2525,86 @@ function library:CreateWindow(WinConfig)
 	}
 
 	injectElements(window)
+	
+	function window:AddBagde(BagdeConfig)
+		BagdeConfig = BagdeConfig or {}
+		BagdeConfig.Title = BagdeConfig.Title or "V1.0.0"
+		BagdeConfig.Color = BagdeConfig.Color or Color3.fromRGB(255,68,68)
+		BagdeConfig.TitleColor = BagdeConfig.Color = BagdeConfig.Color or Color3.fromRGB(255,68,68).TitleColor or Color3.fromRGB(255,255,255)
+		BagdeConfig.Icon = BagdeConfig.Icon or "sword"
+		
+		local BagdeFrame = Create("Frame", {
+			Name = BagdeConfig.Title,
+			LayoutOrder = 3,
+			Parent = HeaderContentHolder,
+			BackgroundColor3 = BagdeConfig.Color,
+			BackgroundTransparency = 0,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0,0,0,0),
+			Size = UDim2.new(0.25,0,0,30),
+			ZIndex = 8 + zindex,
+			Visible = true,
+			Active = false
+		})
+		
+		local ListLayouttt = Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Left,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = BagdeFrame
+		})
+
+		local PadLayouttt = Create("UIPadding", {
+			PaddingBottom = UDim.new(0, 5),
+			PaddingTop = UDim.new(0, 5),
+			PaddingRight = UDim.new(0, 5),
+			PaddingLeft = UDim.new(0, 5),
+			Parent = BagdeFrame
+		})
+
+		local Iccon = Create("ImageLabel", {
+			Size = UDim2.new(0, 24, 0, 24),
+			BackgroundTransparency = 1,
+			ImageColor3 = Color3.fromRGB(240, 240, 240),
+			Name = "Icon",
+			LayoutOrder = 1,
+			ZIndex = 8 + zindex,
+			Parent = BagdeFrame
+		})
+
+		if BagdeConfig.Icon then
+			if typeof(BagdeConfig.Icon) == "string" and Icons then
+				local asset = getIcon(BagdeConfig.Icon)
+				Iccon.Image = "rbxassetid://" .. asset.id
+				Iccon.ImageRectOffset = asset.imageRectOffset
+				Iccon.ImageRectSize = asset.imageRectSize
+			else
+				Iccon.Image = getAssetUri(BagdeConfig.Icon)
+			end
+		else
+			Iccon:Destroy()
+		end
+
+		local BagdeTitle = Create("TextLabel", {
+			LayoutOrder = 2,
+			Parent = BagdeFrame,
+			BackgroundColor3 = Color3.fromRGB(25,25,25),
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Position = UDim2.new(0,0,0,0),
+			Size = UDim2.new(1,-29,1,0),
+			Font = Enum.Font.GothamSemibold,
+			Text = BagdeConfig.Title,
+			TextSize = 14,
+			TextColor3 = BagdeConfig.TextColor,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			ZIndex = 8 + zindex,
+			Visible = true,
+			Active = false
+		})
+	end
 
 	function window:AddTab(TabConfig)
 		TabConfig = TabConfig or {}
