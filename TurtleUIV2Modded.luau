@@ -367,7 +367,7 @@ function library:Notification(NotificationConfig)
 		closeNotifButton.Parent = NotificationFrame
 
 		local contentHolder = Create("Frame", {
-			Size = UDim2.new(1, -25, 1, -5),
+			Size = UDim2.new(1, 0, 1, -5),
 			BackgroundTransparency = 1,
 			Parent = NotificationFrame
 		})
@@ -382,7 +382,7 @@ function library:Notification(NotificationConfig)
 		})
 	
 		local textHolder = Create("Frame", {
-			Size = UDim2.new(1, 0, 0, 0),
+			Size = UDim2.new(1,-25, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
 			Parent = contentHolder
@@ -485,7 +485,7 @@ function library:Notification(NotificationConfig)
 				Position = UDim2.new(1, 50, 0, 0),
 				BackgroundTransparency = 1
 			}):Play()
-			TweenService:Create(Stroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
+			TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
 			TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
 			TweenService:Create(Content, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
 			TweenService:Create(ProgressBarParent, TweenInfo.new(0.1), {BackgroundTransparency = 1}):Play()
@@ -2366,7 +2366,7 @@ function library:CreateWindow(WinConfig)
 			Name = "_Button",
 			Parent = tabButtonFrame,
 			BackgroundColor3 = Color3.fromRGB(25,25,25),
-			BackgroundTransparency = 0,
+			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			Position = UDim2.new(0,0,0,0),
 			Size = UDim2.new(1,0,1,0),
