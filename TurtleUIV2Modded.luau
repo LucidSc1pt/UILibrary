@@ -2170,7 +2170,7 @@ function library:CreateWindow(WinConfig)
 	WinConfig.TabPosition = WinConfig.TabPosition or "Top"
 	WinConfig.ContentFillDirection = WinConfig.ContentFillDirection or "Vertical"
 	WinConfig.AutoInit = WinConfig.AutoInit or true
-	WinConfig.HeaderIcon = WinConfig.HeaderIcon or "home"
+	WinConfig.HeaderIcon = WinConfig.HeaderIcon or ""
 	if typeof(WinConfig.Theme) == "string" and (WinConfig.Theme and WinConfig.Theme ~= "") then
 		library.SelectedTheme = WinConfig.Theme or "Default"
 	end
@@ -2243,7 +2243,7 @@ function library:CreateWindow(WinConfig)
 	})
 
 	local HeaderIconLabel = Create("ImageLabel", {
-		Size = UDim2.new(1, -3, 0, 30),
+		Size = UDim2.new(0, 30, 1, 0),
 		BackgroundTransparency = 1,
 		ImageColor3 = Color3.fromRGB(240, 240, 240),
 		Name = "HeaderIconLabel",
@@ -2294,7 +2294,7 @@ function library:CreateWindow(WinConfig)
 		Size = UDim2.new(1, 0, 0.5, 0),
 		Position = UDim2.new(0, 0, 0, 0),
 		Font = Enum.Font.SourceSansBold,
-		TextSize = 16,
+		TextSize = 18,
 		BackgroundTransparency = 1,
 		Text = WinConfig.Title,
 		TextXAlignment = Enum.TextXAlignment.Left,
