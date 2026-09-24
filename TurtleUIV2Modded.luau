@@ -18,6 +18,7 @@ local library = {
 			NotificationBackground = Color3.fromRGB(40,40,40),
 			NotificationStroke = Color3.fromRGB(0,168,247),
 			NotificationBar = Color3.fromRGB(0,168,247),
+			NotificationBarHolder = Color3.fromRGB(0,108,187),
 			
 			ElementDivider = Color3.fromRGB(60, 60, 70),
 			ElementDividerText = Color3.fromRGB(60, 60, 70),
@@ -455,7 +456,7 @@ function library:Notification(NotificationConfig)
 		ProgressBarParent.Size = UDim2.new(1, 0, 0, 3)
 		ProgressBarParent.Position = UDim2.new(0, 0, 1, 5)
 		ProgressBarParent.BackgroundTransparency = 0
-		ProgressBarParent.BackgroundColor3 = Color3.fromRGB(0, 128, 207)
+		ProgressBarParent.BackgroundColor3 = Color3.fromRGB(0, 108, 187)
 		ProgressBarParent.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBarParent).CornerRadius = UDim.new(0, 3)
 
@@ -659,8 +660,7 @@ local function makeColumnsUI(option, parentContainer)
 	return columnsFrame
 end
 
--- RENDERER UNTUK ROW
-local function createRowUI(option, parentContainer)
+local function makeRowUI(option, parentContainer)
 	local rowFrame = Instance.new("Frame")
 	rowFrame.Name = "RowHolder"
 	rowFrame.Size = UDim2.new(1, 0, 0, 0)
@@ -2115,7 +2115,6 @@ local function injectElements(targetContainer)
 		config.Open = config.Open ~= nil and config.Open or true
 		config.options = {}
 
-		-- REKURSIF: Objek Group ini disuntikkan fungsi AddButton, AddToggle, dll.
 		injectElements(config)
 
 		table.insert(self.options, config)
@@ -2147,10 +2146,10 @@ local function renderOptions(optionsList, parentContainerFrame)
 			makeColumnsUI(option, parentContainer)
 
 		elseif option.type == "row" then
-			createRowUI(option, parentContainer)
+			makeRowUI(option, parentContainer)
 
 		elseif option.type == "grid" then
-			createGridUI(option, parentContainer)
+			makeGridUI(option, parentContainer)
 
 		elseif option.type == "group" then
 			makeGroupUI(option, parentContainer)
@@ -2604,6 +2603,8 @@ function library:CreateWindow(WinConfig)
 			Visible = true,
 			Active = false
 		})
+
+		return BagdeFrame
 	end
 
 	function window:AddTab(TabConfig)
