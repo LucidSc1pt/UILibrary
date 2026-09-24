@@ -2252,7 +2252,7 @@ function library:CreateWindow(WinConfig)
 		Parent = HeaderContentHolder
 	})
 
-	if WinConfig.HeaderIcon and (WinConfig.HeaderIcon ~= nil and WinConfig.HeaderIcon ~= "") then
+	if WinConfig.HeaderIcon and WinConfig.HeaderIcon ~= nil and WinConfig.HeaderIcon ~= "" then
 		if typeof(WinConfig.HeaderIcon) == "string" and Icons then
 			local asset = getIcon(WinConfig.HeaderIcon)
 			HeaderIconLabel.Image = "rbxassetid://" .. asset.id
