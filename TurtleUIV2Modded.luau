@@ -2242,6 +2242,14 @@ function library:CreateWindow(WinConfig)
 		Parent = HeaderContentHolder
 	})
 
+	local HeaderContentHolder_Padding = Create("UIPadding", {
+		Parent = HeaderContentHolder,
+		PaddingTop = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5)
+	})
+
 	local HeaderIconLabel = Create("ImageLabel", {
 		Size = UDim2.new(0, 30, 1, 0),
 		BackgroundTransparency = 1,
@@ -2251,6 +2259,7 @@ function library:CreateWindow(WinConfig)
 		ZIndex = 8 + zindex,
 		Parent = HeaderContentHolder
 	})
+	AddThemeObject(HeaderIconLabel, "HeaderText", "ImageColor3")
 
 	if WinConfig.HeaderIcon and WinConfig.HeaderIcon ~= nil and WinConfig.HeaderIcon ~= "" then
 		if typeof(WinConfig.HeaderIcon) == "string" and Icons then
@@ -2291,7 +2300,8 @@ function library:CreateWindow(WinConfig)
     	LayoutOrder = 1,
 		Parent = HeaderTextHolder,
 		Name = "HeaderText",
-		Size = UDim2.new(1, 0, 0.5, 0),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.new(0, 30, 0.5, 0),
 		Position = UDim2.new(0, 0, 0, 0),
 		Font = Enum.Font.SourceSansBold,
 		TextSize = 18,
@@ -2301,13 +2311,14 @@ function library:CreateWindow(WinConfig)
 		ZIndex = 6 + zindex,
 		Active = false
 	})
-    AddThemeObject(HeaderText, "HeaderText", "TextColor3")
+	AddThemeObject(HeaderText, "HeaderText", "TextColor3")
 
 	local SubHeaderText = Create("TextLabel", {
 		LayoutOrder = 2,
 		Parent = HeaderTextHolder,
 		Name = "SubHeaderText",
-		Size = UDim2.new(1, 0, 0.5, 0),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.new(0, 30, 0.5, 0),
 		Position = UDim2.new(0, 0, 0, 0),
 		Font = Enum.Font.SourceSansBold,
 		TextSize = 12,
@@ -2317,11 +2328,11 @@ function library:CreateWindow(WinConfig)
 		ZIndex = 6 + zindex,
 		Active = false
 	})
-    AddThemeObject(SubHeaderText, "SubHeaderText", "TextColor3")
-    
-    if not WinConfig.SubTitle or WinConfig.SubTitle == nil then
-    	HeaderText.Size = UDim2.new(1,0,1,0)
-    end
+	AddThemeObject(SubHeaderText, "SubHeaderText", "TextColor3")
+
+	if not WinConfig.SubTitle or WinConfig.SubTitle == nil then
+		HeaderText.Size = UDim2.new(1,0,1,0)
+	end
 
 	MakeDraggable(Header, UiWindow)
 	
@@ -2335,7 +2346,7 @@ function library:CreateWindow(WinConfig)
 		Active = false
 	})
 	AddThemeObject(Window, "WindowBackground", "BackgroundColor3")
-    
+
 	local winsLayoutHolder = Create("UIListLayout", {
 		FillDirection = Enum.FillDirection.Vertical,
 		HorizontalAlignment = Enum.HorizontalAlignment.Left,
