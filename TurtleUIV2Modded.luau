@@ -2451,7 +2451,7 @@ function library:CreateWindow(WinConfig)
 		activeTab = nil
 	}
 
-	injectElements(window)
+	--injectElements(window)
 	
 	function window:AddBadge(BadgeConfig)
 		BadgeConfig = BadgeConfig or {}
