@@ -635,11 +635,12 @@ local function makeColumnsUI(option, parentContainer)
 	colLayout.Parent = columnsFrame
 
 	local columnWidth = (1 / option.Count)
+	local colFrames = {}
 
-	for i, colData in ipairs(option.Columns) do
+	for i = 1, option.Count do
 		local colFrame = Instance.new("Frame")
 		colFrame.Name = "Column_" .. i
-		colFrame.Size = UDim2.new(columnWidth, -(((#option.Columns - 1) * 6) / #option.Columns), 0, 0)
+		colFrame.Size = UDim2.new(columnWidth, -(((option.Count - 1) * 6) / option.Count), 0, 0)
 		colFrame.AutomaticSize = Enum.AutomaticSize.Y
 		colFrame.BackgroundTransparency = 1
 		colFrame.Parent = columnsFrame
@@ -649,6 +650,8 @@ local function makeColumnsUI(option, parentContainer)
 		listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		listLayout.Padding = UDim.new(0, 6)
 		listLayout.Parent = colFrame
+
+		table.insert(colFrames, colFrame)
 	end
 
 	return colFrames
