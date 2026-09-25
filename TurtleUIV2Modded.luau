@@ -59,6 +59,7 @@ local dropdownSizes = {}
 local colorPickers = {}
 local activeInteraction = nil
 local zindex = 1000
+local renderOptions
 
 function Lerp(a, b, c)
 	return a + ((b - a) * c)
@@ -2122,7 +2123,7 @@ local function injectElements(targetContainer)
 	end
 end
 
-local function renderOptions(optionsList, parentContainerFrame)
+renderOptions = function(optionsList, parentContainerFrame)
 	for _, option in ipairs(optionsList) do
 		if option.type == "button" then
 			makeButton(option, parentContainerFrame)
