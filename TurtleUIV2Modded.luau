@@ -634,7 +634,7 @@ local function makeColumnsUI(option, parentContainer)
 	colLayout.Padding = UDim.new(0, 6)
 	colLayout.Parent = columnsFrame
 
-	local columnWidth = (1 / #option.Columns)
+	local columnWidth = (1 / option.Count)
 
 	for i, colData in ipairs(option.Columns) do
 		local colFrame = Instance.new("Frame")
