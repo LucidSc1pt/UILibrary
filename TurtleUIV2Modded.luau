@@ -745,13 +745,13 @@ function makeButton(option, parent)
 	Button.MouseButton1Click:Connect(option.Callback)
 	
 	option.Instance = btnFrame
-	return option
+	return btnFrame
 end
 
 function makeLabel(option, parent)
 	local labelFrame = Create("Frame", {
 		Parent = parent,
-		Size = UDim2.new(1, 0, 0, 32),
+		Size = UDim2.new(1, 0, 0, 28),
 		BackgroundTransparency = 1,
 		ZIndex = 12 + zindex,
 		Name = "_LabelHolder_"
@@ -791,7 +791,7 @@ function makeLabel(option, parent)
 	end
 	
 	option.Instance = Label
-	return option
+	return Label
 end
 
 function makeToggle(option, parent)
@@ -898,7 +898,7 @@ function makeToggle(option, parent)
 	end
 	
 	option.Instance = togFrame
-	return option
+	return togFrame
 end
 
 function makeBox(option, parent)
@@ -975,7 +975,7 @@ function makeBox(option, parent)
 	end
 	
 	option.Instance = boxFrame
-	return option
+	return boxFrame
 end
 
 function makeSlider(option, parent)
@@ -1130,7 +1130,7 @@ function makeSlider(option, parent)
 	end
 	
 	option.Instance = sliFrame
-	return option
+	return sliFrame
 end
 
 -- // Dropdown Function \\ --
@@ -1483,7 +1483,7 @@ local function makeDropdown(option, parentContainer)
 	end)
 
 	option.Instance = droFrame
-	return option
+	return droFrame
 end
 --[[
 function ColorPicker(ColConfig)
@@ -2780,11 +2780,9 @@ function library:CreateWindow(WinConfig)
 	end
 	
 	if WinConfig.AutoInit ~= false then
-		task.defer(function()
-			if not window.isTabMode and not window.isInitialized then
-				window:Init()
-			end
-		end)
+		if not window.isTabMode and not window.isInitialized then
+			window:Init()
+		end
 	end
 	return window
 end
