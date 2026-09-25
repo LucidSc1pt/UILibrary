@@ -1201,7 +1201,6 @@ local function makeDropdown(option, parentContainer)
 	DownSign.ZIndex = 12 + zindex
 	DownSign.Parent = Dropdown
 
-	-- Floating Drag Frame Logic
 	local dragDropFrame = nil
 	if option.Floating then
 		dragDropFrame = Instance.new("Frame")
@@ -1213,7 +1212,7 @@ local function makeDropdown(option, parentContainer)
 		dragDropFrame.Active = true
 		dragDropFrame.ZIndex = 15 + zindex
 		dragDropFrame.Visible = false
-		dragDropFrame.Parent = library.Gui or parentContainer:FindFirstAncestorWhichIsA("ScreenGui")
+		dragDropFrame.Parent = TurtleUiLib
 
 		local dragDroTitle = Instance.new("TextLabel")
 		dragDroTitle.Name = "DragTitle"
