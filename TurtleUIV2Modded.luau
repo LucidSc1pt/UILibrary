@@ -59,7 +59,6 @@ local dropdownSizes = {}
 local colorPickers = {}
 local activeInteraction = nil
 local zindex = 1000
-local renderOptions
 
 function Lerp(a, b, c)
 	return a + ((b - a) * c)
@@ -448,7 +447,7 @@ function library:Notification(NotificationConfig)
 			TextSize = 12,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextWrapped = true,
-			Text = NotificationConfig.Desc
+			Text = NotificationConfig.Content
 		})
 
 		local ProgressBarParent = Instance.new("Frame")
@@ -618,10 +617,7 @@ local function makeGroupUI(option, parentContainer)
 		end)
 	end
 
-	renderOptions(option.options, contentHolder)
-
-	option.Instance = groupFrame
-	return groupFrame
+	return option, contentHolder
 end
 
 local function makeColumnsUI(option, parentContainer)
@@ -653,12 +649,9 @@ local function makeColumnsUI(option, parentContainer)
 		listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		listLayout.Padding = UDim.new(0, 6)
 		listLayout.Parent = colFrame
-
-		renderOptions(colData.options, colFrame)
 	end
 
-	option.Instance = columnsFrame
-	return columnsFrame
+	return colFrames
 end
 
 local function makeRowUI(option, parentContainer)
@@ -676,10 +669,7 @@ local function makeRowUI(option, parentContainer)
 	rowLayout.Padding = UDim.new(0, option.Padding)
 	rowLayout.Parent = rowFrame
 
-	renderOptions(option.options, rowFrame)
-
-	option.Instance = rowFrame
-	return rowFrame
+	return option, rowFrame
 end
 
 local function makeGridUI(option, parentContainer)
@@ -698,10 +688,7 @@ local function makeGridUI(option, parentContainer)
 	gridLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 	gridLayout.Parent = gridFrame
 
-	renderOptions(option.options, gridFrame)
-
-	option.Instance = gridFrame
-	return gridFrame
+	return option, gridFrame
 end
 
 function makeButton(option, parent)
@@ -755,7 +742,7 @@ function makeButton(option, parent)
 	Button.MouseButton1Click:Connect(option.Callback)
 	
 	option.Instance = btnFrame
-	return btnFrame
+	return option
 end
 
 function makeLabel(option, parent)
@@ -801,7 +788,7 @@ function makeLabel(option, parent)
 	end
 	
 	option.Instance = Label
-	return Label
+	return option
 end
 
 function makeToggle(option, parent)
@@ -908,7 +895,7 @@ function makeToggle(option, parent)
 	end
 	
 	option.Instance = togFrame
-	return togFrame
+	return option
 end
 
 function makeBox(option, parent)
@@ -985,7 +972,7 @@ function makeBox(option, parent)
 	end
 	
 	option.Instance = boxFrame
-	return boxFrame
+	return option
 end
 
 function makeSlider(option, parent)
@@ -1138,6 +1125,9 @@ function makeSlider(option, parent)
 	function option:SetTitle(newTitle)
 		Description.Text = tostring(newTitle)
 	end
+	
+	option.Instance = sliFrame
+	return option
 end
 
 -- // Dropdown Function \\ --
@@ -1420,7 +1410,6 @@ local function makeDropdown(option, parentContainer)
 		PlaceholderLabel.Parent = DropdownFrame
 	end
 
-	-- Method Refresh untuk memperbarui daftar isi item
 	function option:Refresh(newItems)
 		option.Items = newItems or {}
 		table.clear(itemButtons)
@@ -1441,7 +1430,6 @@ local function makeDropdown(option, parentContainer)
 		updateDropdownSize()
 	end
 
-	-- Timpa SetValue untuk update visual & flag secara manual
 	function option:SetValue(val)
 		option.Value = val
 		library.Flags[option.Flag] = val
@@ -1493,7 +1481,7 @@ local function makeDropdown(option, parentContainer)
 	end)
 
 	option.Instance = droFrame
-	return droFrame
+	return option
 end
 --[[
 function ColorPicker(ColConfig)
@@ -1961,9 +1949,7 @@ return colorFuncs
 end
 ]]
 
-local function injectElements(targetContainer)
-	targetContainer.options = targetContainer.options or {}
-
+local function injectElements(targetContainer, parentUI)
 	function targetContainer:AddToggle(config)
 		config = type(config) == "table" and config or {}
 		config.type = "toggle"
@@ -1975,8 +1961,7 @@ local function injectElements(targetContainer)
 
 		registerFlag(config)
 
-		table.insert(self.options, config)
-		return config
+		return makeToggle(config, parentUI)
 	end
 
 	function targetContainer:AddButton(config)
@@ -1985,8 +1970,7 @@ local function injectElements(targetContainer)
 		config.Title = config.Title or "Button"
 		config.Callback = config.Callback or function() end
 
-		table.insert(self.options, config)
-		return config
+		return makeButton(config, parentUI)
 	end
 
 	function targetContainer:AddLabel(config)
@@ -1996,8 +1980,7 @@ local function injectElements(targetContainer)
 		config.XAlignment = config.XAlignment or "Left"
 		config.Color = config.Color or Color3.new(1,1,1)
 		
-		table.insert(self.options, config)
-		return config
+		return makeLabel(config, parentUI)
 	end
 	
 	function targetContainer:AddTextBox(config)
@@ -2010,8 +1993,7 @@ local function injectElements(targetContainer)
 		
 		registerFlag(config)
 		
-		table.insert(self.options, config)
-		return config
+		return makeBox(config, parentUI)
 	end
 	
 	function targetContainer:AddSlider(config)
@@ -2027,8 +2009,7 @@ local function injectElements(targetContainer)
 		
 		registerFlag(config)
 		
-		table.insert(self.options, config)
-		return config
+		return makeSlider(config, parentUI)
 	end
 	
 	function targetContainer:AddDropdown(config)
@@ -2044,117 +2025,51 @@ local function injectElements(targetContainer)
 
 		registerFlag(config)
 
-		function config:SetValue(val)
-			self.Value = val
-			library.Flags[self.Flag] = val
-			if type(self.Callback) == "function" then
-				self.Callback(val)
-			end
-		end
-
-		function config:SetTitle(newTitle)
-			self.Title = newTitle
-		end
-
-		function config:Refresh(newItems)
-			self.Items = newItems or {}
-		end
-
-		table.insert(self.options, config)
-		return config
-	end
-
-	function targetContainer:AddColumns(config)
-		config = type(config) == "table" and config or {}
-		config.type = "columns"
-		config.Count = config.Count or config.count or 2 -- Default 2 kolom
-		config.Columns = {}
-
-		for i = 1, config.Count do
-			local col = {
-				type = "column",
-				options = {}
-			}
-			injectElements(col) -- Suntikkan method AddButton, AddToggle, dll ke tiap kolom
-			table.insert(config.Columns, col)
-		end
-
-		table.insert(self.options, config)
-		return unpack(config.Columns) -- Mengembalikan tabel kolom agar bisa diisi
-	end
-	
-	function targetContainer:AddRow(config)
-		config = type(config) == "table" and config or {}
-		config.type = "row"
-		config.Padding = config.Padding or config.padding or 6
-		config.options = {}
-
-		injectElements(config)
-
-		table.insert(self.options, config)
-		return config
-	end
-
-	function targetContainer:AddGrid(config)
-		config = type(config) == "table" and config or {}
-		config.type = "grid"
-		config.CellSize = config.CellSize or config.cellSize or UDim2.new(0, 80, 0, 80)
-		config.CellPadding = config.CellPadding or config.cellPadding or UDim2.new(0, 6, 0, 6)
-		config.options = {}
-
-		injectElements(config)
-
-		table.insert(self.options, config)
-		return config
+		return makeDropdown(config, parentUI)
 	end
 
 	function targetContainer:AddGroup(config)
 		config = type(config) == "table" and config or {}
-		config.type = "group"
 		config.Title = config.Title or config.Name or config.text or "Group Box"
 		config.Collapsible = config.Collapsible or false
 		config.Open = config.Open ~= nil and config.Open or true
-		config.options = {}
-
-		injectElements(config)
-
-		table.insert(self.options, config)
-		return config
+		
+		local groupObj, contentHolder = makeGroupUI(config, parentUI)
+		injectElements(groupObj, contentHolder)
+		return groupObj
 	end
-end
 
-renderOptions = function(optionsList, parentContainerFrame)
-	for _, option in ipairs(optionsList) do
-		if option.type == "button" then
-			makeButton(option, parentContainerFrame)
+	function targetContainer:AddColumns(config)
+		config = type(config) == "table" and config or {}
+		config.Count = config.Count or config.count or 2
+		local colFrames = makeColumnsUI(config, parentUI)
 
-		elseif option.type == "label" then
-			makeLabel(option, parentContainerFrame)
-
-		elseif option.type == "toggle" then
-			makeToggle(option, parentContainerFrame)
-
-		elseif option.type == "box" then
-			makeBox(option, parentContainerFrame)
-			
-		elseif option.type == "slider" then
-			makeSlider(option, parentContainerFrame)
-
-		elseif option.type == "dropdown" then
-			makeDropdown(option, parentContainerFrame)
-
-		elseif option.type == "columns" then
-			makeColumnsUI(option, parentContainer)
-
-		elseif option.type == "row" then
-			makeRowUI(option, parentContainer)
-
-		elseif option.type == "grid" then
-			makeGridUI(option, parentContainer)
-
-		elseif option.type == "group" then
-			makeGroupUI(option, parentContainer)
+		local columnObjs = {}
+		for i = 1, config.Count do
+			local colObj = {}
+			injectElements(colObj, colFrames[i])
+			table.insert(columnObjs, colObj)
 		end
+		return unpack(columnObjs)
+	end
+
+	function targetContainer:AddRow(config)
+		config = type(config) == "table" and config or {}
+		config.Padding = config.Padding or config.padding or 6
+		
+		local rowObj, rowHolder = makeRowUI(config, parentUI)
+		injectElements(rowObj, rowHolder)
+		return rowObj
+	end
+
+	function targetContainer:AddGrid(config)
+		config = type(config) == "table" and config or {}
+		config.CellSize = config.CellSize or config.cellSize or UDim2.new(0, 80, 0, 80)
+		config.CellPadding = config.CellPadding or config.cellPadding or UDim2.new(0, 6, 0, 6)
+		
+		local gridObj, gridHolder = makeGridUI(config, parentUI)
+		injectElements(gridObj, gridHolder)
+		return gridObj
 	end
 end
 
@@ -2252,7 +2167,7 @@ function library:CreateWindow(WinConfig)
 	})
 
 	local HeaderIconLabel = Create("ImageLabel", {
-		Size = UDim2.new(0, 30, 1, 0),
+		Size = UDim2.new(0, 30, 0, 30),
 		BackgroundTransparency = 1,
 		ImageColor3 = Color3.fromRGB(240, 240, 240),
 		Name = "HeaderIconLabel",
@@ -2529,7 +2444,6 @@ function library:CreateWindow(WinConfig)
 		contentArea = contentArea,
 		sidebarFrame = TabHolder,
 		tabs = {},
-		options = {},
 		isInitialized = false,
 		isTabMode = false,
 		activeTab = nil
@@ -2627,14 +2541,10 @@ function library:CreateWindow(WinConfig)
 		local tab = {
 			type = "tab",
 			title = TabConfig.Title,
-			options = {},
-			rendered = false,
 			buttonInstance = nil,
 			containerInstance = nil
 		}
 
-		injectElements(tab)
-		
 		if WinConfig.TabPosition == "Top" then
 			winsLayoutHolder.FillDirection = Enum.FillDirection.Vertical
 			window.sidebarFrame.LayoutOrder = 1
@@ -2788,6 +2698,8 @@ function library:CreateWindow(WinConfig)
 		})
 		tab.containerInstance = tabContainer
 
+		injectElements(tab, containerInstance)
+		
 		function tab:Select()
 			for _, otherTab in ipairs(window.tabs) do
 				if otherTab.containerInstance then
@@ -2796,11 +2708,6 @@ function library:CreateWindow(WinConfig)
 				if otherTab.buttonInstance then
 					otherTab.buttonInstance.BackgroundColor3 = library.Themes[library.SelectedTheme].TabBtnBackground
 				end
-			end
-
-			if not tab.rendered then
-				renderOptions(tab.options, tab.containerInstance)
-				tab.rendered = true
 			end
 
 			tab.containerInstance.Visible = true
@@ -2866,7 +2773,7 @@ function library:CreateWindow(WinConfig)
 				Parent = WindowScroll
 			})
 
-			renderOptions(window.options, WindowScroll)
+			injectElements(window, WindowScroll)
 		end
 	end
 	
