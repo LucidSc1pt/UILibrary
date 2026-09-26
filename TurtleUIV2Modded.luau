@@ -2448,8 +2448,6 @@ function library:CreateWindow(WinConfig)
 		activeTab = nil
 	}
 
-	--injectElements(window)
-	
 	function window:AddBadge(BadgeConfig)
 		BadgeConfig = BadgeConfig or {}
 		BadgeConfig.Title = BadgeConfig.Title or "V1.0.0"
@@ -2740,7 +2738,7 @@ function library:CreateWindow(WinConfig)
 			window.contentArea.Size = UDim2.new(1, 0, 1, 0)
 
 			local WindowScroll = Create("ScrollingFrame", {
-				Name = "Scroll",
+				Name = "WindowScroll",
 				Parent = window.contentArea,
 				BackgroundTransparency = 1,
 				BorderSizePixel = 0,
@@ -2777,9 +2775,11 @@ function library:CreateWindow(WinConfig)
 	end
 	
 	if WinConfig.AutoInit ~= false then
-		if not window.isTabMode and not window.isInitialized then
-			window:Init()
-		end
+		task.defer(function()
+			if not window.isTabMode and not window.isInitialized then
+				window:Init()
+			end
+		end)
 	end
 	return window
 end
