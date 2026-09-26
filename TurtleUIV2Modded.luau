@@ -1956,10 +1956,10 @@ local function injectElements(targetContainer, parentUI)
 
 		return makeButton(config, parentUI)
 	end
-	
+
 	function targetContainer:AddToggle(config)
 		config = type(config) == "table" and config or {}
-		config.Title = config.text or "Toggle"
+		config.Title = config.Title or config.text or "Toggle"
 		config.Default = config.Default or false
 		config.Delay = config.Delay or 0
 		config.Flag = config.Flag or config.Title
@@ -1974,23 +1974,23 @@ local function injectElements(targetContainer, parentUI)
 		config = type(config) == "table" and config or {}
 		config.Title = config.Title or "Label"
 		config.XAlignment = config.XAlignment or "Left"
-		config.Color = config.Color or Color3.new(1,1,1)
-		
+		config.Color = config.Color or Color3.new(1, 1, 1)
+
 		return makeLabel(config, parentUI)
 	end
-	
+
 	function targetContainer:AddTextBox(config)
 		config = type(config) == "table" and config or {}
 		config.Title = config.Title or "TextBox"
 		config.Default = config.Default or ""
 		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or function() end
-		
+
 		registerFlag(config)
-		
+
 		return makeBox(config, parentUI)
 	end
-	
+
 	function targetContainer:AddSlider(config)
 		config = type(config) == "table" and config or {}
 		config.Title = config.Title or "Slider"
@@ -2000,20 +2000,20 @@ local function injectElements(targetContainer, parentUI)
 		config.Default = config.Default or (config.Max / 2)
 		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or function() end
-		
+
 		registerFlag(config)
-		
+
 		return makeSlider(config, parentUI)
 	end
-	
+
 	function targetContainer:AddDropdown(config)
 		config = type(config) == "table" and config or {}
 		config.Title = config.Title or config.text or "Dropdown"
 		config.Items = config.Items or config.items or {}
 		config.MultiSelect = config.MultiSelect or config.multiSelect or false
 		config.Floating = config.Floating or config.floating or false
-		config.Flag = config.flag or config.Flag or config.text
-		config.Callback = config.callback or config.Callback or function() end
+		config.Flag = config.Flag or config.flag or config.text
+		config.Callback = config.Callback or config.callback or function() end
 		config.Value = config.Value or config.Default or (config.MultiSelect and {} or nil)
 
 		registerFlag(config)
@@ -2026,32 +2026,41 @@ local function injectElements(targetContainer, parentUI)
 		config.Title = config.Title or config.Name or config.text or "Group Box"
 		config.Collapsible = config.Collapsible or false
 		config.Open = config.Open ~= nil and config.Open or true
-		
-		local groupObj, contentHolder = makeGroupUI(config, parentUI)
+
+		local groupController, contentHolder = makeGroupUI(config, parentUI)
+
+		local groupObj = groupController or config
 		injectElements(groupObj, contentHolder)
+
 		return groupObj
 	end
 
 	function targetContainer:AddColumns(config)
 		config = type(config) == "table" and config or {}
 		config.Count = config.Count or config.count or 2
-		local colFrames = makeColumnsUI(config, parentUI)
+
+		local colFrames = makeColumnsUI(config, parentUI, config.Count)
 
 		local columnObjs = {}
 		for i = 1, config.Count do
 			local colObj = {}
+			-- Suntikkan method ke colObj dengan parent = colFrames[i]
 			injectElements(colObj, colFrames[i])
 			table.insert(columnObjs, colObj)
 		end
+
 		return unpack(columnObjs)
 	end
 
 	function targetContainer:AddRow(config)
 		config = type(config) == "table" and config or {}
 		config.Padding = config.Padding or config.padding or 6
-		
-		local rowObj, rowHolder = makeRowUI(config, parentUI)
+
+		local rowController, rowHolder = makeRowUI(config, parentUI)
+
+		local rowObj = rowController or config
 		injectElements(rowObj, rowHolder)
+
 		return rowObj
 	end
 
@@ -2059,9 +2068,12 @@ local function injectElements(targetContainer, parentUI)
 		config = type(config) == "table" and config or {}
 		config.CellSize = config.CellSize or config.cellSize or UDim2.new(0, 80, 0, 80)
 		config.CellPadding = config.CellPadding or config.cellPadding or UDim2.new(0, 6, 0, 6)
-		
-		local gridObj, gridHolder = makeGridUI(config, parentUI)
+
+		local gridController, gridHolder = makeGridUI(config, parentUI)
+
+		local gridObj = gridController or config
 		injectElements(gridObj, gridHolder)
+
 		return gridObj
 	end
 end
@@ -2689,7 +2701,7 @@ function library:CreateWindow(WinConfig)
 		})
 		tab.containerInstance = tabContainer
 
-		injectElements(tab, containerInstance)
+		injectElements(tab, tab.containerInstance)
 		
 		function tab:Select()
 			for _, otherTab in ipairs(window.tabs) do
