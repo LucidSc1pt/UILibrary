@@ -745,7 +745,7 @@ function makeButton(option, parent)
 	Button.MouseButton1Click:Connect(option.Callback)
 	
 	option.Instance = btnFrame
-	return btnFrame
+	return option
 end
 
 function makeLabel(option, parent)
@@ -791,7 +791,7 @@ function makeLabel(option, parent)
 	end
 	
 	option.Instance = Label
-	return Label
+	return option
 end
 
 function makeToggle(option, parent)
@@ -898,7 +898,7 @@ function makeToggle(option, parent)
 	end
 	
 	option.Instance = togFrame
-	return togFrame
+	return option
 end
 
 function makeBox(option, parent)
@@ -975,7 +975,7 @@ function makeBox(option, parent)
 	end
 	
 	option.Instance = boxFrame
-	return boxFrame
+	return option
 end
 
 function makeSlider(option, parent)
@@ -1130,7 +1130,7 @@ function makeSlider(option, parent)
 	end
 	
 	option.Instance = sliFrame
-	return sliFrame
+	return option
 end
 
 -- // Dropdown Function \\ --
@@ -1466,14 +1466,11 @@ local function makeDropdown(option, parentContainer)
 		DroTitle.Text = tostring(newTitle)
 	end
 
-	-- Render item awal
 	option:Refresh(option.Items)
 	updateDropdownText()
 
-	-- Register ke penampung dropdown global
 	table.insert(dropdowns, option)
 
-	-- Event Klik Header
 	Dropdown.MouseButton1Click:Connect(function()
 		if DropdownFrame.Visible or (dragDropFrame and dragDropFrame.Visible) then
 			option:Close()
@@ -1483,7 +1480,7 @@ local function makeDropdown(option, parentContainer)
 	end)
 
 	option.Instance = droFrame
-	return droFrame
+	return option
 end
 --[[
 function ColorPicker(ColConfig)
