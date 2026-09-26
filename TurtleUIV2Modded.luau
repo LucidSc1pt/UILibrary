@@ -1949,9 +1949,16 @@ end
 ]]
 
 local function injectElements(targetContainer, parentUI)
+	function targetContainer:AddButton(config)
+		config = type(config) == "table" and config or {}
+		config.Title = config.Title or "Button"
+		config.Callback = config.Callback or function() end
+
+		return makeButton(config, parentUI)
+	end
+	
 	function targetContainer:AddToggle(config)
 		config = type(config) == "table" and config or {}
-		config.type = "toggle"
 		config.Title = config.text or "Toggle"
 		config.Default = config.Default or false
 		config.Delay = config.Delay or 0
@@ -1963,18 +1970,8 @@ local function injectElements(targetContainer, parentUI)
 		return makeToggle(config, parentUI)
 	end
 
-	function targetContainer:AddButton(config)
-		config = type(config) == "table" and config or {}
-		config.type = "button"
-		config.Title = config.Title or "Button"
-		config.Callback = config.Callback or function() end
-
-		return makeButton(config, parentUI)
-	end
-
 	function targetContainer:AddLabel(config)
 		config = type(config) == "table" and config or {}
-		config.type = "label"
 		config.Title = config.Title or "Label"
 		config.XAlignment = config.XAlignment or "Left"
 		config.Color = config.Color or Color3.new(1,1,1)
@@ -1984,7 +1981,6 @@ local function injectElements(targetContainer, parentUI)
 	
 	function targetContainer:AddTextBox(config)
 		config = type(config) == "table" and config or {}
-		config.type = "box"
 		config.Title = config.Title or "TextBox"
 		config.Default = config.Default or ""
 		config.Flag = config.Flag or config.Title
@@ -1997,7 +1993,6 @@ local function injectElements(targetContainer, parentUI)
 	
 	function targetContainer:AddSlider(config)
 		config = type(config) == "table" and config or {}
-		config.type = "slider"
 		config.Title = config.Title or "Slider"
 		config.Min = config.Min or 1
 		config.Max = config.Max or 100
@@ -2013,7 +2008,6 @@ local function injectElements(targetContainer, parentUI)
 	
 	function targetContainer:AddDropdown(config)
 		config = type(config) == "table" and config or {}
-		config.type = "dropdown"
 		config.Title = config.Title or config.text or "Dropdown"
 		config.Items = config.Items or config.items or {}
 		config.MultiSelect = config.MultiSelect or config.multiSelect or false
