@@ -2442,17 +2442,53 @@ function library:CreateWindow(WinConfig)
 	contentArea.Position = UDim2.new(0, 0, 0, 0)
 	contentArea.Size = UDim2.new(1, 0, 1, 0)
 	contentArea.Parent = Window
+	
+	local WindowScroll = Create("ScrollingFrame", {
+		Name = "WindowScroll",
+		Parent = window.contentArea,
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		CanvasSize = UDim2.new(0,0,0,0),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		ScrollBarThickness = 0,
+		ElasticBehavior = Enum.ElasticBehavior.Never,
+		Size = UDim2.new(1,0,1,0),
+		ZIndex = 10 + zindex,
+		Visible = true,
+		Active = true
+	})
+
+	local winPaddingLayout = Create("UIPadding", {
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5),
+		PaddingLeft = UDim.new(0, 5),
+		Parent = WindowScroll
+	})
+
+	local winLayout = Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Vertical,
+		HorizontalAlignment = Enum.HorizontalAlignment.Left,
+		VerticalAlignment = Enum.VerticalAlignment.Top,
+		Padding = UDim.new(0, 6),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = WindowScroll
+	})
 
 	local window = {
 		gui = TurtleUiLib,
 		mainFrame = UiWindow,
 		contentArea = contentArea,
 		sidebarFrame = TabHolder,
+		fastScroll = WindowScroll,
 		tabs = {},
 		isInitialized = false,
 		isTabMode = false,
 		activeTab = nil
 	}
+
+	injectElements(window, window.fastScroll)
 
 	function window:AddBadge(BadgeConfig)
 		BadgeConfig = BadgeConfig or {}
@@ -2539,7 +2575,11 @@ function library:CreateWindow(WinConfig)
 		TabConfig = TabConfig or {}
 		TabConfig.Title = TabConfig.Title or "Main"
 		TabConfig.Icon = TabConfig.Icon or "sword"
-		window.isTabMode = true
+		if not window.isTabMode then
+			window.isTabMode = true
+			window.fastScroll.Visible = false
+			window.sidebarFrame.Visible = true
+		end
 
 		local tab = {
 			type = "tab",
@@ -2725,67 +2765,12 @@ function library:CreateWindow(WinConfig)
 		table.insert(window.tabs, tab)
 
 		if #window.tabs == 1 then
-			task.defer(function()
-				if window.activeTab == nil then
-					tab:Select()
-				end
-			end)
+			if window.activeTab == nil then
+				tab:Select()
+			end
 		end
 
 		return tab
-	end
-
-	function window:Init()
-		if window.isInitialized then return end
-		window.isInitialized = true
-		if not window.isTabMode then
-			window.sidebarFrame.Visible = false
-			window.contentArea.Position = UDim2.new(0, 0, 0, 0)
-			window.contentArea.Size = UDim2.new(1, 0, 1, 0)
-
-			local WindowScroll = Create("ScrollingFrame", {
-				Name = "WindowScroll",
-				Parent = window.contentArea,
-				BackgroundTransparency = 1,
-				BorderSizePixel = 0,
-				CanvasSize = UDim2.new(0,0,0,0),
-				AutomaticCanvasSize = Enum.AutomaticSize.Y,
-				ScrollingDirection = Enum.ScrollingDirection.Y,
-				ScrollBarThickness = 0,
-				ElasticBehavior = Enum.ElasticBehavior.Never,
-				Size = UDim2.new(1,0,1,0),
-				ZIndex = 10 + zindex,
-				Visible = true,
-				Active = true
-			})
-
-			local winPaddingLayout = Create("UIPadding", {
-				PaddingBottom = UDim.new(0, 5),
-				PaddingTop = UDim.new(0, 5),
-				PaddingRight = UDim.new(0, 5),
-				PaddingLeft = UDim.new(0, 5),
-				Parent = WindowScroll
-			})
-
-			local winLayout = Create("UIListLayout", {
-				FillDirection = Enum.FillDirection.Vertical,
-				HorizontalAlignment = Enum.HorizontalAlignment.Left,
-				VerticalAlignment = Enum.VerticalAlignment.Top,
-				Padding = UDim.new(0, 6),
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				Parent = WindowScroll
-			})
-
-			injectElements(window, WindowScroll)
-		end
-	end
-	
-	if WinConfig.AutoInit ~= false then
-		task.defer(function()
-			if not window.isTabMode and not window.isInitialized then
-				window:Init()
-			end
-		end)
 	end
 	return window
 end
