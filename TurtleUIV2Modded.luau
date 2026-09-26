@@ -2415,7 +2415,7 @@ function library:CreateWindow(WinConfig)
 		ScrollBarThickness = 0,
 		Size = UDim2.new(1,0,0,35),
 		ZIndex = 8 + zindex,
-		Visible = true,
+		Visible = false,
 		Active = true
 	})
 
@@ -2445,7 +2445,7 @@ function library:CreateWindow(WinConfig)
 	
 	local WindowScroll = Create("ScrollingFrame", {
 		Name = "WindowScroll",
-		Parent = window.contentArea,
+		Parent = contentArea,
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		CanvasSize = UDim2.new(0,0,0,0),
