@@ -55,7 +55,33 @@ local colorPickers = {}
 local activeInteraction = nil
 local zindex = 1000
 
+-- // Service \\ --
+local TweenService = game:GetService("TweenService")
+local uis = game:GetService("UserInputService")
+local players = game:service('Players');
+local player = players.LocalPlayer;
+local mouse = player:GetMouse();
+local run = game:service('RunService');
+local stepped = run.Stepped;
+
 -- // Instances:
+
+local function protect_gui(obj) 
+	if destroyed then
+		obj.Parent = game.CoreGui
+		return
+	end
+	if syn and syn.protect_gui then
+		syn.protect_gui(obj)
+		obj.Parent = game.CoreGui
+	elseif PROTOSMASHER_LOADED or get_hidden_gui then
+		obj.Parent = get_hidden_gui()
+	elseif gethui then
+		obj.Parent = gethui()
+	else
+		obj.Parent = game.CoreGui
+	end
+end
 
 -- // Making the ScreenGui \\ --
 local TurtleUiLib = Instance.new("ScreenGui")
@@ -69,20 +95,23 @@ if gethui then
 			Interface:Destroy()
 		end
 	end
+elseif PROTOSMASHER_LOADED or get_hidden_gui then
+	for _, Interface in ipairs(get_hidden_gui():GetChildren()) do
+		if Interface.Name == TurtleUiLib.Name and Interface ~= TurtleUiLib then
+			Interface:Destroy()
+		end
+	end
+else
+	for _, Interface in ipairs(game.CoreGui:GetChildren()) do
+		if Interface.Name == TurtleUiLib.Name and Interface ~= TurtleUiLib then
+			Interface:Destroy()
+		end
+	end
 end
 
 function Lerp(a, b, c)
 	return a + ((b - a) * c)
 end
-
--- // Service \\ --
-local TweenService = game:GetService("TweenService")
-local uis = game:GetService("UserInputService")
-local players = game:service('Players');
-local player = players.LocalPlayer;
-local mouse = player:GetMouse();
-local run = game:service('RunService');
-local stepped = run.Stepped;
 
 local Icons
 
@@ -186,23 +215,6 @@ local function MakeDraggable(DragPoint, Main)
 			)
 		end
 	end)
-end
-
-local function protect_gui(obj) 
-	if destroyed then
-		obj.Parent = game.CoreGui
-		return
-	end
-	if syn and syn.protect_gui then
-		syn.protect_gui(obj)
-		obj.Parent = game.CoreGui
-	elseif PROTOSMASHER_LOADED or get_hidden_gui then
-		obj.Parent = get_hidden_gui()
-	elseif gethui then
-		obj.Parent = gethui()
-	else
-		obj.Parent = game.CoreGui
-	end
 end
 
 local function Create(Name, Properties)
