@@ -364,7 +364,7 @@ local function attachLockSystem(controller, targetFrame, initialConfig)
 		lockOverlay.AutoButtonColor = false
 		lockOverlay.ZIndex = (targetFrame.ZIndex or 1) + 50
 		lockOverlay.ClipsDescendants = true
-		lockOverlay.ZIndex = 15 + ZIndex
+		lockOverlay.ZIndex = 15 + zindex
 
 		local corner = Instance.new("UICorner")
 		corner.CornerRadius = UDim.new(0, 4)
@@ -812,7 +812,7 @@ local function makeGroupUI(option, parentContainer)
 		Size = UDim2.new(1, -30, 1, 0),
 		Position = UDim2.new(0, 10, 0, 0),
 		BackgroundTransparency = 1,
-		Parent = header
+		Parent = headerGroup
 	})
 
 	local ListLayouttt = Create("UIListLayout", {
@@ -893,7 +893,7 @@ local function makeGroupUI(option, parentContainer)
 		arrow.ImageColor3 = Color3.fromRGB(140, 140, 140)
 		arrow.ScaleType = Enum.ScaleType.Fit
 		arrow.Rotation = option.Open and 90 or 0
-		arrow.Parent = header
+		arrow.Parent = headerGroup
 
 		headerGroup.MouseButton1Click:Connect(function()
 			option.Open = not option.Open
