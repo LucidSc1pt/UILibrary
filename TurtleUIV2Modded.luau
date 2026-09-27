@@ -439,7 +439,7 @@ function library:SaveConfig(folderName, configName)
 	if not writefile then return false end
 
 	local configDir = getFolderPath(folderName, "Configs")
-	configName = configName or "Default"
+	configName = configName or tostring(game.GameId)
 	local filePath = configDir .. "/" .. configName .. ".json"
 
 	local dataToSave = {}
@@ -463,7 +463,7 @@ function library:LoadConfig(folderName, configName)
 	if not readfile or not isfile then return false end
 
 	local configDir = getFolderPath(folderName, "Configs")
-	configName = configName or "Default"
+	configName = configName or tostring(game.GameId)
 	local filePath = configDir .. "/" .. configName .. ".json"
 
 	if not isfile(filePath) then return false end
@@ -478,10 +478,8 @@ function library:LoadConfig(folderName, configName)
 				parsedValue = Color3.new(value.r, value.g, value.b)
 			end
 
-			-- Update status di Global Flags
 			library.Flags[flag] = parsedValue
 
-			-- Panggil method option:SetValue() pada elemen UI yang terdaftar!
 			local option = library.Elements[flag]
 			if option and type(option.SetValue) == "function" then
 				pcall(function()
@@ -1182,8 +1180,8 @@ local function makeGroupUI(option, parentContainer)
 		local arrow = Instance.new("ImageLabel")
 		arrow.Name = "Arrow"
 		arrow.AnchorPoint = Vector2.new(1,0.5)
-		arrow.Size = UDim2.new(0, 20, 0, 20)
-		arrow.Position = UDim2.new(1, 0, 0.5, 0)
+		arrow.Size = UDim2.new(0, 12, 0, 12)
+		arrow.Position = UDim2.new(1, -5, 0.5, 0)
 		arrow.BackgroundTransparency = 1
 		arrow.Image = "rbxassetid://4918373417"
 		arrow.ImageColor3 = Color3.fromRGB(140, 140, 140)
