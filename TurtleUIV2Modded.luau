@@ -67,68 +67,6 @@ local run = game:service('RunService');
 local stepped = run.Stepped;
 local HttpService = game:GetService("HttpService")
 
-local function ensureFolder(folderPath)
-	if isfolder and makefolder then
-		if not isfolder(folderPath) then
-			pcall(makefolder, folderPath)
-		end
-	end
-end
-
-local function getFolderPath(folderName, subFolder)
-	folderName = folderName or "TurtleUI_Settings"
-	ensureFolder(folderName)
-	if subFolder then
-		local subPath = folderName .. "/" .. subFolder
-		ensureFolder(subPath)
-		return subPath
-	end
-	return folderName
-end
-
-local function getConfigFilePath(folderName, configName)
-	local configDir = getFolderPath(folderName, "Configs")
-	configName = configName or "Default"
-	return configDir .. "/" .. configName .. ".json"
-end
-
-local function isKeyValid(inputKey, validKeys)
-	if type(validKeys) == "string" then
-		return inputKey == validKeys
-	elseif type(validKeys) == "table" then
-		for _, key in ipairs(validKeys) do
-			if inputKey == key then
-				return true
-			end
-		end
-	end
-	return false
-end
-
-local function getKeyFilePath(folderName, fileName)
-	local keysDir = getFolderPath(folderName, "Keys")
-	fileName = fileName or "SavedKey.txt"
-	return keysDir .. "/" .. fileName
-end
-
-local function getSavedKey(folderName, fileName)
-	local filePath = getKeyFilePath(folderName, fileName)
-	if isfile and readfile and isfile(filePath) then
-		local success, result = pcall(readfile, filePath)
-		if success then
-			return result
-		end
-	end
-	return nil
-end
-
-local function saveKey(folderName, fileName, key)
-	local filePath = getKeyFilePath(folderName, fileName)
-	if writefile then
-		pcall(writefile, filePath, key)
-	end
-end
-
 -- // Instances:
 
 local function protect_gui(obj) 
@@ -189,6 +127,9 @@ if not Success then
 	warn("\nFailed to load Feather Icons. Error code: " .. Response .. "\n")
 end
 
+--[[===========================
+		local function var()
+	===========================]]
 local function getIcon(name : string): {id: number, imageRectSize: Vector2, imageRectOffset: Vector2}
 	if not Icons then
 		warn("Lucide Icons: Cannot use icons as icons library is not loaded")
@@ -326,42 +267,6 @@ local function AddThemeObject(Object, ThemeKey, SpecificProperty)
 	return Object
 end
 
-function library:AddTheme(themeName, themeTable)
-	if type(themeName) == "string" and type(themeTable) == "table" then
-		library.Themes[themeName] = themeTable
-	end
-end
-
-function library:SetTheme(themeInput)
-	local targetTheme = nil
-
-	if type(themeInput) == "string" then
-		if library.Themes[themeInput] then
-			library.SelectedTheme = themeInput
-			targetTheme = library.Themes[themeInput]
-		end
-	elseif type(themeInput) == "table" then
-		targetTheme = themeInput
-		library.SelectedTheme = "Custom"
-	end
-
-	if not targetTheme then return end
-
-	for themeKey, objectList in pairs(library.ThemeObjects) do
-		local targetColor = targetTheme[themeKey]
-		if targetColor then
-			for i = #objectList, 1, -1 do
-				local item = objectList[i]
-				if item.Object and item.Object.Parent then
-					item.Object[item.Property] = targetColor
-				else
-					table.remove(objectList, i)
-				end
-			end
-		end
-	end
-end
-
 local function execCallback(callback, winConfig, itemConfig, ...)
 	if type(callback) ~= "function" then return true end
 
@@ -464,26 +369,129 @@ local function attachLockSystem(controller, targetFrame, initialConfig)
 	return controller
 end
 
-local function registerFlag(config, controller, defaultValue)
-	if config and config.Flag then
-		local flag = config.Flag
-		
-		TurtleUI.Elements[flag] = controller
-		TurtleUI.Flags[flag] = defaultValue
+local function registerFlag(option)
+	if option and option.Flag then
+		library.Elements[option.Flag] = option
 
-		local originalSet = controller.Set
-		if originalSet then
-			controller.Set = function(self, val, ...)
-				local result = originalSet(self, val, ...)
-				
-				if not (self._isLocked and self:_isLocked()) then
-					TurtleUI.Flags[flag] = val
+		if library.Flags[option.Flag] == nil then
+			library.Flags[option.Flag] = option.Default
+		end
+	end
+end
+
+local function ensureFolder(path)
+	if isfolder and makefolder and not isfolder(path) then
+		pcall(makefolder, path)
+	end
+end
+
+local function getFolderPath(folderName, subFolder)
+	folderName = folderName or "TurtleUI_Settings"
+	ensureFolder(folderName)
+	if subFolder then
+		local subPath = folderName .. "/" .. subFolder
+		ensureFolder(subPath)
+		return subPath
+	end
+	return folderName
+end
+
+--[[===========================
+		library:function()
+	===========================]]
+function library:AddTheme(themeName, themeTable)
+	if type(themeName) == "string" and type(themeTable) == "table" then
+		library.Themes[themeName] = themeTable
+	end
+end
+
+function library:SetTheme(themeInput)
+	local targetTheme = nil
+
+	if type(themeInput) == "string" then
+		if library.Themes[themeInput] then
+			library.SelectedTheme = themeInput
+			targetTheme = library.Themes[themeInput]
+		end
+	elseif type(themeInput) == "table" then
+		targetTheme = themeInput
+		library.SelectedTheme = "Custom"
+	end
+
+	if not targetTheme then return end
+
+	for themeKey, objectList in pairs(library.ThemeObjects) do
+		local targetColor = targetTheme[themeKey]
+		if targetColor then
+			for i = #objectList, 1, -1 do
+				local item = objectList[i]
+				if item.Object and item.Object.Parent then
+					item.Object[item.Property] = targetColor
+				else
+					table.remove(objectList, i)
 				end
-				
-				return result
 			end
 		end
 	end
+end
+
+function library:SaveConfig(folderName, configName)
+	if not writefile then return false end
+
+	local configDir = getFolderPath(folderName, "Configs")
+	configName = configName or "Default"
+	local filePath = configDir .. "/" .. configName .. ".json"
+
+	local dataToSave = {}
+	for flag, value in pairs(library.Flags) do
+		if typeof(value) == "Color3" then
+			dataToSave[flag] = { __type = "Color3", r = value.R, g = value.G, b = value.B }
+		else
+			dataToSave[flag] = value
+		end
+	end
+
+	local success, json = pcall(function() return HttpService:JSONEncode(dataToSave) end)
+	if success then
+		pcall(writefile, filePath, json)
+		return true
+	end
+	return false
+end
+
+function library:LoadConfig(folderName, configName)
+	if not readfile or not isfile then return false end
+
+	local configDir = getFolderPath(folderName, "Configs")
+	configName = configName or "Default"
+	local filePath = configDir .. "/" .. configName .. ".json"
+
+	if not isfile(filePath) then return false end
+	local success, rawData = pcall(readfile, filePath)
+	if not success then return false end
+
+	local decodeSuccess, decoded = pcall(function() return HttpService:JSONDecode(rawData) end)
+	if decodeSuccess and type(decoded) == "table" then
+		for flag, value in pairs(decoded) do
+			local parsedValue = value
+			if type(value) == "table" and value.__type == "Color3" then
+				parsedValue = Color3.new(value.r, value.g, value.b)
+			end
+
+			-- Update status di Global Flags
+			library.Flags[flag] = parsedValue
+
+			-- Panggil method option:SetValue() pada elemen UI yang terdaftar!
+			local option = library.Elements[flag]
+			if option and type(option.SetValue) == "function" then
+				pcall(function()
+					option:SetValue(parsedValue)
+				end)
+			end
+		end
+		return true
+	end
+	return false
 end
 
 local xOffset = 20
@@ -739,7 +747,7 @@ function library:Popup(config)
 	overlay.Size = UDim2.new(1, 0, 1, 0)
 	overlay.Text = ""
 	overlay.AutoButtonColor = false
-	overlay.ZIndex = 1000
+	overlay.ZIndex = 15 + zindex
 
 	local popupFrame = Instance.new("Frame")
 	local popupCorner = Instance.new("UICorner")
@@ -844,96 +852,6 @@ function library:Popup(config)
 	TweenService:Create(popupFrame, tweenInfo, {Size = UDim2.new(0, 320, 0, 160)}):Play()
 end
 
-function TurtleUI:SaveConfig(folderName, configName)
-	if not writefile then return false end
-	
-	local filePath = getConfigFilePath(folderName, configName)
-	local dataToSave = {}
-
-	for flag, value in pairs(TurtleUI.Flags) do
-		if typeof(value) == "Color3" then
-			dataToSave[flag] = {
-				__type = "Color3",
-				r = value.R,
-				g = value.G,
-				b = value.B
-			}
-		else
-			dataToSave[flag] = value
-		end
-	end
-
-	local success, json = pcall(function()
-		return HttpService:JSONEncode(dataToSave)
-	end)
-
-	if success then
-		pcall(writefile, filePath, json)
-		return true
-	end
-	return false
-end
-
-function TurtleUI:LoadConfig(folderName, configName)
-	if not readfile or not isfile then return false end
-
-	local filePath = getConfigFilePath(folderName, configName)
-	if not isfile(filePath) then return false end
-
-	local success, rawData = pcall(readfile, filePath)
-	if not success then return false end
-
-	local decodeSuccess, decoded = pcall(function()
-		return HttpService:JSONDecode(rawData)
-	end)
-
-	if decodeSuccess and type(decoded) == "table" then
-		for flag, value in pairs(decoded) do
-			local parsedValue = value
-
-			if type(value) == "table" and value.__type == "Color3" then
-				parsedValue = Color3.new(value.r, value.g, value.b)
-			end
-
-			TurtleUI.Flags[flag] = parsedValue
-
-			local element = TurtleUI.Elements[flag]
-			if element and element.Set then
-				pcall(function()
-					element:SetValue(parsedValue)
-				end)
-			end
-		end
-		return true
-	end
-	return false
-end
-
-function library:GetConfigs(folderName)
-	local configDir = getFolderPath(folderName, "Configs")
-	local configs = {}
-
-	if listfiles and isfolder(configDir) then
-		for _, file in ipairs(listfiles(configDir)) do
-			if file:sub(-5) == ".json" then
-				local name = file:match("([^/\\]+)%.json$")
-				if name then
-					table.insert(configs, name)
-				end
-			end
-		end
-	end
-	return configs
-end
-
-function library:DeleteConfig(folderName, configName)
-	local filePath = getConfigFilePath(folderName, configName)
-	if delfile and isfile and isfile(filePath) then
-		pcall(delfile, filePath)
-		return true
-	end
-	return false
-end
 
 
 -- // Destroy Function \\ --
@@ -954,138 +872,158 @@ local function uiKeybind(key, ui)
     end)
 end
 
-local function createKeyWindow(keySettings, onSuccess)
+local function getKeyFilePath(folderName, fileName)
+	local keysDir = getFolderPath(folderName, "Keys")
+	return keysDir .. "/" .. (fileName or "SavedKey.txt")
+end
+
+local function getSavedKey(folderName, fileName)
+	local filePath = getKeyFilePath(folderName, fileName)
+	if isfile and readfile and isfile(filePath) then
+		local success, result = pcall(readfile, filePath)
+		if success then return result end
+	end
+	return nil
+end
+
+local function saveKey(folderName, fileName, key)
+	local filePath = getKeyFilePath(folderName, fileName)
+	if writefile then
+		pcall(writefile, filePath, key)
+	end
+end
+
+local function isKeyValid(inputKey, validKeys)
+	if type(validKeys) == "string" then
+		return inputKey == validKeys
+	elseif type(validKeys) == "table" then
+		for _, key in ipairs(validKeys) do
+			if inputKey == key then return true end
+		end
+	end
+	return false
+end
+
+local function createKeyWindow(keySettings, folderName, onSuccess)
 	keySettings = keySettings or {}
 	local validKeys = keySettings.Key or ""
-	local fileName = keySettings.FileName or "TurtleUI_Key.txt"
+	local fileName = keySettings.FileName or "SavedKey.txt"
 
 	if keySettings.SaveKey then
-		local saved = getSavedKey(fileName)
+		local saved = getSavedKey(folderName, fileName)
 		if saved and isKeyValid(saved, validKeys) then
 			onSuccess()
 			return
 		end
 	end
 
-	local overlay = Instance.new("Frame")
-	overlay.Name = "KeyOverlay"
-	overlay.Parent = TurtleUiLib
-	overlay.Size = UDim2.new(1, 0, 1, 0)
-	overlay.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
-	overlay.BackgroundTransparency = 0.2
-	overlay.ZIndex = 2000
+	local overlay = Create("Frame", {
+		Name = "KeyOverlay",
+		Parent = library.Container or game:GetService("CoreGui"),
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundColor3 = Color3.fromRGB(10, 10, 12),
+		BackgroundTransparency = 0.2,
+		ZIndex = 2000
+	})
 
-	local keyFrame = Instance.new("Frame")
-	keyFrame.Name = "KeyFrame"
-	keyFrame.Parent = overlay
-	keyFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	keyFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	keyFrame.Size = UDim2.new(0, 340, 0, 210)
-	keyFrame.BackgroundColor3 = Color3.fromRGB(28, 31, 36)
-	keyFrame.ZIndex = 2001
+	local keyFrame = Create("Frame", {
+		Name = "KeyFrame",
+		Parent = overlay,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0.5, 0),
+		Size = UDim2.new(0, 340, 0, 210),
+		BackgroundColor3 = Color3.fromRGB(28, 31, 36),
+		ZIndex = 2001
+	})
 
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 8)
-	corner.Parent = keyFrame
+	Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = keyFrame })
+	Create("UIStroke", { Color = Color3.fromRGB(60, 65, 75), Thickness = 1, Parent = keyFrame })
 
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Color3.fromRGB(60, 65, 75)
-	stroke.Thickness = 1
-	stroke.Parent = keyFrame
+	Create("TextLabel", {
+		Parent = keyFrame,
+		Position = UDim2.new(0, 15, 0, 12),
+		Size = UDim2.new(1, -30, 0, 20),
+		Font = Enum.Font.SourceSansBold,
+		Text = keySettings.Title or "Key System",
+		TextColor3 = Color3.fromRGB(245, 246, 250),
+		TextSize = 16,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BackgroundTransparency = 1
+	})
 
-	local titleLabel = Instance.new("TextLabel")
-	titleLabel.Parent = keyFrame
-	titleLabel.Position = UDim2.new(0, 15, 0, 12)
-	titleLabel.Size = UDim2.new(1, -30, 0, 20)
-	titleLabel.Font = Enum.Font.SourceSansBold
-	titleLabel.Text = keySettings.Title or "Key System"
-	titleLabel.TextColor3 = Color3.fromRGB(245, 246, 250)
-	titleLabel.TextSize = 16
-	titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+	Create("TextLabel", {
+		Parent = keyFrame,
+		Position = UDim2.new(0, 15, 0, 32),
+		Size = UDim2.new(1, -30, 0, 18),
+		Font = Enum.Font.SourceSans,
+		Text = keySettings.Subtitle or "Enter key to access script",
+		TextColor3 = Color3.fromRGB(160, 165, 175),
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BackgroundTransparency = 1
+	})
 
-	local subLabel = Instance.new("TextLabel")
-	subLabel.Parent = keyFrame
-	subLabel.Position = UDim2.new(0, 15, 0, 32)
-	subLabel.Size = UDim2.new(1, -30, 0, 18)
-	subLabel.Font = Enum.Font.SourceSans
-	subLabel.Text = keySettings.Subtitle or "Enter key to access script"
-	subLabel.TextColor3 = Color3.fromRGB(160, 165, 175)
-	subLabel.TextSize = 13
-	subLabel.TextXAlignment = Enum.TextXAlignment.Left
+	local keyInput = Create("TextBox", {
+		Parent = keyFrame,
+		Position = UDim2.new(0, 15, 0, 60),
+		Size = UDim2.new(1, -30, 0, 36),
+		BackgroundColor3 = Color3.fromRGB(20, 22, 26),
+		Font = Enum.Font.SourceSans,
+		PlaceholderText = "Paste Key Here...",
+		Text = "",
+		TextColor3 = Color3.fromRGB(240, 240, 240),
+		TextSize = 14,
+		ClearTextOnFocus = false
+	})
 
-	local keyInput = Instance.new("TextBox")
-	local inputCorner = Instance.new("UICorner")
-	local inputStroke = Instance.new("UIStroke")
+	Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = keyInput })
+	local inputStroke = Create("UIStroke", { Color = Color3.fromRGB(45, 48, 55), Parent = keyInput })
 
-	keyInput.Parent = keyFrame
-	keyInput.Position = UDim2.new(0, 15, 0, 60)
-	keyInput.Size = UDim2.new(1, -30, 0, 36)
-	keyInput.BackgroundColor3 = Color3.fromRGB(20, 22, 26)
-	keyInput.Font = Enum.Font.SourceSans
-	keyInput.PlaceholderText = "Paste Key Here..."
-	keyInput.Text = ""
-	keyInput.TextColor3 = Color3.fromRGB(240, 240, 240)
-	keyInput.TextSize = 14
-	keyInput.ClearTextOnFocus = false
+	Create("TextLabel", {
+		Parent = keyFrame,
+		Position = UDim2.new(0, 15, 0, 102),
+		Size = UDim2.new(1, -30, 0, 18),
+		Font = Enum.Font.SourceSansItalic,
+		Text = keySettings.Note or "",
+		TextColor3 = Color3.fromRGB(241, 196, 15),
+		TextSize = 12,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		BackgroundTransparency = 1
+	})
 
-	inputCorner.CornerRadius = UDim.new(0, 6)
-	inputCorner.Parent = keyInput
-	inputStroke.Color = Color3.fromRGB(45, 48, 55)
-	inputStroke.Parent = keyInput
+	local btnCheck = Create("TextButton", {
+		Parent = keyFrame,
+		Position = UDim2.new(0, 15, 1, -48),
+		Size = UDim2.new(0, 150, 0, 34),
+		BackgroundColor3 = Color3.fromRGB(46, 204, 113),
+		Font = Enum.Font.SourceSansBold,
+		Text = "Submit Key",
+		TextColor3 = Color3.fromRGB(255, 255, 255),
+		TextSize = 14
+	})
+	Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btnCheck })
 
-	local noteLabel = Instance.new("TextLabel")
-	noteLabel.Parent = keyFrame
-	noteLabel.Position = UDim2.new(0, 15, 0, 102)
-	noteLabel.Size = UDim2.new(1, -30, 0, 18)
-	noteLabel.Font = Enum.Font.SourceSansItalic
-	noteLabel.Text = keySettings.Note or ""
-	noteLabel.TextColor3 = Color3.fromRGB(241, 196, 15)
-	noteLabel.TextSize = 12
-	noteLabel.TextXAlignment = Enum.TextXAlignment.Left
+	local btnGetKey = Create("TextButton", {
+		Parent = keyFrame,
+		Position = UDim2.new(1, -165, 1, -48),
+		Size = UDim2.new(0, 150, 0, 34),
+		BackgroundColor3 = Color3.fromRGB(52, 152, 219),
+		Font = Enum.Font.SourceSansBold,
+		Text = "Get Key (Copy Link)",
+		TextColor3 = Color3.fromRGB(255, 255, 255),
+		TextSize = 14
+	})
+	Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btnGetKey })
 
-	local btnCheck = Instance.new("TextButton")
-	local btnCorner1 = Instance.new("UICorner")
-	btnCheck.Parent = keyFrame
-	btnCheck.Position = UDim2.new(0, 15, 1, -48)
-	btnCheck.Size = UDim2.new(0, 150, 0, 34)
-	btnCheck.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-	btnCheck.Font = Enum.Font.SourceSansBold
-	btnCheck.Text = "Submit Key"
-	btnCheck.TextColor3 = Color3.fromRGB(255, 255, 255)
-	btnCheck.TextSize = 14
-	btnCorner1.CornerRadius = UDim.new(0, 6)
-	btnCorner1.Parent = btnCheck
-
-	local btnGetKey = Instance.new("TextButton")
-	local btnCorner2 = Instance.new("UICorner")
-	btnGetKey.Parent = keyFrame
-	btnGetKey.Position = UDim2.new(1, -165, 1, -48)
-	btnGetKey.Size = UDim2.new(0, 150, 0, 34)
-	btnGetKey.BackgroundColor3 = Color3.fromRGB(52, 152, 219)
-	btnGetKey.Font = Enum.Font.SourceSansBold
-	btnGetKey.Text = "Get Key (Copy Link)"
-	btnGetKey.TextColor3 = Color3.fromRGB(255, 255, 255)
-	btnGetKey.TextSize = 14
-	btnCorner2.CornerRadius = UDim.new(0, 6)
-	btnCorner2.Parent = btnGetKey
-
-
+	-- Actions
 	btnCheck.MouseButton1Click:Connect(function()
 		local input = keyInput.Text
 		if isKeyValid(input, validKeys) then
 			if keySettings.SaveKey then
-				saveKey(fileName, input)
+				saveKey(folderName, fileName, input)
 			end
-			
-			local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-			local closeTween = TweenService:Create(keyFrame, tweenInfo, {Size = UDim2.new(0, 340, 0, 0)})
-			TweenService:Create(overlay, tweenInfo, {BackgroundTransparency = 1}):Play()
-			closeTween:Play()
-
-			closeTween.Completed:Connect(function()
-				overlay:Destroy()
-				onSuccess
-			end)
+			overlay:Destroy()
+			onSuccess()
 		else
 			inputStroke.Color = Color3.fromRGB(231, 76, 60)
 			keyInput.Text = ""
@@ -2606,7 +2544,7 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or function() end
 
-		registerFlag(config, config, config.Default)
+		registerFlag(config)
 
 		return makeToggle(config, parentUI)
 	end
@@ -2627,7 +2565,7 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or function() end
 
-		registerFlag(config, config, config.Default)
+		registerFlag(config)
 
 		return makeBox(config, parentUI)
 	end
@@ -2642,7 +2580,7 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or function() end
 
-		registerFlag(config, config, config.Default)
+		registerFlag(config)
 
 		return makeSlider(config, parentUI)
 	end
@@ -2657,7 +2595,7 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config.Callback = config.Callback or config.callback or function() end
 		config.Default = config.Value or config.Default or (config.MultiSelect and {} or nil)
 
-		registerFlag(config, config, config.Default)
+		registerFlag(config)
 
 		return makeDropdown(config, parentUI)
 	end
@@ -2671,7 +2609,7 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config.Callback = config.Callback or function() end
 
 		if registerFlag then
-			registerFlag(config, config, config.Default)
+			registerFlag(config)
 		end
 
 		return makeColorPicker(config, parentUI)
@@ -2735,9 +2673,9 @@ function library:CreateWindow(WinConfig)
 	WinConfig.ContentFillDirection = WinConfig.ContentFillDirection or "Vertical"
 	WinConfig.HeaderIcon = WinConfig.HeaderIcon or ""
 	
-	configSettings = WinConfig.ConfigurationSaving or {}
-	configSettings.FolderName = configSettings.FolderName or "TurtleUI_Settings"
-	configSettings.DefaultFileName = configSettings.FileName or "DefaultConfig"
+	local configSettings = WinConfig.ConfigurationSaving or {}
+	local folderName = configSettings.FolderName or "TurtleUI_Settings"
+	local defaultFileName = configSettings.FileName or "DefaultConfig"
 
 	if typeof(WinConfig.Theme) == "string" and (WinConfig.Theme and WinConfig.Theme ~= "") then
 		library.SelectedTheme = WinConfig.Theme or "Default"
@@ -3138,25 +3076,26 @@ function library:CreateWindow(WinConfig)
 	injectElements(window, window.fastScroll)
 	
 	if WinConfig.KeySystem and WinConfig.KeySettings then
-		UiWindow.Visible = false
-		createKeyWindow(WinConfig.KeySettings, configSettings.FolderName, function()
-			UiWindow.Visible = true
-			
+		window.mainFrame.Visible = false
+
+		createKeyWindow(WinConfig.KeySettings, folderName, function()
+			window.mainFrame.Visible = true
+
 			if configSettings.Enabled then
-				library:LoadConfig(configSettings.FolderName, configSettings.DefaultFileName)
+				library:LoadConfig(folderName, defaultFileName)
 			end
 		end)
 	else
-		UiWindow.Visible = true
+		window.mainFrame.Visible = true
 		if configSettings.Enabled then
-			library:LoadConfig(configSettings.FolderName, configSettings.DefaultFileName)
+			library:LoadConfig(folderName, defaultFileName)
 		end
 	end
 
 	if configSettings.Enabled and configSettings.AutoSave then
 		game:GetService("Players").LocalPlayer.AncestryChanged:Connect(function(_, parent)
 			if not parent then
-				TurtleUI:SaveConfig(configSettings.FolderName, configSettings.DefaultFileName)
+				library:SaveConfig(folderName, defaultFileName)
 			end
 		end)
 	end
