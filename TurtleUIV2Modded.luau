@@ -540,7 +540,7 @@ function library:Notification(NotificationConfig)
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
-			ZIndex = 15 + zindex
+			ZIndex = 15 + zindex,
 			Parent = NotificationHolder
 		})
 
