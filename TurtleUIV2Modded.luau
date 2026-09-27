@@ -2001,16 +2001,32 @@ local function makeDropdown(option, parentContainer)
 		if option:_isLocked() then
 			return
 		end
-		option.Default = val
-		library.Flags[option.Flag] = val
 
-		if option.MultiSelect and type(val) == "table" then
-			table.clear(selectedItems)
-			for _, v in ipairs(val) do
-				selectedItems[v] = true
+		option.Default = val
+
+		if option.Flag then
+			library.Flags[option.Flag] = val
+		end
+
+		if option.MultiSelect then
+			if type(val) ~= "table" then
+				val = { tostring(val) }
 			end
-		elseif not option.MultiSelect then
-			selectedSingle = val
+
+			table.clear(selectedItems)
+			for k, v in pairs(val) do
+				if type(k) == "number" then
+					selectedItems[v] = true
+				elseif v == true then
+					selectedItems[k] = true
+				end
+			end
+		else
+			if type(val) == "table" then
+				selectedSingle = val[1] or ""
+			else
+				selectedSingle = val
+			end
 		end
 
 		for btnName, btnObj in pairs(itemButtons) do
@@ -2027,6 +2043,7 @@ local function makeDropdown(option, parentContainer)
 			option.Callback(val)
 		end
 	end
+
 
 	function option:SetTitle(newTitle)
 		option.Title = newTitle
@@ -2544,7 +2561,9 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or function() end
 
-		registerFlag(config)
+		if registerFlag then
+			registerFlag(config)
+		end
 
 		return makeToggle(config, parentUI)
 	end
@@ -2565,7 +2584,9 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or function() end
 
-		registerFlag(config)
+		if registerFlag then
+			registerFlag(config)
+		end
 
 		return makeBox(config, parentUI)
 	end
@@ -2580,7 +2601,9 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or function() end
 
-		registerFlag(config)
+		if registerFlag then
+			registerFlag(config)
+		end
 
 		return makeSlider(config, parentUI)
 	end
@@ -2591,11 +2614,13 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config.Items = config.Items or config.items or {}
 		config.MultiSelect = config.MultiSelect or config.multiSelect or false
 		config.Floating = config.Floating or config.floating or false
-		config.Flag = config.Flag or config.flag or config.text
+		config.Flag = config.Flag or config.Title
 		config.Callback = config.Callback or config.callback or function() end
-		config.Default = config.Value or config.Default or (config.MultiSelect and {} or nil)
+		config.Default = config.Default or (config.MultiSelect and {} or nil)
 
-		registerFlag(config)
+		if registerFlag then
+			registerFlag(config)
+		end
 
 		return makeDropdown(config, parentUI)
 	end
