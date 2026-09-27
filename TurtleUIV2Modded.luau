@@ -364,6 +364,7 @@ local function attachLockSystem(controller, targetFrame, initialConfig)
 		lockOverlay.AutoButtonColor = false
 		lockOverlay.ZIndex = (targetFrame.ZIndex or 1) + 50
 		lockOverlay.ClipsDescendants = true
+		lockOverlay.ZIndex = 15 + ZIndex
 
 		local corner = Instance.new("UICorner")
 		corner.CornerRadius = UDim.new(0, 4)
@@ -418,6 +419,7 @@ NotificationHolder.Position = UDim2.new(1, -25, 1, -25)
 NotificationHolder.AnchorPoint = Vector2.new(1, 1)
 NotificationHolder.BackgroundTransparency = 1
 NotificationHolder.Parent = TurtleUiLib
+NotificationHolder.ZIndex = 15 + zindex
 
 local ListLayout = Instance.new("UIListLayout")
 ListLayout.Parent = NotificationHolder
@@ -643,7 +645,7 @@ function library:Popup(config)
 	config = config or {}
 	config.Title = config.Title or "Confirmation"
 	config.Content = config.Content or "Are you sure you want to proceed?"
-	config.Mode = config.Mode or "Alert" -- "Alert" atau "YesNo"
+	config.Mode = config.Mode or "Alert"
 	config.AcceptText = config.AcceptText or (config.Mode == "YesNo" and "Yes" or "OK")
 	config.CancelText = config.CancelText or "No"
 	config.OnAccept = config.OnAccept or function() end
@@ -674,7 +676,7 @@ function library:Popup(config)
 	popupFrame.Size = UDim2.new(0, 320, 0, 160)
 	popupFrame.BackgroundColor3 = Color3.fromRGB(35, 39, 42)
 	popupFrame.ClipsDescendants = true
-	popupFrame.ZIndex = 1001
+	popupFrame.ZIndex = 15 + zindex
 
 	popupCorner.CornerRadius = UDim.new(0, 8)
 	popupCorner.Parent = popupFrame
@@ -735,7 +737,6 @@ function library:Popup(config)
 		btnCorner.Parent = btn
 
 		btn.MouseButton1Click:Connect(function()
-			-- Close Popup dengan animasi
 			local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 			TweenService:Create(overlay, tweenInfo, {BackgroundTransparency = 1}):Play()
 			local closeTween = TweenService:Create(popupFrame, tweenInfo, {Size = UDim2.new(0, 300, 0, 0)})
@@ -880,8 +881,6 @@ local function makeGroupUI(option, parentContainer)
 	contentPadding.PaddingRight = UDim.new(0, 8)
 	contentPadding.PaddingBottom = UDim.new(0, 8)
 	contentPadding.Parent = contentHolder
-	
-	attachLockSystem(option, groupFrame, option)
 
 	if option.Collapsible then
 		local arrow = Instance.new("ImageLabel")
@@ -897,12 +896,9 @@ local function makeGroupUI(option, parentContainer)
 		arrow.Parent = header
 
 		headerGroup.MouseButton1Click:Connect(function()
-			if option:_isLocked() then
-				return
-			end
 			option.Open = not option.Open
 			contentHolder.Visible = option.Open
-			arrow.Text = option.Open and 90 or 0
+			arrow.Rotation = option.Open and 90 or 0
 		end)
 	end
 
