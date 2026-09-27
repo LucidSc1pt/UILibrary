@@ -334,11 +334,14 @@ local function attachLockSystem(controller, targetFrame, initialConfig)
 	initialConfig = initialConfig or {}
 	local lockOverlay = nil
 
-	-- Variable guard internal di memori Lua
-	controller.IsLocked = false
+	local isLocked = false 
+
+	function controller:_isLocked()
+		return isLocked
+	end
 
 	function controller:Lock(lockConfig)
-		controller.IsLocked = true
+		isLocked = true
 		lockConfig = type(lockConfig) == "table" and lockConfig or { Text = lockConfig }
 		local lockText = lockConfig.Text or lockConfig.Reason or "🔒 Premium"
 
@@ -389,7 +392,7 @@ local function attachLockSystem(controller, targetFrame, initialConfig)
 	end
 
 	function controller:Unlock()
-		controller.IsLocked = false
+		isLocked = false
 		if lockOverlay then
 			lockOverlay.Visible = false
 		end
@@ -877,6 +880,8 @@ local function makeGroupUI(option, parentContainer)
 	contentPadding.PaddingRight = UDim.new(0, 8)
 	contentPadding.PaddingBottom = UDim.new(0, 8)
 	contentPadding.Parent = contentHolder
+	
+	attachLockSystem(option, groupFrame, option)
 
 	if option.Collapsible then
 		local arrow = Instance.new("ImageLabel")
@@ -892,6 +897,9 @@ local function makeGroupUI(option, parentContainer)
 		arrow.Parent = header
 
 		headerGroup.MouseButton1Click:Connect(function()
+			if option:_isLocked() then
+				return
+			end
 			option.Open = not option.Open
 			contentHolder.Visible = option.Open
 			arrow.Text = option.Open and 90 or 0
@@ -902,8 +910,6 @@ local function makeGroupUI(option, parentContainer)
 		option.Title = newTitle
 		headerTitle.Text = tostring(newTitle)
 	end
-
-	attachLockSystem(option, groupFrame, option)
 
 	return option, contentHolder
 end
@@ -1023,16 +1029,9 @@ function makeButton(option, parent)
 	attachLockSystem(option, btnFrame, option)
 
 	Button.MouseButton1Click:Connect(function()
-		if option.IsLocked then
-			library:Notification({
-				Title = "Access denied",
-				Content = "This button is currently locked!",
-				Type = "Error",
-				Duration = 2
-			})
+		if option:_isLocked() then
 			return
 		end
-
 		option.Callback()
 	end)
 
@@ -1144,7 +1143,12 @@ function makeToggle(option, parent)
 		Position = UDim2.fromScale(0.5,0.5)
 	})
 
+	attachLockSystem(option, togFrame, option)
+
 	function option:SetValue(state)
+		if option:_isLocked() then
+			return
+		end
 		self.Default = state
 		if self.Flag then
 			library.Flags[self.Flag] = state
@@ -1163,8 +1167,6 @@ function makeToggle(option, parent)
 		option.Title = newTitle
 		ToggleTitle.Text = tostring(newTitle)
 	end
-
-	attachLockSystem(option, togFrame, option)
 
 	ToggleButton.MouseButton1Click:Connect(function()
 		if option.IsLocked then
@@ -1249,9 +1251,14 @@ function makeBox(option, parent)
 		Active = false
 	})
 
+	attachLockSystem(option, boxFrame, option)
+
 	local LastText = ""
 	
 	function option:SetValue(value)
+		if option:_isLocked() then
+			return
+		end
 		self.Default = value
 		if self.Flag then
 			library.Flags[self.Flag] = value
@@ -1271,18 +1278,7 @@ function makeBox(option, parent)
 		BoxTitle.Text = tostring(newTitle)
 	end
 
-	attachLockSystem(option, boxFrame, option)
-
 	TextBox.FocusLost:Connect(function()
-		if option.IsLocked then
-			library:Notification({
-				Title = "Access denied",
-				Content = "This TextBox is currently locked!",
-				Type = "Error",
-				Duration = 2
-			})
-			return
-		end
 		option:SetValue(TextBox.Text)
 	end)
 
@@ -1321,21 +1317,6 @@ function makeSlider(option, parent)
 		return snappedValue
 	end
 
-	attachLockSystem(option, sliFrame, option)
-	local function checkLockState(val)
-		if option.IsLocked then
-			library:Notification({
-				Title = "Access denied",
-				Content = "This Slider is currently locked!",
-				Type = "Error",
-				Duration = 2
-			})
-			return
-		end
-		
-		option:SetValue(val)
-	end
-
 	function SliderMovement(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			isdragging = true
@@ -1368,7 +1349,7 @@ function makeSlider(option, parent)
 	function SliderEnd(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			local val = tonumber(Current.Text) or option.Default
-			checkLockState(val)
+			option:SetValue(val)
 		end
 	end
 
@@ -1414,7 +1395,7 @@ function makeSlider(option, parent)
 		local inputNum = tonumber(Current.Text)
 		if inputNum then
 			local finalVal = updateSliderFromValue(inputNum)
-			checkLockState(finalVal)
+			option:SetValue(finalVal)
 		else
 			Current.Text = tostring(snapToIncrement(Lerp(option.Min, option.Max, SliderButton.Position.X.Scale)))
 		end
@@ -1439,8 +1420,13 @@ function makeSlider(option, parent)
 	SilderFiller.BackgroundColor3 = Color3.fromRGB(76, 209, 55)
 	SilderFiller.Size = UDim2.new(defaultAlpha, 0, 1, 0)
 	SilderFiller.ZIndex = 12 + zindex
-	
+
+	attachLockSystem(option, sliFrame, option)
+
 	function option:SetValue(value)
+		if option:_isLocked() then
+			return
+		end
 		self.Default = value
 		if self.Flag then
 			library.Flags[self.Flag] = value
@@ -1573,8 +1559,6 @@ local function makeDropdown(option, parentContainer)
 	DropdownFrame.ZIndex = 13 + zindex
 	DropdownFrame.Parent = option.Floating and dragDropFrame or droFrame
 
-	attachLockSystem(option, droFrame, option)
-
 	local listLayout = Instance.new("UIListLayout")
 	listLayout.FillDirection = Enum.FillDirection.Vertical
 	listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -1589,20 +1573,6 @@ local function makeDropdown(option, parentContainer)
 	listPaddingLayout.PaddingRight = UDim.new(0, 5)
 	listPaddingLayout.PaddingLeft = UDim.new(0, 5)
 	listPaddingLayout.Parent = DropdownFrame
-
-	local function checkLockState(val)
-		if option.IsLocked then
-			library:Notification({
-				Title = "Access denied",
-				Content = "This Dropdown is currently locked!",
-				Type = "Error",
-				Duration = 2
-			})
-			return
-		end
-		
-		option:SetValue(val)
-	end
 
 	local function updateDropdownText()
 		if option.MultiSelect then
@@ -1703,18 +1673,14 @@ local function makeDropdown(option, parentContainer)
 					end
 				end
 
-				option.Value = activeTable
-				library.Flags[option.Flag] = activeTable
-				checkLockState(name)
+				option:SetValue(activeTable)
 			else
 				if selectedSingle == name then
 					selectedSingle = nil
 					itemBtn.BackgroundColor3 = Color3.fromRGB(53, 59, 72)
 					updateDropdownText()
 
-					option.Value = nil
-					library.Flags[option.Flag] = nil
-					checkLockState(nil)
+					option:SetValue(nil)
 				else
 					if selectedSingle and itemButtons[selectedSingle] then
 						itemButtons[selectedSingle].BackgroundColor3 = Color3.fromRGB(53, 59, 72)
@@ -1724,9 +1690,7 @@ local function makeDropdown(option, parentContainer)
 					itemBtn.BackgroundColor3 = library.Themes[library.SelectedTheme].DropdownOptionSelect
 					updateDropdownText()
 
-					option.Value = name
-					library.Flags[option.Flag] = name
-					checkLockState(name)
+					option:SetValue(name)
 				end
 			end
 		end)
@@ -1746,6 +1710,8 @@ local function makeDropdown(option, parentContainer)
 		PlaceholderLabel.ZIndex = 13 + zindex
 		PlaceholderLabel.Parent = DropdownFrame
 	end
+
+	attachLockSystem(option, droFrame, option)
 
 	function option:Refresh(newItems)
 		option.Items = newItems or {}
@@ -1768,6 +1734,9 @@ local function makeDropdown(option, parentContainer)
 	end
 
 	function option:SetValue(val)
+		if option:_isLocked() then
+			return
+		end
 		option.Value = val
 		library.Flags[option.Flag] = val
 
@@ -2105,7 +2074,6 @@ local function makeColorPicker(option, parentContainer)
 		startRainbow()
 	end
 
-	-- Interaksi Canvas
 	Canvas.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			if activeInteraction ~= nil then return end
@@ -2299,7 +2267,6 @@ local function injectElements(targetContainer, parentUI, winConfig)
 	function targetContainer:AddButton(config)
 		config = type(config) == "table" and config or {}
 		config.Title = config.Title or "Button"
-		config.SafeCallback = config.SafeCallback or true
 		config.Callback = config.Callback or function() end
 
 		return makeButton(config, parentUI)
