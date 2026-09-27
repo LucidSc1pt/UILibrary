@@ -3446,6 +3446,11 @@ function library:CreateWindow(WinConfig)
 	
 	if configSettings.Enabled then
 		library:LoadConfig(folderName, defaultFileName)
+		library:Notification({
+			Title = "Configuration Loaded!",
+			Content = "Auto-loaded configuration for the game!",
+			Time = 5
+		})
 	end
 
 	if configSettings.Enabled and configSettings.AutoSave then
