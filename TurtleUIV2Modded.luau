@@ -904,7 +904,7 @@ local function isKeyValid(inputKey, validKeys)
 	return false
 end
 
-local function createKeyWindow(keySettings, folderName, onSuccess)
+local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 	keySettings = keySettings or {}
 	local validKeys = keySettings.Key or ""
 	local fileName = keySettings.FileName or "SavedKey.txt"
@@ -919,11 +919,11 @@ local function createKeyWindow(keySettings, folderName, onSuccess)
 
 	local overlay = Create("Frame", {
 		Name = "KeyOverlay",
-		Parent = library.Container or game:GetService("CoreGui"),
+		Parent = TurtleUiLib,
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundColor3 = Color3.fromRGB(10, 10, 12),
 		BackgroundTransparency = 0.2,
-		ZIndex = 2000
+		ZIndex = 15 + zindex
 	})
 
 	local keyFrame = Create("Frame", {
@@ -939,10 +939,38 @@ local function createKeyWindow(keySettings, folderName, onSuccess)
 	Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = keyFrame })
 	Create("UIStroke", { Color = Color3.fromRGB(60, 65, 75), Thickness = 1, Parent = keyFrame })
 
+	local btnClose = Create("TextButton", {
+		Name = "CloseButton",
+		Parent = keyFrame,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -10, 0, 10),
+		Size = UDim2.new(0, 24, 0, 24),
+		BackgroundTransparency = 1,
+		Font = Enum.Font.SourceSansBold,
+		Text = "✕",
+		TextColor3 = Color3.fromRGB(160, 165, 175),
+		TextSize = 16,
+		ZIndex = 2002
+	})
+
+	btnClose.MouseEnter:Connect(function()
+		btnClose.TextColor3 = Color3.fromRGB(231, 76, 60)
+	end)
+	btnClose.MouseLeave:Connect(function()
+		btnClose.TextColor3 = Color3.fromRGB(160, 165, 175)
+	end)
+
+	btnClose.MouseButton1Click:Connect(function()
+		overlay:Destroy()
+		if type(onCancel) == "function" then
+			onCancel()
+		end
+	end)
+
 	Create("TextLabel", {
 		Parent = keyFrame,
 		Position = UDim2.new(0, 15, 0, 12),
-		Size = UDim2.new(1, -30, 0, 20),
+		Size = UDim2.new(1, -55, 0, 20),
 		Font = Enum.Font.SourceSansBold,
 		Text = keySettings.Title or "Key System",
 		TextColor3 = Color3.fromRGB(245, 246, 250),
@@ -1015,7 +1043,6 @@ local function createKeyWindow(keySettings, folderName, onSuccess)
 	})
 	Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btnGetKey })
 
-	-- Actions
 	btnCheck.MouseButton1Click:Connect(function()
 		local input = keyInput.Text
 		if isKeyValid(input, validKeys) then
@@ -2701,6 +2728,40 @@ function library:CreateWindow(WinConfig)
 	local configSettings = WinConfig.ConfigurationSaving or {}
 	local folderName = configSettings.FolderName or "TurtleUI_Settings"
 	local defaultFileName = configSettings.FileName or "DefaultConfig"
+	
+	if WinConfig.KeySystem and WinConfig.KeySettings then
+		local validKeys = WinConfig.KeySettings.Key or ""
+		local fileName = WinConfig.KeySettings.FileName or "SavedKey.txt"
+		local savedKey = getSavedKey(folderName, fileName)
+		
+		local isVerified = false
+
+		if WinConfig.KeySettings.SaveKey and savedKey and isKeyValid(savedKey, validKeys) then
+			isVerified = true
+		else
+			local keySignal = Instance.new("BindableEvent")
+
+			createKeyWindow(
+				WinConfig.KeySettings, 
+				folderName, 
+				function()
+					isVerified = true
+					keySignal:Fire(true)
+				end,
+				function()
+					isVerified = false
+					keySignal:Fire(false)
+				end
+			)
+
+			local success = keySignal.Event:Wait()
+			keySignal:Destroy()
+
+			if not success then
+				return nil
+			end
+		end
+	end
 
 	if typeof(WinConfig.Theme) == "string" and (WinConfig.Theme and WinConfig.Theme ~= "") then
 		library.SelectedTheme = WinConfig.Theme or "Default"
@@ -3100,31 +3161,6 @@ function library:CreateWindow(WinConfig)
 
 	injectElements(window, window.fastScroll)
 	
-	if WinConfig.KeySystem and WinConfig.KeySettings then
-		window.mainFrame.Visible = false
-
-		createKeyWindow(WinConfig.KeySettings, folderName, function()
-			window.mainFrame.Visible = true
-
-			if configSettings.Enabled then
-				library:LoadConfig(folderName, defaultFileName)
-			end
-		end)
-	else
-		window.mainFrame.Visible = true
-		if configSettings.Enabled then
-			library:LoadConfig(folderName, defaultFileName)
-		end
-	end
-
-	if configSettings.Enabled and configSettings.AutoSave then
-		game:GetService("Players").LocalPlayer.AncestryChanged:Connect(function(_, parent)
-			if not parent then
-				library:SaveConfig(folderName, defaultFileName)
-			end
-		end)
-	end
-
 	function window:AddBadge(BadgeConfig)
 		BadgeConfig = BadgeConfig or {}
 		BadgeConfig.Title = BadgeConfig.Title or "V1.0.0"
@@ -3407,6 +3443,19 @@ function library:CreateWindow(WinConfig)
 
 		return tab
 	end
+	
+	if configSettings.Enabled then
+		library:LoadConfig(folderName, defaultFileName)
+	end
+
+	if configSettings.Enabled and configSettings.AutoSave then
+		game:GetService("Players").LocalPlayer.AncestryChanged:Connect(function(_, parent)
+			if not parent then
+				library:SaveConfig(folderName, defaultFileName)
+			end
+		end)
+	end
+	
 	return window
 end
 
