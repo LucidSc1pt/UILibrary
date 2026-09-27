@@ -891,7 +891,7 @@ local function makeGroupUI(option, parentContainer)
 		arrow.Rotation = option.Open and 90 or 0
 		arrow.Parent = header
 
-		header.MouseButton1Click:Connect(function()
+		headerGroup.MouseButton1Click:Connect(function()
 			option.Open = not option.Open
 			contentHolder.Visible = option.Open
 			arrow.Text = option.Open and 90 or 0
@@ -1258,7 +1258,7 @@ function makeBox(option, parent)
 		end
 
 		if type(self.Callback) == "function" then
-			self.Callback(value)
+			self.Callback(value, true)
 		end
 		
 		if TextBox then
@@ -1315,7 +1315,7 @@ function makeSlider(option, parent)
 		local snappedValue = snapToIncrement(val)
 		local alpha = (snappedValue - option.Min) / (option.Max - option.Min)
 
-		SliderButton.Position = UDim2.new(alpha, 0, -1.33333337, 0)
+		SliderButton.Position = UDim2.new(alpha, 0, 0.5, 0)
 		SilderFiller.Size = UDim2.new(alpha, 0, 1, 0)
 		Current.Text = tostring(snappedValue)
 		return snappedValue
