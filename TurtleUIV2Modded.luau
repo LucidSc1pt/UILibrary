@@ -66,6 +66,7 @@ local mouse = player:GetMouse();
 local run = game:service('RunService');
 local stepped = run.Stepped;
 local HttpService = game:GetService("HttpService")
+local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
 
 -- // Instances:
 
@@ -86,9 +87,18 @@ local function protect_gui(obj)
 	end
 end
 
+local function randomNameString()
+  local length = math.random(40, 80)
+  local array = {}
+  for i = 1, length do
+  	array[i] = string.char(math.random(0, 255))
+  end
+  return table.concat(array)
+end
+
 -- // Making the ScreenGui \\ --
 local TurtleUiLib = Instance.new("ScreenGui")
-TurtleUiLib.Name = "TurtleUiLib"
+TurtleUiLib.Name = "TurtleUiLib" .. randomNameString()
 TurtleUiLib.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 TurtleUiLib.ScreenInsets = Enum.ScreenInsets.None
 protect_gui(TurtleUiLib)
@@ -130,6 +140,201 @@ end
 --[[===========================
 		local function var()
 	===========================]]
+
+local function getHWID()
+	local success, hwid = pcall(function()
+		return RbxAnalyticsService:GetClientId()
+	end)
+	return success and hwid or "UNKNOWN_HWID"
+end
+
+local function ensureFolder(path)
+	if isfolder and makefolder and not isfolder(path) then
+		pcall(makefolder, path)
+	end
+end
+
+local function getFolderPath(folderName, subFolder)
+	folderName = folderName or "TurtleUI_Settings"
+	ensureFolder(folderName)
+	if subFolder then
+		local subPath = folderName .. "/" .. subFolder
+		ensureFolder(subPath)
+		return subPath
+	end
+	return folderName
+end
+
+local function getKeyFilePath(folderName, fileName)
+	local keysDir = getFolderPath(folderName, "Keys")
+	return keysDir .. "/" .. (fileName or "SavedKey.txt")
+end
+
+local API_VALIDATORS = {
+	["luarmor"] = function(key, cfg, hwid)
+		local scriptId = cfg.ScriptId or cfg.ServiceId or ""
+		local url = string.format("https://api.luarmor.net/v3/projects/%s/keys/%s", scriptId, HttpService:UrlEncode(key))
+		
+		local success, res = pcall(function() return game:HttpGet(url) end)
+		if not success or not res then return false, "NETWORK_ERROR" end
+		
+		local ok, json = pcall(function() return HttpService:JSONDecode(res) end)
+		if ok and type(json) == "table" then
+			return json.valid == true, "API_RESPONSE"
+		end
+		return false, "INVALID_RESPONSE"
+	end,
+
+	["pandadevelopment"] = function(key, cfg, hwid)
+		local serviceId = cfg.ServiceId or ""
+		local url = string.format(
+			"https://pandadevelopment.net/v2/validation?hwid=%s&key=%s&service_id=%s",
+			HttpService:UrlEncode(hwid),
+			HttpService:UrlEncode(key),
+			HttpService:UrlEncode(serviceId)
+		)
+
+		local success, res = pcall(function() return game:HttpGet(url) end)
+		if not success or not res then return false, "NETWORK_ERROR" end
+
+		local ok, json = pcall(function() return HttpService:JSONDecode(res) end)
+		if ok and type(json) == "table" then
+			return (json.authenticated == true or json.success == true), "API_RESPONSE"
+		end
+		return res:find("valid") ~= nil, "API_RESPONSE"
+	end,
+
+	["platoboost"] = function(key, cfg, hwid)
+		local serviceId = cfg.ServiceId or ""
+		local url = string.format(
+			"https://api.platoboost.com/public/whitelist/check?public_key=%s&key=%s&hwid=%s",
+			HttpService:UrlEncode(serviceId),
+			HttpService:UrlEncode(key),
+			HttpService:UrlEncode(hwid)
+		)
+
+		local success, res = pcall(function() return game:HttpGet(url) end)
+		if not success or not res then return false, "NETWORK_ERROR" end
+
+		local ok, json = pcall(function() return HttpService:JSONDecode(res) end)
+		if ok and type(json) == "table" then
+			return (json.valid == true or json.success == true), "API_RESPONSE"
+		end
+		return res:find("true") ~= nil, "API_RESPONSE"
+	end
+}
+
+local function checkCustomApiUrl(key, apiUrl, serviceId, hwid)
+	local url = apiUrl
+	url = string.gsub(url, "{key}", HttpService:UrlEncode(key))
+	url = string.gsub(url, "{service_id}", HttpService:UrlEncode(serviceId or ""))
+	url = string.gsub(url, "{hwid}", HttpService:UrlEncode(hwid))
+
+	if not string.find(apiUrl, "{key}") then
+		local separator = string.find(url, "%?") and "&" or "?"
+		url = url .. separator .. "key=" .. HttpService:UrlEncode(key) .. "&hwid=" .. HttpService:UrlEncode(hwid)
+	end
+
+	local success, res = pcall(function() return game:HttpGet(url) end)
+	if not success or not res then return false, "NETWORK_ERROR" end
+
+	local ok, json = pcall(function() return HttpService:JSONDecode(res) end)
+	if ok and type(json) == "table" then
+		return (json.valid == true or json.success == true or json.status == "success"), "API_RESPONSE"
+	end
+
+	local cleanRes = string.upper(string.gsub(res, "%s+", ""))
+	return (cleanRes == "TRUE" or cleanRes == "VALID" or cleanRes == "SUCCESS"), "API_RESPONSE"
+end
+
+local function isKeyValid(inputKey, keySettings)
+	if not inputKey or inputKey == "" then return false, "EMPTY_KEY" end
+	inputKey = string.gsub(inputKey, "%s+", "") -- Hapus spasi liar
+	local hwid = getHWID()
+
+	if type(keySettings.API) == "table" then
+		for _, apiCfg in ipairs(keySettings.API) do
+			local serviceType = apiCfg.Type and string.lower(apiCfg.Type) or ""
+			local validatorFn = API_VALIDATORS[serviceType]
+
+			if validatorFn then
+				local isValid, reason = validatorFn(inputKey, apiCfg, hwid)
+				if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
+				if isValid then return true, "API_VALID" end
+			elseif apiCfg.ApiUrl then
+				local isValid, reason = checkCustomApiUrl(inputKey, apiCfg.ApiUrl, apiCfg.ServiceId, hwid)
+				if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
+				if isValid then return true, "API_VALID" end
+			end
+		end
+		return false, "API_INVALID"
+
+	elseif keySettings.Service or keySettings.ApiUrl then
+		local serviceType = keySettings.Service and string.lower(keySettings.Service) or ""
+		local validatorFn = API_VALIDATORS[serviceType]
+
+		if validatorFn then
+			local isValid, reason = validatorFn(inputKey, keySettings, hwid)
+			if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
+			if isValid then return true, "API_VALID" end
+		elseif keySettings.ApiUrl then
+			local isValid, reason = checkCustomApiUrl(inputKey, keySettings.ApiUrl, keySettings.ServiceId, hwid)
+			if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
+			if isValid then return true, "API_VALID" end
+		end
+		return false, "API_INVALID"
+	end
+
+	local validator = keySettings.CustomValidator or keySettings.KeyValidator
+	if type(validator) == "function" then
+		local s, valid = pcall(validator, inputKey)
+		if s and valid == true then return true, "CUSTOM_VALID" end
+		return false, "CUSTOM_INVALID"
+	end
+
+	local keys = keySettings.Keys or keySettings.Key
+	if type(keys) == "table" then
+		for _, k in ipairs(keys) do
+			if inputKey == k then return true, "LOCAL_VALID" end
+		end
+	elseif type(keys) == "string" then
+		if inputKey == keys then return true, "LOCAL_VALID" end
+	end
+
+	return false, "INVALID_KEY"
+end
+
+local function saveKey(folderName, fileName, key)
+	if not writefile then return end
+	local filePath = getKeyFilePath(folderName, fileName)
+	pcall(writefile, filePath, key)
+end
+
+local function getSavedKey(folderName, fileName, keySettings)
+	local filePath = getKeyFilePath(folderName, fileName)
+	if not (isfile and isfile(filePath)) then return nil end
+
+	local success, savedKey = pcall(readfile, filePath)
+	if not success or not savedKey or savedKey == "" then return nil end
+	savedKey = string.gsub(savedKey, "%s+", "")
+
+	local isApiMode = keySettings and (keySettings.API or keySettings.Service or keySettings.ApiUrl or keySettings.CustomValidator or keySettings.KeyValidator)
+
+	if isApiMode then
+		local isValid, reason = isKeyValid(savedKey, keySettings)
+		if isValid then
+			return savedKey
+		else
+			if reason ~= "NETWORK_ERROR" and delfile then
+				pcall(delfile, filePath)
+			end
+			return nil
+		end
+	end
+
+	return savedKey
+end
+
 local function getIcon(name : string): {id: number, imageRectSize: Vector2, imageRectOffset: Vector2}
 	if not Icons then
 		warn("Lucide Icons: Cannot use icons as icons library is not loaded")
@@ -377,23 +582,6 @@ local function registerFlag(option)
 			library.Flags[option.Flag] = option.Default
 		end
 	end
-end
-
-local function ensureFolder(path)
-	if isfolder and makefolder and not isfolder(path) then
-		pcall(makefolder, path)
-	end
-end
-
-local function getFolderPath(folderName, subFolder)
-	folderName = folderName or "TurtleUI_Settings"
-	ensureFolder(folderName)
-	if subFolder then
-		local subPath = folderName .. "/" .. subFolder
-		ensureFolder(subPath)
-		return subPath
-	end
-	return folderName
 end
 
 --[[===========================
@@ -871,58 +1059,17 @@ local function uiKeybind(key, ui)
     end)
 end
 
-local function getKeyFilePath(folderName, fileName)
-	local keysDir = getFolderPath(folderName, "Keys")
-	return keysDir .. "/" .. (fileName or "SavedKey.txt")
-end
-
-local function getSavedKey(folderName, fileName)
-	local filePath = getKeyFilePath(folderName, fileName)
-	if isfile and readfile and isfile(filePath) then
-		local success, result = pcall(readfile, filePath)
-		if success then return result end
-	end
-	return nil
-end
-
-local function saveKey(folderName, fileName, key)
-	local filePath = getKeyFilePath(folderName, fileName)
-	if writefile then
-		pcall(writefile, filePath, key)
-	end
-end
-
-local function isKeyValid(inputKey, validKeys)
-	if type(validKeys) == "string" then
-		return inputKey == validKeys
-	elseif type(validKeys) == "table" then
-		for _, key in ipairs(validKeys) do
-			if inputKey == key then return true end
-		end
-	end
-	return false
-end
-
 local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 	keySettings = keySettings or {}
-	local validKeys = keySettings.Key or ""
 	local fileName = keySettings.FileName or "SavedKey.txt"
-
-	if keySettings.SaveKey then
-		local saved = getSavedKey(folderName, fileName)
-		if saved and isKeyValid(saved, validKeys) then
-			onSuccess()
-			return
-		end
-	end
 
 	local overlay = Create("Frame", {
 		Name = "KeyOverlay",
-		Parent = TurtleUiLib,
+		Parent = library.Container or game:GetService("CoreGui"),
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundColor3 = Color3.fromRGB(10, 10, 12),
 		BackgroundTransparency = 0.2,
-		ZIndex = 15 + zindex
+		ZIndex = 2000
 	})
 
 	local keyFrame = Create("Frame", {
@@ -952,18 +1099,9 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 		ZIndex = 2002
 	})
 
-	btnClose.MouseEnter:Connect(function()
-		btnClose.TextColor3 = Color3.fromRGB(231, 76, 60)
-	end)
-	btnClose.MouseLeave:Connect(function()
-		btnClose.TextColor3 = Color3.fromRGB(160, 165, 175)
-	end)
-
 	btnClose.MouseButton1Click:Connect(function()
 		overlay:Destroy()
-		if type(onCancel) == "function" then
-			onCancel()
-		end
+		if type(onCancel) == "function" then onCancel() end
 	end)
 
 	Create("TextLabel", {
@@ -1002,7 +1140,6 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 		TextSize = 14,
 		ClearTextOnFocus = false
 	})
-
 	Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = keyInput })
 	local inputStroke = Create("UIStroke", { Color = Color3.fromRGB(45, 48, 55), Parent = keyInput })
 
@@ -1042,25 +1179,38 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 	})
 	Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btnGetKey })
 
+	local isChecking = false
+
 	btnCheck.MouseButton1Click:Connect(function()
-		local input = keyInput.Text
-		if isKeyValid(input, validKeys) then
-			if keySettings.SaveKey then
-				saveKey(folderName, fileName, input)
-			end
-			overlay:Destroy()
-			onSuccess()
-		else
-			inputStroke.Color = Color3.fromRGB(231, 76, 60)
-			keyInput.Text = ""
-			keyInput.PlaceholderText = "Invalid Key! Try Again..."
-			task.delay(1.5, function()
-				if inputStroke then
-					inputStroke.Color = Color3.fromRGB(45, 48, 55)
-					keyInput.PlaceholderText = "Paste Key Here..."
+		if isChecking then return end
+		isChecking = true
+		btnCheck.Text = "Checking..."
+
+		task.spawn(function()
+			local input = keyInput.Text
+			local isValid, reason = isKeyValid(input, keySettings)
+
+			if isValid then
+				if keySettings.SaveKey ~= false then
+					saveKey(folderName, fileName, input)
 				end
-			end)
-		end
+				overlay:Destroy()
+				onSuccess()
+			else
+				inputStroke.Color = Color3.fromRGB(231, 76, 60)
+				keyInput.Text = ""
+				keyInput.PlaceholderText = (reason == "NETWORK_ERROR") and "Network Error! Try again..." or "Invalid Key! Try Again..."
+				btnCheck.Text = "Submit Key"
+				isChecking = false
+
+				task.delay(2, function()
+					if inputStroke then
+						inputStroke.Color = Color3.fromRGB(45, 48, 55)
+						keyInput.PlaceholderText = "Paste Key Here..."
+					end
+				end)
+			end
+		end)
 	end)
 
 	btnGetKey.MouseButton1Click:Connect(function()
@@ -1068,9 +1218,7 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 			setclipboard(keySettings.URL)
 			btnGetKey.Text = "Copied to Clipboard!"
 			task.delay(1.5, function()
-				if btnGetKey then
-					btnGetKey.Text = "Get Key (Copy Link)"
-				end
+				if btnGetKey then btnGetKey.Text = "Get Key (Copy Link)" end
 			end)
 		end
 	end)
@@ -2738,19 +2886,26 @@ function library:CreateWindow(WinConfig)
 		
 		local isVerified = false
 
-		if WinConfig.KeySettings.SaveKey and savedKey and isKeyValid(savedKey, validKeys) then
+		if WinConfig.KeySystem and WinConfig.KeySettings then
+		local keySettings = WinConfig.KeySettings
+		local fileName = keySettings.FileName or "SavedKey.txt"
+		
+		local savedKey = getSavedKey(folderName, fileName, keySettings)
+		local isVerified = false
+
+		if savedKey then
 			isVerified = true
 		else
 			local keySignal = Instance.new("BindableEvent")
 
 			createKeyWindow(
-				WinConfig.KeySettings, 
+				keySettings, 
 				folderName, 
-				function() -- onSuccess
+				function()
 					isVerified = true
 					keySignal:Fire(true)
 				end,
-				function() -- onCancel (Tombol X)
+				function()
 					isVerified = false
 					keySignal:Fire(false)
 				end
@@ -2759,8 +2914,8 @@ function library:CreateWindow(WinConfig)
 			local success = keySignal.Event:Wait()
 			keySignal:Destroy()
 
-			if not success then
-				return nil
+			if not success or not isVerified then
+				return nil -- Batalkan pembuatan UI jika user menekan tombol X / key salah
 			end
 		end
 	end
