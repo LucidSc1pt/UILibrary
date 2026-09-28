@@ -2882,13 +2882,6 @@ function library:CreateWindow(WinConfig)
 		or tostring(game.GameId)
 	
 	if WinConfig.KeySystem and WinConfig.KeySettings then
-		local validKeys = WinConfig.KeySettings.Key or ""
-		local keyFileName = WinConfig.KeySettings.FileName or "SavedKey.txt"
-		local savedKey = getSavedKey(folderName, keyFileName)
-		
-		local isVerified = false
-
-		if WinConfig.KeySystem and WinConfig.KeySettings then
 		local keySettings = WinConfig.KeySettings
 		local fileName = keySettings.FileName or "SavedKey.txt"
 		
