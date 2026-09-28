@@ -439,7 +439,7 @@ function library:SaveConfig(folderName, configName)
 	if not writefile then return false end
 
 	local configDir = getFolderPath(folderName, "Configs")
-	configName = configName or tostring(game.GameId)
+	configName = (configName and configName ~= "") and configName or tostring(game.GameId)
 	local filePath = configDir .. "/" .. configName .. ".json"
 
 	local dataToSave = {}
@@ -463,7 +463,7 @@ function library:LoadConfig(folderName, configName)
 	if not readfile or not isfile then return false end
 
 	local configDir = getFolderPath(folderName, "Configs")
-	configName = configName or tostring(game.GameId)
+	configName = (configName and configName ~= "") and configName or tostring(game.GameId)
 	local filePath = configDir .. "/" .. configName .. ".json"
 
 	if not isfile(filePath) then return false end
@@ -2726,12 +2726,15 @@ function library:CreateWindow(WinConfig)
 	
 	local configSettings = WinConfig.ConfigurationSaving or {}
 	local folderName = configSettings.FolderName or "TurtleUI_Settings"
-	local defaultFileName = configSettings.FileName or "DefaultConfig"
+	
+	local defaultFileName = (configSettings.FileName and configSettings.FileName ~= "") 
+		and configSettings.FileName 
+		or tostring(game.GameId)
 	
 	if WinConfig.KeySystem and WinConfig.KeySettings then
 		local validKeys = WinConfig.KeySettings.Key or ""
-		local fileName = WinConfig.KeySettings.FileName or "SavedKey.txt"
-		local savedKey = getSavedKey(folderName, fileName)
+		local keyFileName = WinConfig.KeySettings.FileName or "SavedKey.txt"
+		local savedKey = getSavedKey(folderName, keyFileName)
 		
 		local isVerified = false
 
@@ -2743,11 +2746,11 @@ function library:CreateWindow(WinConfig)
 			createKeyWindow(
 				WinConfig.KeySettings, 
 				folderName, 
-				function()
+				function() -- onSuccess
 					isVerified = true
 					keySignal:Fire(true)
 				end,
-				function()
+				function() -- onCancel (Tombol X)
 					isVerified = false
 					keySignal:Fire(false)
 				end
@@ -3147,6 +3150,7 @@ function library:CreateWindow(WinConfig)
 	})
 
 	local window = {
+		_autoSaveConnected = false,
 		gui = TurtleUiLib,
 		mainFrame = UiWindow,
 		contentArea = contentArea,
@@ -3444,20 +3448,29 @@ function library:CreateWindow(WinConfig)
 	end
 	
 	if configSettings.Enabled then
-		library:LoadConfig(folderName, defaultFileName)
-		library:Notification({
-			Title = "Configuration Loaded!",
-			Content = "Auto-loaded configuration for the game!",
-			Time = 5
-		})
+		task.defer(function()
+			pcall(function()
+				library:LoadConfig(folderName, defaultFileName)
+				library:Notification({
+					Title = "Configuration",
+					Content = "Auto-loaded configuration for the game " .. game.GameId .. ".",
+					Time = 5
+				})
+			end)
+		end)
 	end
 
 	if configSettings.Enabled and configSettings.AutoSave then
-		game:GetService("Players").LocalPlayer.AncestryChanged:Connect(function(_, parent)
-			if not parent then
-				library:SaveConfig(folderName, defaultFileName)
-			end
-		end)
+		if not window._autoSaveConnected then
+			window._autoSaveConnected = true
+			game:GetService("Players").LocalPlayer.AncestryChanged:Connect(function(_, parent)
+				if not parent then
+					pcall(function()
+						library:SaveConfig(folderName, defaultFileName)
+					end)
+				end
+			end)
+		end
 	end
 	
 	return window
