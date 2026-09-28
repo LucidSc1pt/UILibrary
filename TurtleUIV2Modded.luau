@@ -96,9 +96,11 @@ local function randomNameString()
   return table.concat(array)
 end
 
+local rngName = randomNameString()
+
 -- // Making the ScreenGui \\ --
 local TurtleUiLib = Instance.new("ScreenGui")
-TurtleUiLib.Name = "TurtleUiLib" .. randomNameString()
+TurtleUiLib.Name = "TurtleUiLib" .. tostring(rngName)
 TurtleUiLib.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 TurtleUiLib.ScreenInsets = Enum.ScreenInsets.None
 protect_gui(TurtleUiLib)
@@ -223,117 +225,6 @@ local API_VALIDATORS = {
 		return res:find("true") ~= nil, "API_RESPONSE"
 	end
 }
-
-local function checkCustomApiUrl(key, apiUrl, serviceId, hwid)
-	local url = apiUrl
-	url = string.gsub(url, "{key}", HttpService:UrlEncode(key))
-	url = string.gsub(url, "{service_id}", HttpService:UrlEncode(serviceId or ""))
-	url = string.gsub(url, "{hwid}", HttpService:UrlEncode(hwid))
-
-	if not string.find(apiUrl, "{key}") then
-		local separator = string.find(url, "%?") and "&" or "?"
-		url = url .. separator .. "key=" .. HttpService:UrlEncode(key) .. "&hwid=" .. HttpService:UrlEncode(hwid)
-	end
-
-	local success, res = pcall(function() return game:HttpGet(url) end)
-	if not success or not res then return false, "NETWORK_ERROR" end
-
-	local ok, json = pcall(function() return HttpService:JSONDecode(res) end)
-	if ok and type(json) == "table" then
-		return (json.valid == true or json.success == true or json.status == "success"), "API_RESPONSE"
-	end
-
-	local cleanRes = string.upper(string.gsub(res, "%s+", ""))
-	return (cleanRes == "TRUE" or cleanRes == "VALID" or cleanRes == "SUCCESS"), "API_RESPONSE"
-end
-
-local function isKeyValid(inputKey, keySettings)
-	if not inputKey or inputKey == "" then return false, "EMPTY_KEY" end
-	inputKey = string.gsub(inputKey, "%s+", "") -- Hapus spasi liar
-	local hwid = getHWID()
-
-	if type(keySettings.API) == "table" then
-		for _, apiCfg in ipairs(keySettings.API) do
-			local serviceType = apiCfg.Type and string.lower(apiCfg.Type) or ""
-			local validatorFn = API_VALIDATORS[serviceType]
-
-			if validatorFn then
-				local isValid, reason = validatorFn(inputKey, apiCfg, hwid)
-				if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
-				if isValid then return true, "API_VALID" end
-			elseif apiCfg.ApiUrl then
-				local isValid, reason = checkCustomApiUrl(inputKey, apiCfg.ApiUrl, apiCfg.ServiceId, hwid)
-				if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
-				if isValid then return true, "API_VALID" end
-			end
-		end
-		return false, "API_INVALID"
-
-	elseif keySettings.Service or keySettings.ApiUrl then
-		local serviceType = keySettings.Service and string.lower(keySettings.Service) or ""
-		local validatorFn = API_VALIDATORS[serviceType]
-
-		if validatorFn then
-			local isValid, reason = validatorFn(inputKey, keySettings, hwid)
-			if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
-			if isValid then return true, "API_VALID" end
-		elseif keySettings.ApiUrl then
-			local isValid, reason = checkCustomApiUrl(inputKey, keySettings.ApiUrl, keySettings.ServiceId, hwid)
-			if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
-			if isValid then return true, "API_VALID" end
-		end
-		return false, "API_INVALID"
-	end
-
-	local validator = keySettings.CustomValidator or keySettings.KeyValidator
-	if type(validator) == "function" then
-		local s, valid = pcall(validator, inputKey)
-		if s and valid == true then return true, "CUSTOM_VALID" end
-		return false, "CUSTOM_INVALID"
-	end
-
-	local keys = keySettings.Keys or keySettings.Key
-	if type(keys) == "table" then
-		for _, k in ipairs(keys) do
-			if inputKey == k then return true, "LOCAL_VALID" end
-		end
-	elseif type(keys) == "string" then
-		if inputKey == keys then return true, "LOCAL_VALID" end
-	end
-
-	return false, "INVALID_KEY"
-end
-
-local function saveKey(folderName, fileName, key)
-	if not writefile then return end
-	local filePath = getKeyFilePath(folderName, fileName)
-	pcall(writefile, filePath, key)
-end
-
-local function getSavedKey(folderName, fileName, keySettings)
-	local filePath = getKeyFilePath(folderName, fileName)
-	if not (isfile and isfile(filePath)) then return nil end
-
-	local success, savedKey = pcall(readfile, filePath)
-	if not success or not savedKey or savedKey == "" then return nil end
-	savedKey = string.gsub(savedKey, "%s+", "")
-
-	local isApiMode = keySettings and (keySettings.API or keySettings.Service or keySettings.ApiUrl or keySettings.CustomValidator or keySettings.KeyValidator)
-
-	if isApiMode then
-		local isValid, reason = isKeyValid(savedKey, keySettings)
-		if isValid then
-			return savedKey
-		else
-			if reason ~= "NETWORK_ERROR" and delfile then
-				pcall(delfile, filePath)
-			end
-			return nil
-		end
-	end
-
-	return savedKey
-end
 
 local function getIcon(name : string): {id: number, imageRectSize: Vector2, imageRectOffset: Vector2}
 	if not Icons then
@@ -582,6 +473,117 @@ local function registerFlag(option)
 			library.Flags[option.Flag] = option.Default
 		end
 	end
+end
+
+local function checkCustomApiUrl(key, apiUrl, serviceId, hwid)
+	local url = apiUrl
+	url = string.gsub(url, "{key}", HttpService:UrlEncode(key))
+	url = string.gsub(url, "{service_id}", HttpService:UrlEncode(serviceId or ""))
+	url = string.gsub(url, "{hwid}", HttpService:UrlEncode(hwid))
+
+	if not string.find(apiUrl, "{key}") then
+		local separator = string.find(url, "%?") and "&" or "?"
+		url = url .. separator .. "key=" .. HttpService:UrlEncode(key) .. "&hwid=" .. HttpService:UrlEncode(hwid)
+	end
+
+	local success, res = pcall(function() return game:HttpGet(url) end)
+	if not success or not res then return false, "NETWORK_ERROR" end
+
+	local ok, json = pcall(function() return HttpService:JSONDecode(res) end)
+	if ok and type(json) == "table" then
+		return (json.valid == true or json.success == true or json.status == "success"), "API_RESPONSE"
+	end
+
+	local cleanRes = string.upper(string.gsub(res, "%s+", ""))
+	return (cleanRes == "TRUE" or cleanRes == "VALID" or cleanRes == "SUCCESS"), "API_RESPONSE"
+end
+
+local function isKeyValid(inputKey, keySettings)
+	if not inputKey or inputKey == "" then return false, "EMPTY_KEY" end
+	inputKey = string.gsub(inputKey, "%s+", "") -- Hapus spasi liar
+	local hwid = getHWID()
+
+	if type(keySettings.API) == "table" then
+		for _, apiCfg in ipairs(keySettings.API) do
+			local serviceType = apiCfg.Type and string.lower(apiCfg.Type) or ""
+			local validatorFn = API_VALIDATORS[serviceType]
+
+			if validatorFn then
+				local isValid, reason = validatorFn(inputKey, apiCfg, hwid)
+				if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
+				if isValid then return true, "API_VALID" end
+			elseif apiCfg.ApiUrl then
+				local isValid, reason = checkCustomApiUrl(inputKey, apiCfg.ApiUrl, apiCfg.ServiceId, hwid)
+				if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
+				if isValid then return true, "API_VALID" end
+			end
+		end
+		return false, "API_INVALID"
+
+	elseif keySettings.Service or keySettings.ApiUrl then
+		local serviceType = keySettings.Service and string.lower(keySettings.Service) or ""
+		local validatorFn = API_VALIDATORS[serviceType]
+
+		if validatorFn then
+			local isValid, reason = validatorFn(inputKey, keySettings, hwid)
+			if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
+			if isValid then return true, "API_VALID" end
+		elseif keySettings.ApiUrl then
+			local isValid, reason = checkCustomApiUrl(inputKey, keySettings.ApiUrl, keySettings.ServiceId, hwid)
+			if reason == "NETWORK_ERROR" then return false, "NETWORK_ERROR" end
+			if isValid then return true, "API_VALID" end
+		end
+		return false, "API_INVALID"
+	end
+
+	local validator = keySettings.CustomValidator or keySettings.KeyValidator
+	if type(validator) == "function" then
+		local s, valid = pcall(validator, inputKey)
+		if s and valid == true then return true, "CUSTOM_VALID" end
+		return false, "CUSTOM_INVALID"
+	end
+
+	local keys = keySettings.Keys or keySettings.Key
+	if type(keys) == "table" then
+		for _, k in ipairs(keys) do
+			if inputKey == k then return true, "LOCAL_VALID" end
+		end
+	elseif type(keys) == "string" then
+		if inputKey == keys then return true, "LOCAL_VALID" end
+	end
+
+	return false, "INVALID_KEY"
+end
+
+local function saveKey(folderName, fileName, key)
+	if not writefile then return end
+	local filePath = getKeyFilePath(folderName, fileName)
+	pcall(writefile, filePath, key)
+end
+
+local function getSavedKey(folderName, fileName, keySettings)
+	local filePath = getKeyFilePath(folderName, fileName)
+	if not (isfile and isfile(filePath)) then return nil end
+
+	local success, savedKey = pcall(readfile, filePath)
+	if not success or not savedKey or savedKey == "" then return nil end
+	savedKey = string.gsub(savedKey, "%s+", "")
+
+	local isApiMode = keySettings and (keySettings.API or keySettings.Service or keySettings.ApiUrl or keySettings.CustomValidator or keySettings.KeyValidator)
+
+	if isApiMode then
+		local isValid, reason = isKeyValid(savedKey, keySettings)
+		if isValid then
+			return savedKey
+		else
+			if reason ~= "NETWORK_ERROR" and delfile then
+				pcall(delfile, filePath)
+			end
+			return nil
+		end
+	end
+
+	return savedKey
 end
 
 --[[===========================
@@ -1065,7 +1067,7 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 
 	local overlay = Create("Frame", {
 		Name = "KeyOverlay",
-		Parent = library.Container or game:GetService("CoreGui"),
+		Parent = TurtleUiLib,
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundColor3 = Color3.fromRGB(10, 10, 12),
 		BackgroundTransparency = 0.2,
@@ -2915,7 +2917,7 @@ function library:CreateWindow(WinConfig)
 			keySignal:Destroy()
 
 			if not success or not isVerified then
-				return nil -- Batalkan pembuatan UI jika user menekan tombol X / key salah
+				return nil
 			end
 		end
 	end
