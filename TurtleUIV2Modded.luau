@@ -6,7 +6,7 @@
 local library = {
 	ThemeObjects = {},
 	Flags = {},
-	FlagsObjects = {},
+	Connections = {},
 	Elements = {},
 	Themes = {
 		Default = {
@@ -57,6 +57,14 @@ local colorPickers = {}
 local activeInteraction = nil
 local zindex = 1000
 
+if getgenv().TurtleLib and type(getgenv().TurtleLib.Destroy) == "function" then
+	pcall(function()
+		getgenv().TurtleLib:Destroy()
+	end)
+end
+
+getgenv().TurtleLib = library
+
 -- // Service \\ --
 local TweenService = game:GetService("TweenService")
 local uis = game:GetService("UserInputService")
@@ -69,6 +77,13 @@ local HttpService = game:GetService("HttpService")
 local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
 
 -- // Instances:
+
+local function GiveSignal(connection)
+	if typeof(connection) == "RBXScriptConnection" then
+		table.insert(library.Connections, connection)
+	end
+	return connection
+end
 
 local function protect_gui(obj) 
 	if destroyed then
@@ -103,27 +118,8 @@ local TurtleUiLib = Instance.new("ScreenGui")
 TurtleUiLib.Name = "TurtleUiLib" .. tostring(rngName)
 TurtleUiLib.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 TurtleUiLib.ScreenInsets = Enum.ScreenInsets.None
+TurtleUiLib.ClipToDeviceSafeArea = false
 protect_gui(TurtleUiLib)
-
-if gethui then
-	for _, Interface in ipairs(gethui():GetChildren()) do
-		if Interface and Interface ~= TurtleUiLib then
-			Interface:Destroy()
-		end
-	end
-elseif PROTOSMASHER_LOADED or get_hidden_gui then
-	for _, Interface in ipairs(get_hidden_gui():GetChildren()) do
-		if Interface and Interface ~= TurtleUiLib then
-			Interface:Destroy()
-		end
-	end
-else
-	for _, Interface in ipairs(game.CoreGui:GetChildren()) do
-		if Interface and Interface ~= TurtleUiLib then
-			Interface:Destroy()
-		end
-	end
-end
 
 function Lerp(a, b, c)
 	return a + ((b - a) * c)
@@ -589,6 +585,7 @@ end
 --[[===========================
 		library:function()
 	===========================]]
+
 function library:AddTheme(themeName, themeTable)
 	if type(themeName) == "string" and type(themeTable) == "table" then
 		library.Themes[themeName] = themeTable
@@ -1045,10 +1042,22 @@ end
 
 -- // Destroy Function \\ --
 function library:Destroy()
-    TurtleUiLib:Destroy()
-    if keybindConnection then
-        keybindConnection:Disconnect()
-    end
+	if library.Connections then
+		for _, conn in ipairs(library.Connections) do
+			if typeof(conn) == "RBXScriptConnection" and conn.Connected then
+				pcall(function() conn:Disconnect() end)
+			end
+		end
+		table.clear(library.Connections)
+	end
+
+	if TurtleUiLib then
+		pcall(function() TurtleUiLib:Destroy() end)
+	end
+
+	if getgenv().TurtleLib == library then
+		getgenv().TurtleLib = nil
+	end
 end
 
 local function uiKeybind(key, ui)
@@ -1059,6 +1068,7 @@ local function uiKeybind(key, ui)
             ui.Visible = not ui.Visible
         end
     end)
+    table.insert(library.Connections, keybindConn)
 end
 
 local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
