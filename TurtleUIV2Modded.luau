@@ -107,19 +107,19 @@ protect_gui(TurtleUiLib)
 
 if gethui then
 	for _, Interface in ipairs(gethui():GetChildren()) do
-		if Interface.Name == TurtleUiLib.Name and Interface ~= TurtleUiLib then
+		if Interface and Interface ~= TurtleUiLib then
 			Interface:Destroy()
 		end
 	end
 elseif PROTOSMASHER_LOADED or get_hidden_gui then
 	for _, Interface in ipairs(get_hidden_gui():GetChildren()) do
-		if Interface.Name == TurtleUiLib.Name and Interface ~= TurtleUiLib then
+		if Interface and Interface ~= TurtleUiLib then
 			Interface:Destroy()
 		end
 	end
 else
 	for _, Interface in ipairs(game.CoreGui:GetChildren()) do
-		if Interface.Name == TurtleUiLib.Name and Interface ~= TurtleUiLib then
+		if Interface and Interface ~= TurtleUiLib then
 			Interface:Destroy()
 		end
 	end
