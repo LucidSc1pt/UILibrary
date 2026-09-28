@@ -1,5 +1,5 @@
 This is just my small project.
 
-Orion UI Lib is now patched, I fill fix it when I found what's the problem is...
+Orion UI Lib is now patched and depreciated, I fill modded that lib again when Im done with Turtle UI Lib
 
 * [Turtle UI Lib Documentation](TurtleUILib.md)
