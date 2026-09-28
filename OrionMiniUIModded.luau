@@ -196,9 +196,6 @@ function OrionLib:IsRunning()
 end
 
 local function AddConnection(Signal, Function)
-	if (not OrionLib:IsRunning()) then
-		return
-	end
 	local SignalConnect = Signal:Connect(Function)
 	table.insert(OrionLib.Connections, SignalConnect)
 	return SignalConnect
@@ -209,9 +206,9 @@ task.spawn(function()
 		wait()
 	end
 
-	for _, Connection in next, OrionLib.Connections do
-		Connection:Disconnect()
-	end
+	--for _, Connection in next, OrionLib.Connections do
+		--Connection:Disconnect()
+	--end
 end)
 
 -- draggable function
