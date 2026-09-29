@@ -79,8 +79,6 @@ local GuiService = game:GetService("GuiService")
 
 -- // Instances:
 
-library.Connections = library.Connections or {}
-
 local function SafeConnect(signal, callback)
     if typeof(signal) ~= "RBXScriptSignal" then return nil end
     if type(callback) ~= "function" then return nil end
