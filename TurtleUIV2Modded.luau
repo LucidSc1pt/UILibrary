@@ -75,31 +75,57 @@ local run = game:service('RunService');
 local stepped = run.Stepped;
 local HttpService = game:GetService("HttpService")
 local RbxAnalyticsService = game:GetService("RbxAnalyticsService")
+local GuiService = game:GetService("GuiService")
 
 -- // Instances:
 
-local function GiveSignal(connection)
-	if typeof(connection) == "RBXScriptConnection" then
-		table.insert(library.Connections, connection)
-	end
-	return connection
+library.Connections = library.Connections or {}
+
+local function SafeConnect(signal, callback)
+    if typeof(signal) ~= "RBXScriptSignal" then return nil end
+    if type(callback) ~= "function" then return nil end
+
+    local ok, connection = pcall(signal.Connect, signal, callback)
+    if ok and connection then
+        table.insert(library.Connections, connection)
+        return connection
+    end
+    return nil
 end
 
-local function protect_gui(obj) 
-	if destroyed then
-		obj.Parent = game.CoreGui
-		return
-	end
-	if syn and syn.protect_gui then
+local function GiveSignal(connection)
+    if typeof(connection) == "RBXScriptConnection" then
+        table.insert(library.Connections, connection)
+        return connection
+    end
+    return nil
+end
+
+function library:Unload()
+    for _, conn in ipairs(self.Connections) do
+        if conn.Connected then
+            conn:Disconnect()
+        end
+    end
+    table.clear(self.Connections)
+    if self.Gui then
+        self.Gui:Destroy()
+    end
+end
+
+local function protect_gui(obj)
+	if destroyed or not obj then return end
+	if gethui then
+		obj.Parent = gethui()
+	elseif syn and syn.protect_gui then
 		syn.protect_gui(obj)
 		obj.Parent = game.CoreGui
-	elseif PROTOSMASHER_LOADED or get_hidden_gui then
+	elseif get_hidden_gui then
 		obj.Parent = get_hidden_gui()
-	elseif gethui then
-		obj.Parent = gethui()
 	else
 		obj.Parent = game.CoreGui
 	end
+	OrionGui = obj
 end
 
 local function randomNameString()
@@ -266,54 +292,62 @@ local function getAssetUri(id: any): string
 end
 
 local function MakeDraggable(DragPoint, Main)
-	Main = Main or DragPoint
-	
-	local Dragging = false
-	local DragInput = nil
-	local MousePos = nil
-	local FramePos = nil
+    Main = Main or DragPoint
+    if typeof(DragPoint) ~= "Instance" or typeof(Main) ~= "Instance" then return end
 
-	DragPoint.InputBegan:Connect(function(Input)
-		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-			if Dragging and activeInteraction ~= nil then return end
+    local Dragging = false
+    local DragInput = nil
+    local MousePos = nil
+    local FramePos = nil
 
-			Dragging = true
-			MousePos = Input.Position
-			FramePos = Main.Position
-			DragInput = Input
+    SafeConnect(DragPoint.InputBegan, function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+            if Dragging and activeInteraction ~= nil then return end
 
-			local changedConnection
-			changedConnection = Input.Changed:Connect(function()
-				if Input.UserInputState == Enum.UserInputState.End then
-					Dragging = false
-					DragInput = nil
-					if changedConnection then
-						changedConnection:Disconnect()
-					end
-				end
-			end)
-		end
-	end)
+            Dragging = true
+            MousePos = Input.Position
+            FramePos = Main.Position
+            DragInput = Input
 
-	DragPoint.InputChanged:Connect(function(Input)
-		if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-			if not Dragging then
-				DragInput = Input
-			end
-		end
-	end)
+            local changedConnection
+            changedConnection = Input.Changed:Connect(function()
+                if Input.UserInputState == Enum.UserInputState.End then
+                    Dragging = false
+                    DragInput = nil
+                    if changedConnection then
+                        changedConnection:Disconnect()
+                    end
+                end
+            end)
+            GiveSignal(changedConnection)
+        end
+    end)
 
-	uis.InputChanged:Connect(function(Input)
-		if Dragging and activeInteraction == nil and Input == DragInput then
-			local Delta = Input.Position - MousePos
-			Main.Position = UDim2.new(
-				FramePos.X.Scale, 
-				FramePos.X.Offset + Delta.X, 
-				FramePos.Y.Scale, 
-				FramePos.Y.Offset + Delta.Y
-			)
-		end
-	end)
+    SafeConnect(DragPoint.InputChanged, function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
+            if not Dragging then
+                DragInput = Input
+            end
+        end
+    end)
+
+    SafeConnect(uis.InputChanged, function(Input)
+        if Dragging and activeInteraction == nil and Input == DragInput then
+            local Delta = Input.Position - MousePos
+            Main.Position = UDim2.new(
+                FramePos.X.Scale, 
+                FramePos.X.Offset + Delta.X, 
+                FramePos.Y.Scale, 
+                FramePos.Y.Offset + Delta.Y
+            )
+        end
+    end)
+    
+    SafeConnect(Main.AncestryChanged, function(_, parent)
+        if not parent then
+            Dragging = false
+        end
+    end)
 end
 
 local function Create(Name, Properties)
@@ -2072,12 +2106,20 @@ local function makeDropdown(option, parentContainer)
 
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
 
+		local inset = GuiService:GetGuiInset()
+		local targetX = Dropdown.AbsolutePosition.X - inset.X - 10
+		local targetY = Dropdown.AbsolutePosition.Y - inset.Y + Dropdown.AbsoluteSize.Y + 4
+
 		if option.Floating and dragDropFrame then
-			dragDropFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + 2)
+			local camSize = workspace.CurrentCamera.ViewportSize
+			targetX = math.clamp(targetX, 5, camSize.X - dragDropFrame.AbsoluteSize.X - 5)
+			targetY = math.clamp(targetY, 5, camSize.Y - dragDropFrame.AbsoluteSize.Y - 5)
+
+			dragDropFrame.Position = UDim2.fromOffset(targetX, targetY)
 			dragDropFrame.Visible = true
 			DropdownFrame.Visible = true
 		else
-			DropdownFrame.Position = UDim2.fromOffset(Dropdown.AbsolutePosition.X, Dropdown.AbsolutePosition.Y + 2)
+			DropdownFrame.Position = UDim2.fromOffset(targetX, targetY)
 			DropdownFrame.Visible = true
 		end
 	end
@@ -2853,7 +2895,7 @@ local function injectElements(targetContainer, parentUI, winConfig)
 			table.insert(columnObjs, colObj)
 		end
 
-		return unpack(columnObjs)
+		return table.unpack(columnObjs)
 	end
 
 	function targetContainer:AddGrid(config)

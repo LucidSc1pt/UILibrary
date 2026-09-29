@@ -157,9 +157,9 @@ local function getAssetUri(id: any): string
 	if type(id) == "number" then
 		assetUri = "rbxassetid://" .. id
 	elseif type(id) == "string" and not Icons then
-		warn("Rayfield | Cannot use Lucide icons as icons library is not loaded")
+		warn("Orion | Cannot use Lucide icons as icons library is not loaded")
 	else
-		warn("Rayfield | The icon argument must either be an icon ID (number) or a Lucide icon name (string)")
+		warn("Orion | The icon argument must either be an icon ID (number) or a Lucide icon name (string)")
 	end
 	return assetUri
 end
@@ -167,32 +167,25 @@ end
 local Orion = Instance.new("ScreenGui")
 Orion.Name = "Orion"
 
-local function protect_gui(obj) 
-	if destroyed then
-		obj.Parent = game.CoreGui
-		return
-	end
-	if syn and syn.protect_gui then
+local function protect_gui(obj)
+	if destroyed or not obj then return end
+	if gethui then
+		obj.Parent = gethui()
+	elseif syn and syn.protect_gui then
 		syn.protect_gui(obj)
 		obj.Parent = game.CoreGui
-	elseif PROTOSMASHER_LOADED or get_hidden_gui then
+	elseif get_hidden_gui then
 		obj.Parent = get_hidden_gui()
-	elseif gethui then
-		obj.Parent = gethui()
 	else
 		obj.Parent = game.CoreGui
 	end
+	OrionGui = obj
 end
 
 protect_gui(Orion)
 
 function OrionLib:IsRunning()
-	if gethui then
-		return Orion.Parent == gethui()
-	else
-		return Orion.Parent == game:GetService("CoreGui")
-	end
-
+	return not destroyed and OrionGui and OrionGui.Parent ~= nil
 end
 
 local function AddConnection(Signal, Function)
@@ -201,15 +194,17 @@ local function AddConnection(Signal, Function)
 	return SignalConnect
 end
 
-task.spawn(function()
-	while (OrionLib:IsRunning()) do
-		wait()
-	end
-
-	--for _, Connection in next, OrionLib.Connections do
-		--Connection:Disconnect()
-	--end
-end)
+if OrionGui then
+	OrionGui.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			destroyed = true
+			for _, conn in ipairs(OrionLib.Connections) do
+				if conn.Connected then conn:Disconnect() end
+			end
+			table.clear(OrionLib.Connections)
+		end
+	end)
+end
 
 -- draggable function
 local function MakeDraggable(DragPoint, Main)
