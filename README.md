@@ -4,6 +4,6 @@ I don't know what I'm doing with Orion, but Orion Lib Modded is now working agai
 
 I will update the Orion functionality when I done with this Turtle UI Lib.
 
-> btw, does anyone know how to execute a ui library code without me having to upload it multiple times on github 😭
+> btw, does anyone know how to execute a ui library code on android phone without me having to upload it multiple times on github 😭
 
 * [Turtle UI Lib Documentation](TurtleUILib.md)
