@@ -16,6 +16,7 @@ local library = {
 	Flags = {},
 	Connections = {},
 	Elements = {},
+	OpenWindows = {},
 	Themes = {
 		Default = {
 			WindowBackground = Color3.fromRGB(47, 54, 64),
@@ -947,6 +948,158 @@ function library:Notification(NotificationConfig)
 	end)
 end
 
+local function getToastContainer()
+	local container = TurtleUiLib:FindFirstChild("ToastContainer")
+	if not container then
+		container = Create("Frame", {
+			Name = "ToastContainer",
+			Parent = TurtleUiLib,
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0, 18),
+			Size = UDim2.new(0, 500, 1, -18),
+			BackgroundTransparency = 1,
+			ClipsDescendants = false,
+			ZIndex = 9999
+		})
+
+		Create("UIListLayout", {
+			Parent = container,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Top,
+			Padding = UDim.new(0, 6)
+		})
+	end
+	return container
+end
+
+function library:Toast(ToastConfig)
+	if type(ToastConfig) == "string" then
+		options = { Text = ToastConfig }
+	end
+
+	local text = ToastConfig.Text or "Notification"
+	local icon = ToastConfig.Icon or ""
+	local duration = ToastConfig.Duration or 2.5
+	local isDismissed = false
+
+	local container = getToastContainer()
+
+	local toastFrame = Create("Frame", {
+		Parent = container,
+		Size = UDim2.fromOffset(0, 30),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = Color3.fromRGB(18, 18, 22),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ClipsDescendants = true
+	})
+
+	local toastbtnFrame = Create("TextButton", {
+		Parent = toastFrame,
+		Size = UDim2.fromScale(1, 1),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = Color3.fromRGB(18, 18, 22),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0
+	})
+
+	Create("UICorner", {
+		CornerRadius = UDim.new(1, 0),
+		Parent = toastFrame
+	})
+
+	local stroke = Create("UIStroke", {
+		Color = Color3.fromRGB(50, 50, 60),
+		Thickness = 1,
+		Transparency = 1,
+		Parent = toastFrame
+	})
+
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 12),
+		PaddingRight = UDim.new(0, 14),
+		Parent = toastbtnFrame
+	})
+
+	Create("UIListLayout", {
+		Parent = toastbtnFrame,
+		FillDirection = Enum.FillDirection.Vertical,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		HorizontalAlignment = Enum.HorizontalAlignment.Left,
+		Padding = UDim.new(0, 2)
+	})
+
+	local iconLabel = Create("ImageLabel", {
+		Size = UDim2.new(0, 16, 0, 16),
+		BackgroundTransparency = 1,
+		ImageColor3 = Color3.fromRGB(240, 240, 240),
+		Name = "Icon",
+		LayoutOrder = 1,
+		Parent = toastbtnFrame
+	})
+
+	if icon and (icon ~= "" or icon ~= nil) then
+		if typeof(icon) == "string" and Icons then
+			local asset = getIcon(icon)
+			iconLabel.Image = "rbxassetid://" .. asset.id
+			iconLabel.ImageRectOffset = asset.imageRectOffset
+			iconLabel.ImageRectSize = asset.imageRectSize
+		else
+			iconLabel.Image = getAssetUri(icon.Image)
+		end
+	else
+		iconLabel:Destroy()
+	end
+
+	local textLabel = Create("TextLabel", {
+		LayoutOrder = 2,
+		Parent = toastbtnFrame,
+		Size = UDim2.new(0, 0, 1, 0),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+		Text = text,
+		Font = Enum.Font.GothamMedium,
+		TextSize = 13,
+		TextColor3 = Color3.fromRGB(230, 230, 235),
+		TextTransparency = 1
+	})
+
+	local function DismissNotification()
+		if isDismissed then return end
+		isDismissed = true
+
+		if not toastFrame or not toastFrame.Parent then return end
+
+		local tweenOut = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		
+		TweenService:Create(stroke, tweenOut, { Transparency = 1 }):Play()
+		TweenService:Create(iconLabel, tweenOut, { ImageTransparency = 1 }):Play()
+		TweenService:Create(textLabel, tweenOut, { TextTransparency = 1 }):Play()
+		
+		local fadeOut = TweenService:Create(toastFrame, tweenOut, { BackgroundTransparency = 1 })
+		fadeOut:Play()
+		
+		fadeOut.Completed:Connect(function()
+			toastFrame:Destroy()
+		end)
+	end
+
+	local tweenIn = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+	TweenService:Create(toastFrame, tweenIn, { BackgroundTransparency = 0.15 }):Play()
+	TweenService:Create(stroke, tweenIn, { Transparency = 0.4 }):Play()
+	TweenService:Create(iconLabel, tweenIn, { ImageTransparency = 0 }):Play()
+	TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
+
+	toastbtnFrame.MouseButton1Click:Connect(DismissNotification)
+
+	task.delay(duration, function()
+		if not isDismissed then
+			DismissNotification()
+		end
+	end)
+end
+
 function library:Popup(config)
 	config = config or {}
 	config.Title = config.Title or "Confirmation"
@@ -1076,12 +1229,16 @@ end
 
 -- // Destroy Function \\ --
 function library:Destroy()
-	if library.GlobalAutoSave == true and (library.CurrentFolderName and library.CurrentConfigName) then
-		pcall(function()
-			library:SaveConfig(library.CurrentFolderName, library.CurrentConfigName)
-		end)
+	if library.GlobalAutoSave == true and library.OpenWindows then
+		for _, windowData in ipairs(library.OpenWindows) do
+			if windowData.FolderName then
+				pcall(function()
+					library:SaveConfig(windowData.FolderName, windowData.ConfigName)
+				end)
+			end
+		end
 	end
-	
+
 	if library.Connections then
 		for _, conn in ipairs(library.Connections) do
 			if typeof(conn) == "RBXScriptConnection" and conn.Connected then
@@ -1099,6 +1256,7 @@ function library:Destroy()
 	if library.ThemeObjects then table.clear(library.ThemeObjects) end
 	if library.Elements then table.clear(library.Elements) end
 	if library.Flags then table.clear(library.Flags) end
+	if library.OpenWindows then table.clear(library.OpenWindows) end
 	if library.Themes then table.clear(library.Themes) end
 
 	if getgenv().TurtleLib == library then
@@ -3393,6 +3551,8 @@ function library:CreateWindow(WinConfig)
 		contentArea = contentArea,
 		sidebarFrame = TabHolder,
 		fastScroll = WindowScroll,
+		FolderName = folderName,
+		ConfigName = defaultFileName,
 		tabs = {},
 		isInitialized = false,
 		isTabMode = false,
@@ -3711,6 +3871,8 @@ function library:CreateWindow(WinConfig)
 			end)
 		end
 	end
+	
+	table.insert(library.OpenWindows, window)
 	
 	return window
 end
