@@ -1896,7 +1896,7 @@ function makeSlider(option, parent)
 	Current.ZIndex = 12 + zindex
 	Current.ClearTextOnFocus = false
 
-	SafeCallback(Current.FocusLost, function(enterPressed)
+	SafeConnect(Current.FocusLost, function(enterPressed)
 		local inputNum = tonumber(Current.Text)
 		if inputNum then
 			local finalVal = updateSliderFromValue(inputNum)
