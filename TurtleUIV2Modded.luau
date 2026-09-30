@@ -314,7 +314,7 @@ local function MakeDraggable(DragPoint, Main)
                         changedConnection:Disconnect()
                     end
                 end
-            end
+            end)
         end
     end)
 
