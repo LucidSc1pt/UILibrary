@@ -959,7 +959,7 @@ local function getToastContainer()
 			Size = UDim2.new(0, 500, 1, -18),
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
-			ZIndex = 9999
+			ZIndex = 15 + zindex
 		})
 
 		Create("UIListLayout", {
@@ -978,7 +978,7 @@ function library:Toast(ToastConfig)
 		options = { Text = ToastConfig }
 	end
 
-	local text = ToastConfig.Text or "Notification"
+	local text = ToastConfig.Title or "Notification"
 	local icon = ToastConfig.Icon or ""
 	local duration = ToastConfig.Duration or 2.5
 	local isDismissed = false
