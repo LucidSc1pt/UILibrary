@@ -3,6 +3,14 @@
 
 -- // MAIN CODE \\ --
 
+if getgenv().TurtleLib then
+    pcall(function() 
+        getgenv().TurtleLib:Destroy() 
+    end)
+    getgenv().TurtleLib = nil
+    task.wait(0.2)
+end
+
 local library = {
 	ThemeObjects = {},
 	Flags = {},
@@ -44,24 +52,19 @@ local library = {
 		}
 	},
 	VerifiedKeys = {},
+	IsDebug = true,
+	GlobalAutoSave = false,
 	SelectedTheme = "Default"
 }
+local CurrentFolderName = nil
+local CurrentConfigName = nil
 local windowCount = 0
-local sizes = {}
-local listOffset = {}
 local windows = {}
-local pastSliders = {}
 local dropdowns = {}
 local dropdownSizes = {}
 local colorPickers = {}
 local activeInteraction = nil
 local zindex = 1000
-
-if getgenv().TurtleLib and type(getgenv().TurtleLib.Destroy) == "function" then
-	pcall(function()
-		getgenv().TurtleLib:Destroy()
-	end)
-end
 
 getgenv().TurtleLib = library
 
@@ -99,18 +102,6 @@ local function GiveSignal(connection)
     return nil
 end
 
-function library:Unload()
-    for _, conn in ipairs(self.Connections) do
-        if conn.Connected then
-            conn:Disconnect()
-        end
-    end
-    table.clear(self.Connections)
-    if self.Gui then
-        self.Gui:Destroy()
-    end
-end
-
 local function protect_gui(obj)
 	if destroyed or not obj then return end
 	if gethui then
@@ -139,7 +130,7 @@ local rngName = randomNameString()
 
 -- // Making the ScreenGui \\ --
 local TurtleUiLib = Instance.new("ScreenGui")
-TurtleUiLib.Name = "TurtleUiLib" .. tostring(rngName)
+TurtleUiLib.Name = tostring(rngName)
 TurtleUiLib.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 TurtleUiLib.ScreenInsets = Enum.ScreenInsets.None
 TurtleUiLib.ClipToDeviceSafeArea = false
@@ -170,6 +161,8 @@ local function getHWID()
 	return success and hwid or "UNKNOWN_HWID"
 end
 
+local MAIN_ROOT_FOLDER = "TurtleLib"
+
 local function ensureFolder(path)
 	if isfolder and makefolder and not isfolder(path) then
 		pcall(makefolder, path)
@@ -177,14 +170,19 @@ local function ensureFolder(path)
 end
 
 local function getFolderPath(folderName, subFolder)
-	folderName = folderName or "TurtleUI_Settings"
-	ensureFolder(folderName)
+	ensureFolder(MAIN_ROOT_FOLDER)
+	
+	local userFolder = (folderName and folderName ~= "") and folderName or "DefaultScript"
+	local userPath = MAIN_ROOT_FOLDER .. "/" .. userFolder
+	ensureFolder(userPath)
+
 	if subFolder then
-		local subPath = folderName .. "/" .. subFolder
+		local subPath = userPath .. "/" .. subFolder
 		ensureFolder(subPath)
 		return subPath
 	end
-	return folderName
+
+	return userPath
 end
 
 local function getKeyFilePath(folderName, fileName)
@@ -316,8 +314,7 @@ local function MakeDraggable(DragPoint, Main)
                         changedConnection:Disconnect()
                     end
                 end
-            end)
-            GiveSignal(changedConnection)
+            end
         end
     end)
 
@@ -390,7 +387,7 @@ local function AddThemeObject(Object, ThemeKey, SpecificProperty)
 
 	return Object
 end
-
+--[[ Useless for now
 local function execCallback(callback, winConfig, itemConfig, ...)
 	if type(callback) ~= "function" then return true end
 
@@ -416,7 +413,7 @@ local function execCallback(callback, winConfig, itemConfig, ...)
 		return true
 	end
 end
-
+]]
 local function attachLockSystem(controller, targetFrame, initialConfig)
 	initialConfig = initialConfig or {}
 	local lockOverlay = nil
@@ -493,14 +490,17 @@ local function attachLockSystem(controller, targetFrame, initialConfig)
 	return controller
 end
 
-local function registerFlag(option)
-	if option and option.Flag then
-		library.Elements[option.Flag] = option
+local function registerFlag(config, controller)
+    if not config.Flag then return end
 
-		if library.Flags[option.Flag] == nil then
-			library.Flags[option.Flag] = option.Default
-		end
-	end
+    if library.Flags[config.Flag] ~= nil and library.IsDebug then
+        warn("[Turtle] Duplicate flag: '".. tostring(config.Flag).."' di '".. tostring(config.Title).."' | yang lama bakal kepake, yang baru di-skip")
+        library.Elements[config.Flag] = library.Elements[config.Flag] or (controller or config)
+        return
+    end
+
+    library.Elements[config.Flag] = controller or config
+    library.Flags[config.Flag] = config.Default
 end
 
 local function checkCustomApiUrl(key, apiUrl, serviceId, hwid)
@@ -772,7 +772,7 @@ function library:Notification(NotificationConfig)
 
 		local NotificationFrame_Stroke = Create("UIStroke", {
 			Parent = NotificationFrame,
-			Thickness = 1,
+			Thickness = 1.2,
 			Color = accentColor,
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Enabled = true
@@ -1029,6 +1029,7 @@ function library:Popup(config)
 	local function createButton(text, bgCol, callback)
 		local btn = Instance.new("TextButton")
 		local btnCorner = Instance.new("UICorner")
+		local btnConn
 
 		btn.Parent = buttonHolder
 		btn.Size = UDim2.new(0, config.Mode == "YesNo" and 90 or 100, 1, 0)
@@ -1042,13 +1043,14 @@ function library:Popup(config)
 		btnCorner.CornerRadius = UDim.new(0, 4)
 		btnCorner.Parent = btn
 
-		btn.MouseButton1Click:Connect(function()
+		btnConn = btn.MouseButton1Click:Connect(function()
 			local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 			TweenService:Create(overlay, tweenInfo, {BackgroundTransparency = 1}):Play()
 			local closeTween = TweenService:Create(popupFrame, tweenInfo, {Size = UDim2.new(0, 300, 0, 0)})
 			closeTween:Play()
 			
 			closeTween.Completed:Connect(function()
+				if btnConn then btnConn:Disconnect() end
 				overlay:Destroy()
 				if callback then
 					callback()
@@ -1074,6 +1076,12 @@ end
 
 -- // Destroy Function \\ --
 function library:Destroy()
+	if library.GlobalAutoSave == true and (library.CurrentFolderName and library.CurrentConfigName) then
+		pcall(function()
+			library:SaveConfig(library.CurrentFolderName, library.CurrentConfigName)
+		end)
+	end
+	
 	if library.Connections then
 		for _, conn in ipairs(library.Connections) do
 			if typeof(conn) == "RBXScriptConnection" and conn.Connected then
@@ -1085,7 +1093,13 @@ function library:Destroy()
 
 	if TurtleUiLib then
 		pcall(function() TurtleUiLib:Destroy() end)
+		TurtleUiLib = nil
 	end
+
+	if library.ThemeObjects then table.clear(library.ThemeObjects) end
+	if library.Elements then table.clear(library.Elements) end
+	if library.Flags then table.clear(library.Flags) end
+	if library.Themes then table.clear(library.Themes) end
 
 	if getgenv().TurtleLib == library then
 		getgenv().TurtleLib = nil
@@ -1093,19 +1107,21 @@ function library:Destroy()
 end
 
 local function uiKeybind(key, ui)
-    if keybindConnection then keybindConnection:Disconnect() end
+	if keybindConnection then keybindConnection:Disconnect() end
 
-    keybindConnection = uis.InputBegan:Connect(function(input, gp)
-        if not gp and input.KeyCode == Enum.KeyCode[key] then
-            ui.Visible = not ui.Visible
-        end
-    end)
-    table.insert(library.Connections, keybindConn)
+	SafeConnect(uis.InputBegan, function(input, gp)
+		if not gp and input.KeyCode == Enum.KeyCode[key] then
+			ui.Visible = not ui.Visible
+		end
+	end)
 end
 
 local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 	keySettings = keySettings or {}
 	local fileName = keySettings.FileName or "SavedKey.txt"
+	local checkKeyBtn
+	local closeKeyWindowBtn
+	local getKeyBtn
 
 	local overlay = Create("Frame", {
 		Name = "KeyOverlay",
@@ -1143,7 +1159,10 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 		ZIndex = 2002
 	})
 
-	btnClose.MouseButton1Click:Connect(function()
+	closeKeyWindowBtn = btnClose.MouseButton1Click:Connect(function()
+		if checkKeyBtn then checkKeyBtn:Disconnect() end
+		if closeKeyWindowBtn then closeKeyWindowBtn:Disconnect() end
+		if getKeyBtn then getKeyBtn:Disconnect() end
 		overlay:Destroy()
 		if type(onCancel) == "function" then onCancel() end
 	end)
@@ -1225,7 +1244,7 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 
 	local isChecking = false
 
-	btnCheck.MouseButton1Click:Connect(function()
+	checkKeyBtn = btnCheck.MouseButton1Click:Connect(function()
 		if isChecking then return end
 		isChecking = true
 		btnCheck.Text = "Checking..."
@@ -1238,6 +1257,9 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 				if keySettings.SaveKey ~= false then
 					saveKey(folderName, fileName, input)
 				end
+				if checkKeyBtn then checkKeyBtn:Disconnect() end
+				if closeKeyWindowBtn then closeKeyWindowBtn:Disconnect() end
+				if getKeyBtn then getKeyBtn:Disconnect() end
 				overlay:Destroy()
 				onSuccess()
 			else
@@ -1257,7 +1279,7 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 		end)
 	end)
 
-	btnGetKey.MouseButton1Click:Connect(function()
+	getKeyBtn = btnGetKey.MouseButton1Click:Connect(function()
 		if keySettings.URL and setclipboard then
 			setclipboard(keySettings.URL)
 			btnGetKey.Text = "Copied to Clipboard!"
@@ -1381,7 +1403,7 @@ local function makeGroupUI(option, parentContainer)
 		arrow.Rotation = option.Open and 90 or 0
 		arrow.Parent = headerGroup
 
-		headerGroup.MouseButton1Click:Connect(function()
+		SafeConnect(headerGroup.MouseButton1Click, function()
 			option.Open = not option.Open
 			contentHolder.Visible = option.Open
 			arrow.Rotation = option.Open and 90 or 0
@@ -1510,7 +1532,7 @@ function makeButton(option, parent)
 
 	attachLockSystem(option, btnFrame, option)
 
-	Button.MouseButton1Click:Connect(function()
+	SafeConnect(Button.MouseButton1Click, function()
 		if option:_isLocked() then
 			return
 		end
@@ -1650,7 +1672,7 @@ function makeToggle(option, parent)
 		ToggleTitle.Text = tostring(newTitle)
 	end
 
-	ToggleButton.MouseButton1Click:Connect(function()
+	SafeConnect(ToggleButton.MouseButton1Click, function()
 		if option.IsLocked then
 			library:Notification({
 				Title = "Access denied",
@@ -1667,7 +1689,7 @@ function makeToggle(option, parent)
 	if typeof(option.Loop) == "boolean" and option.Loop == true then
 		local lastTick = 0
 
-		game:GetService("RunService").Heartbeat:Connect(function()
+		local conn = game:GetService("RunService").Heartbeat:Connect(function()
 			if option.Default then
 				if os.clock() - lastTick >= option.Delay then
 					lastTick = os.clock()
@@ -1679,6 +1701,7 @@ function makeToggle(option, parent)
 				lastTick = 0
 			end
 		end)
+		GiveSignal(conn)
 	end
 	
 	if type(option.Default) == "boolean" and option.Default then
@@ -1760,7 +1783,7 @@ function makeBox(option, parent)
 		BoxTitle.Text = tostring(newTitle)
 	end
 
-	TextBox.FocusLost:Connect(function()
+	SafeConnect(TextBox.FocusLost, function()
 		option:SetValue(TextBox.Text)
 	end)
 
@@ -1873,7 +1896,7 @@ function makeSlider(option, parent)
 	Current.ZIndex = 12 + zindex
 	Current.ClearTextOnFocus = false
 
-	Current.FocusLost:Connect(function(enterPressed)
+	SafeCallback(Current.FocusLost, function(enterPressed)
 		local inputNum = tonumber(Current.Text)
 		if inputNum then
 			local finalVal = updateSliderFromValue(inputNum)
@@ -1934,6 +1957,7 @@ local function makeDropdown(option, parentContainer)
 	local selectedItems = {}
 	local selectedSingle = nil
 	local itemButtons = {}
+	local itemConns = {}
 
 	if option.MultiSelect and type(option.Default) == "table" then
 		for _, val in ipairs(option.Default) do
@@ -2149,7 +2173,7 @@ local function makeDropdown(option, parentContainer)
 			itemBtn.BackgroundColor3 = library.Themes[library.SelectedTheme].DropdownOptionSelect
 		end
 
-		itemBtn.MouseButton1Click:Connect(function()
+		local conne = itemBtn.MouseButton1Click:Connect(function()
 			if option.MultiSelect then
 				selectedItems[name] = not selectedItems[name]
 				itemBtn.BackgroundColor3 = selectedItems[name] and library.Themes[library.SelectedTheme].DropdownOptionSelect or Color3.fromRGB(53, 59, 72)
@@ -2184,6 +2208,7 @@ local function makeDropdown(option, parentContainer)
 				end
 			end
 		end)
+		itemConns[name] = conne
 	end
 
 	local function addPlaceholder(labelText)
@@ -2205,6 +2230,11 @@ local function makeDropdown(option, parentContainer)
 
 	function option:Refresh(newItems)
 		option.Items = newItems or {}
+		
+		for _, conn in ipairs(itemConns) do
+			if conn.Connected then conn:Disconnect() end
+		end
+		table.clear(itemConns)
 		table.clear(itemButtons)
 
 		for _, child in ipairs(DropdownFrame:GetChildren()) do
@@ -2281,7 +2311,7 @@ local function makeDropdown(option, parentContainer)
 
 	table.insert(dropdowns, option)
 
-	Dropdown.MouseButton1Click:Connect(function()
+	SafeConnect(Dropdown.MouseButton1Click, function()
 		if DropdownFrame.Visible or (dragDropFrame and dragDropFrame.Visible) then
 			option:Close()
 		else
@@ -2569,7 +2599,7 @@ local function makeColorPicker(option, parentContainer)
 				local rainbowColor = Color3.fromHSV(hue2, 1, 1)
 				ColorPicker.BackgroundColor3 = rainbowColor
 				setRGBText(rainbowColor)
-				option.Callback(rainbowColor)
+				option:SetValue(rainbowColor)
 			else
 				stopRainbow()
 			end
@@ -2581,7 +2611,7 @@ local function makeColorPicker(option, parentContainer)
 		startRainbow()
 	end
 
-	Canvas.InputBegan:Connect(function(input)
+	SafeConnect(Canvas.InputBegan, function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			if activeInteraction ~= nil then return end
 			activeInteraction = Canvas
@@ -2599,7 +2629,7 @@ local function makeColorPicker(option, parentContainer)
 				Cursor.Position = UDim2.fromOffset(relX * Canvas.AbsoluteSize.X - 4, relY * Canvas.AbsoluteSize.Y - 4)
 				ColorPicker.BackgroundColor3 = color3
 				setRGBText(color3)
-				option.Callback(color3)
+				option:SetValue(color3)
 			end
 
 			updateCanvas(input)
@@ -2620,7 +2650,7 @@ local function makeColorPicker(option, parentContainer)
 		end
 	end)
 
-	Color.InputBegan:Connect(function(input)
+	SafeConnect(Color.InputBegan, function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			if activeInteraction ~= nil then return end
 			activeInteraction = Color
@@ -2641,7 +2671,7 @@ local function makeColorPicker(option, parentContainer)
 				local color3 = Color3.fromHSV(hue, sat, brightness)
 				ColorPicker.BackgroundColor3 = color3
 				setRGBText(color3)
-				option.Callback(color3)
+				option:SetValue(color3)
 			end
 
 			updateHue(input)
@@ -2680,14 +2710,14 @@ local function makeColorPicker(option, parentContainer)
 		ColorPicker.BackgroundColor3 = newColor
 
 		setRGBText(newColor)
-		option.Callback(newColor)
+		option:SetValue(newColor)
 	end
 
 	RInput.FocusLost:Connect(updateFromRGB)
 	GInput.FocusLost:Connect(updateFromRGB)
 	BInput.FocusLost:Connect(updateFromRGB)
 
-	ToggleRGB.MouseButton1Down:Connect(function()
+	SafeConnect(ToggleRGB.MouseButton1Down, function()
 		ToggleFiller_2.Visible = not ToggleFiller_2.Visible
 		if ToggleFiller_2.Visible then
 			startRainbow()
@@ -2758,7 +2788,7 @@ local function makeColorPicker(option, parentContainer)
 		table.insert(colorPickers, option)
 	end
 
-	ColorPicker.MouseButton1Click:Connect(function()
+	SafeConnect(ColorPicker.MouseButton1Click, function()
 		if ColorPickerFrame.Visible then
 			option:Close()
 		else
@@ -2923,6 +2953,11 @@ function library:CreateWindow(WinConfig)
 	WinConfig.TabPosition = WinConfig.TabPosition or "Top"
 	WinConfig.ContentFillDirection = WinConfig.ContentFillDirection or "Vertical"
 	WinConfig.HeaderIcon = WinConfig.HeaderIcon or ""
+	WinConfig.IsDebugMode = WinConfig.IsDebugMode or true
+	
+	if WinConfig.IsDebugMode ~= nil and WinConfig.IsDebugMode then
+		library.IsDebug = WinConfig.IsDebugMode
+	end
 	
 	local configSettings = WinConfig.ConfigurationSaving or {}
 	local folderName = configSettings.FolderName or "TurtleUI_Settings"
@@ -2930,6 +2965,8 @@ function library:CreateWindow(WinConfig)
 	local defaultFileName = (configSettings.FileName and configSettings.FileName ~= "") 
 		and configSettings.FileName 
 		or tostring(game.GameId)
+	CurrentConfigName = defaultFileName
+	CurrentFolderName = folderName
 	
 	if WinConfig.KeySystem and WinConfig.KeySettings then
 		local keySettings = WinConfig.KeySettings
@@ -3204,7 +3241,7 @@ function library:CreateWindow(WinConfig)
         	AutomaticSize = Enum.AutomaticSize.X,
         	Parent = TurtleUiLib,
 			Size = UDim2.new(0.1, 0, 0, 40),
-			Position = UDim2.new(0.5, 0, 0, 5),
+			Position = UDim2.new(0.5, 0, 0.1, 0),
 			BackgroundTransparency = 0.05,
         	Visible = false
 		})
@@ -3647,7 +3684,7 @@ function library:CreateWindow(WinConfig)
 		return tab
 	end
 	
-	if configSettings.Enabled then
+	if configSettings.Enabled and (configSettings.AutoLoadConfig and configSettings.AutoLoadConfig ~= nil) then
 		task.defer(function()
 			pcall(function()
 				library:LoadConfig(folderName, defaultFileName)
@@ -3660,13 +3697,15 @@ function library:CreateWindow(WinConfig)
 		end)
 	end
 
-	if configSettings.Enabled and configSettings.AutoSave then
+	if configSettings.Enabled and (configSettings.AutoSave and configSettings.AutoSave ~= nil) then
 		if not window._autoSaveConnected then
 			window._autoSaveConnected = true
+			library.GlobalAutoSave = true
 			game:GetService("Players").LocalPlayer.AncestryChanged:Connect(function(_, parent)
 				if not parent then
 					pcall(function()
 						library:SaveConfig(folderName, defaultFileName)
+						warn("_autoSaveConnected | configuration saved")
 					end)
 				end
 			end)
