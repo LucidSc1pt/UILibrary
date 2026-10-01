@@ -978,9 +978,9 @@ function library:Toast(ToastConfig)
 		options = { Text = ToastConfig }
 	end
 
-	local text = ToastConfig.Title or "Notification"
-	local icon = ToastConfig.Icon or ""
-	local duration = ToastConfig.Duration or 2.5
+	local text = (ToastConfig.Title or ToastConfig.Text or ToastConfig.Name) or "Notification"
+	local icon = (ToastConfig.Icon or ToastConfig.Image) or ""
+	local duration = (ToastConfig.Time or ToastConfig.Duration) or 2.5
 	local isDismissed = false
 
 	local container = getToastContainer()
@@ -1074,11 +1074,14 @@ function library:Toast(ToastConfig)
 		local tweenOut = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 		
 		TweenService:Create(stroke, tweenOut, { Transparency = 1 }):Play()
-		TweenService:Create(iconLabel, tweenOut, { ImageTransparency = 1 }):Play()
+		if iconLabel then
+			TweenService:Create(iconLabel, tweenOut, { ImageTransparency = 1 }):Play()
+		end
 		TweenService:Create(textLabel, tweenOut, { TextTransparency = 1 }):Play()
 		
 		local fadeOut = TweenService:Create(toastFrame, tweenOut, { BackgroundTransparency = 1 })
 		fadeOut:Play()
+		TweenService:Create(toastFrame, tweenOut, { Size = UDim2.new(0,0,0,0) }):Play()
 		
 		fadeOut.Completed:Connect(function()
 			toastFrame:Destroy()
@@ -1088,7 +1091,9 @@ function library:Toast(ToastConfig)
 	local tweenIn = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 	TweenService:Create(toastFrame, tweenIn, { BackgroundTransparency = 0.15 }):Play()
 	TweenService:Create(stroke, tweenIn, { Transparency = 0.4 }):Play()
-	TweenService:Create(iconLabel, tweenIn, { ImageTransparency = 0 }):Play()
+	if iconLabel then
+		TweenService:Create(iconLabel, tweenIn, { ImageTransparency = 0 }):Play()
+	end
 	TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
 
 	toastbtnFrame.MouseButton1Click:Connect(DismissNotification)
@@ -1230,13 +1235,19 @@ end
 -- // Destroy Function \\ --
 function library:Destroy()
 	if library.GlobalAutoSave == true and library.OpenWindows then
-		for _, windowData in ipairs(library.OpenWindows) do
+		for i, windowData in ipairs(library.OpenWindows) do
 			if windowData.FolderName then
 				pcall(function()
 					library:SaveConfig(windowData.FolderName, windowData.ConfigName)
+					library:Notification({
+						Title = "Wait, Saved " .. windowData.ConfigName .. " for Window " .. i .. "...",
+						Icon = "cloud",
+						Time = 3
+					})
 				end)
 			end
 		end
+		task.wait(3)
 	end
 
 	if library.Connections then
