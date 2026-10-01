@@ -805,7 +805,7 @@ function library:Notification(NotificationConfig)
 
 		local NotificationParent = Create("Frame", {
 			Size = UDim2.new(1, 0, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.None,
+			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
 			ZIndex = 15 + zindex,
@@ -972,7 +972,7 @@ function library:Notification(NotificationConfig)
 			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
 			NotificationFrame:Destroy()
 
-			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 				Size = UDim2.new(1, 0, 0, 0)
 			})
 			shrinkTween:Play()
@@ -1031,7 +1031,7 @@ function library:Toast(ToastConfig)
 	local toastFrame = Create("Frame", {
 		Parent = container,
 		Size = UDim2.fromOffset(0, 40),
-		AutomaticSize = Enum.AutomaticSize.None,
+		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundColor3 = Color3.fromRGB(18, 18, 22),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
