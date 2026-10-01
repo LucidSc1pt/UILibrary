@@ -787,11 +787,11 @@ ListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
 function library:Notification(NotificationConfig)
 	task.spawn(function()
 		NotificationConfig = NotificationConfig or {}
-		NotificationConfig.Title = NotificationConfig.Title or "Notification"
-		NotificationConfig.Content = NotificationConfig.Content or "Hello World"
-		NotificationConfig.Image = NotificationConfig.Image or 4384403532
+		NotificationConfig.Title = (NotificationConfig.Title or NotificationConfig.Name or NotificationConfig.Text) or "Notification"
+		NotificationConfig.Content = (NotificationConfig.Content or NotificationConfig.Desc or NotificationConfig.Description) or "Hello World"
+		NotificationConfig.Image = (NotificationConfig.Image or NotificationConfig.Icon) or 4384403532
 		NotificationConfig.Type = NotificationConfig.Type or "info"
-		NotificationConfig.Time = NotificationConfig.Time or 5
+		NotificationConfig.Time = (NotificationConfig.Time or NotificationConfig.Duration) or 5
 		
 		local accentColors = {
 			Info = Color3.fromRGB(52, 152, 219),
@@ -807,7 +807,7 @@ function library:Notification(NotificationConfig)
 			Size = UDim2.new(1, 0, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
-			ClipsDescendants = false,
+			ClipsDescendants = true,
 			ZIndex = 15 + zindex,
 			Parent = NotificationHolder
 		})
@@ -970,7 +970,7 @@ function library:Notification(NotificationConfig)
 
 			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
-			NotificationFrame:Destroy()
+			--NotificationFrame:Destroy()
 
 			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 				Size = UDim2.new(1, 0, 0, 0)
