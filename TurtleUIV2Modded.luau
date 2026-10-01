@@ -1074,8 +1074,8 @@ function library:Toast(ToastConfig)
 	})
 
 	local iconLabel = Create("ImageLabel", {
-		AnchorPoint = Vector2.new(0,0.5)
-		Position = UDim2.new(0,0,0.5,0)
+		AnchorPoint = Vector2.new(0,0.5),
+		Position = UDim2.new(0,0,0.5,0), -- brooo im stupid not adding the comas
 		Size = UDim2.new(0, 16, 0, 16),
 		BackgroundTransparency = 1,
 		ImageColor3 = Color3.fromRGB(240, 240, 240),
