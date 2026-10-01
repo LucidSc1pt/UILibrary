@@ -1039,7 +1039,7 @@ function library:Toast(ToastConfig)
 		Parent = toastbtnFrame
 	})
 
-	if icon and (icon ~= "" or icon ~= nil) then
+	if icon and (icon ~= "" and icon ~= nil) then
 		if typeof(icon) == "string" and Icons then
 			local asset = getIcon(icon)
 			iconLabel.Image = "rbxassetid://" .. asset.id
