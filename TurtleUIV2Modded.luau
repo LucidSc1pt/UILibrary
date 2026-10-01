@@ -968,11 +968,11 @@ function library:Notification(NotificationConfig)
 
 			task.wait(0.3)
 
-			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
+			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 			NotificationFrame:Destroy()
 
-			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 				Size = UDim2.new(1, 0, 0, 0)
 			})
 			shrinkTween:Play()
@@ -1116,6 +1116,9 @@ function library:Toast(ToastConfig)
 			TweenService:Create(iconLabel, tweenOut, { ImageTransparency = 1 }):Play()
 		end
 		TweenService:Create(textLabel, tweenOut, { TextTransparency = 1 }):Play()
+		
+		toastFrame.Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40)
+		toastFrame.AutomaticSize = Enum.AutomaticSize.None
 		
 		local fadeOut = TweenService:Create(toastFrame, tweenOut, { BackgroundTransparency = 1 })
 		TweenService:Create(toastFrame, tweenOut, { Size = UDim2.new(0,0,0,0) }):Play()
