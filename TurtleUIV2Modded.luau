@@ -933,9 +933,9 @@ function library:Notification(NotificationConfig)
 				Size = UDim2.new(1, 0, 0, 0)
 			})
 			shrinkTween:Play()
-			shrinkTween.Completed:Wait()
-
-			NotificationParent:Destroy()
+			shrinkTween.Completed:Connect(function()
+				NotificationParent:Destroy()
+			end)
 		end
 
 		closeNotifButton.MouseButton1Click:Connect(DismissNotification)
@@ -1080,9 +1080,9 @@ function library:Toast(ToastConfig)
 		TweenService:Create(textLabel, tweenOut, { TextTransparency = 1 }):Play()
 		
 		local fadeOut = TweenService:Create(toastFrame, tweenOut, { BackgroundTransparency = 1 })
-		fadeOut:Play()
 		TweenService:Create(toastFrame, tweenOut, { Size = UDim2.new(0,0,0,0) }):Play()
-		
+		fadeOut:Play()
+
 		fadeOut.Completed:Connect(function()
 			toastFrame:Destroy()
 		end)
@@ -1239,7 +1239,7 @@ function library:Destroy()
 			if windowData.FolderName then
 				pcall(function()
 					library:SaveConfig(windowData.FolderName, windowData.ConfigName)
-					library:Notification({
+					library:Toast({
 						Title = "Wait, Saved " .. windowData.ConfigName .. " for Window " .. i .. "...",
 						Icon = "cloud",
 						Time = 3
