@@ -141,15 +141,14 @@ function Lerp(a, b, c)
 	return a + ((b - a) * c)
 end
 
-local Icons
-
-local Success, Response = pcall(function()
-	Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/refs/heads/main/icons.lua"))()
-end)
-
-if not Success then
-	warn("\nFailed to load Feather Icons. Error code: " .. Response .. "\n")
-end
+local IconPacks = {
+	lucide = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/refs/heads/main/icons.lua"))(),
+	solar = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/solar/dist/Icons.lua"))(),
+	craft = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/craft/dist/Icons.lua"))(),
+	geist = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/geist/dist/Icons.lua"))(),
+	sfsymbols = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/sfsymbols/dist/Icons.lua"))(),
+	gravity = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/Icons/refs/heads/main/gravity/dist/Icons.lua"))()
+}
 
 --[[===========================
 		local function var()
@@ -245,47 +244,98 @@ local API_VALIDATORS = {
 	end
 }
 
-local function getIcon(name : string): {id: number, imageRectSize: Vector2, imageRectOffset: Vector2}
-	if not Icons then
-		warn("Lucide Icons: Cannot use icons as icons library is not loaded")
-		return
-	end
-	name = string.match(string.lower(name), "^%s*(.*)%s*$") :: string
-	local sizedicons = Icons['48px']
-	local r = sizedicons[name]
-	if not r then
-		error(`Lucide Icons: Failed to find icon by the name of "{name}"`, 2)
-	end
+local function parseUniversalIcon(raw)
+	if not raw then return nil end
 
-	local rirs = r[2]
-	local riro = r[3]
-
-	if type(r[1]) ~= "number" or type(rirs) ~= "table" or type(riro) ~= "table" then
-		error("Lucide Icons: Internal error: Invalid auto-generated asset entry")
-	end
-
-	local irs = Vector2.new(rirs[1], rirs[2])
-	local iro = Vector2.new(riro[1], riro[2])
-
-	local asset = {
-		id = r[1],
-		imageRectSize = irs,
-		imageRectOffset = iro,
+	local result = {
+		Image = "",
+		RectSize = Vector2.zero,
+		RectOffset = Vector2.zero
 	}
 
-	return asset
+	if type(raw) == "number" then
+		result.Image = "rbxassetid://" .. raw
+		return result
+	end
+
+	if type(raw) == "string" then
+		if string.sub(raw, 1, 13) == "rbxassetid://" or string.find(raw, "://") then
+			result.Image = raw
+			return result
+		elseif tonumber(raw) then
+			result.Image = "rbxassetid://" .. raw
+			return result
+		end
+	end
+
+	if type(raw) == "table" then
+		local img = raw.Image or raw.image or raw.id or raw.Id or raw.Asset or raw.asset or raw.url or raw[1]
+		if type(img) == "number" then
+			result.Image = "rbxassetid://" .. img
+		elseif type(img) == "string" then
+			result.Image = (string.sub(img, 1, 13) == "rbxassetid://" or string.find(img, "://")) and img or ("rbxassetid://" .. img)
+		end
+
+		local size = raw.ImageRectSize or raw.imageRectSize or raw.Size or raw.size or raw[2]
+		if typeof(size) == "Vector2" then
+			result.RectSize = size
+		elseif type(size) == "table" then
+			result.RectSize = Vector2.new(size[1] or size.X or size.x or 0, size[2] or size.Y or size.y or 0)
+		end
+
+		local offset = raw.ImageRectOffset or raw.imageRectOffset or raw.Offset or raw.offset or raw[3]
+		if typeof(offset) == "Vector2" then
+			result.RectOffset = offset
+		elseif type(offset) == "table" then
+			result.RectOffset = Vector2.new(offset[1] or offset.X or offset.x or 0, offset[2] or offset.Y or offset.y or 0)
+		end
+
+		return (result.Image ~= "") and result or nil
+	end
+
+	return nil
 end
 
-local function getAssetUri(id: any): string
-	local assetUri = "rbxassetid://0" -- Default to empty image
-	if type(id) == "number" then
-		assetUri = "rbxassetid://" .. id
-	elseif type(id) == "string" and not Icons then
-		warn("Cannot use Lucide icons as icons library is not loaded")
-	else
-		warn("The icon argument must either be an icon ID (number) or a Lucide icon name (string)")
+local function getIconData(input)
+	if not input then return nil end
+
+	local directParsed = parseUniversalIcon(input)
+	if directParsed then return directParsed end
+
+	if type(input) ~= "string" or input == "" then return nil end
+
+	local packName, iconName = string.match(input, "^(%w+):(.+)$")
+	if not packName then
+		packName = "lucide"
+		iconName = input
 	end
-	return assetUri
+
+	packName = string.lower(packName)
+	iconName = string.match(string.lower(iconName), "^%s*(.*)%s*$")
+
+	local selectedPack = IconPacks[packName]
+	if not selectedPack then return nil end
+
+	local sizedIcons = selectedPack['48px'] or selectedPack['24px'] or selectedPack
+	local rawIcon = sizedIcons[iconName]
+
+	if not rawIcon and type(selectedPack.Get) == "function" then
+		rawIcon = selectedPack:Get(iconName)
+	end
+
+	return parseUniversalIcon(rawIcon)
+end
+
+local function applyIcon(imageInstance, iconInput)
+	local data = getIconData(iconInput)
+	if not data then 
+		imageInstance.Image = ""
+		return 
+	end
+
+	imageInstance.Image = data.Image
+	imageInstance.ImageRectSize = data.RectSize     -- Jika bukan spritesheet, nilainya Vector2(0,0)
+	imageInstance.ImageRectOffset = data.RectOffset -- Jika bukan spritesheet, nilainya Vector2(0,0)
 end
 
 local function MakeDraggable(DragPoint, Main)
@@ -755,7 +805,7 @@ function library:Notification(NotificationConfig)
 
 		local NotificationParent = Create("Frame", {
 			Size = UDim2.new(1, 0, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
+			AutomaticSize = Enum.AutomaticSize.None,
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
 			ZIndex = 15 + zindex,
@@ -796,7 +846,7 @@ function library:Notification(NotificationConfig)
 		closeNotifButton.Parent = NotificationFrame
 
 		local contentHolder = Create("Frame", {
-			Size = UDim2.new(1, 0, 1, -5),
+			Size = UDim2.new(1, 0, 1, 0),
 			BackgroundTransparency = 1,
 			Parent = NotificationFrame
 		})
@@ -848,15 +898,8 @@ function library:Notification(NotificationConfig)
 		Title.Text = NotificationConfig.Title
 		Title.LayoutOrder = 2
 
-		if NotificationConfig.Image then
-			if typeof(NotificationConfig.Image) == "string" and Icons then
-				local asset = getIcon(NotificationConfig.Image)
-				Icon.Image = "rbxassetid://" .. asset.id
-				Icon.ImageRectOffset = asset.imageRectOffset
-				Icon.ImageRectSize = asset.imageRectSize
-			else
-				Icon.Image = getAssetUri(NotificationConfig.Image)
-			end
+		if NotificationConfig.Image and (NotificationConfig.Image ~= nil and NotificationConfig.Image ~= "") then
+			applyIcon(Icon, NotificationConfig.Image)
 		else
 			Icon:Destroy()
 			Title.Size = UDim2.new(1, 0, 0, 0)
@@ -987,8 +1030,8 @@ function library:Toast(ToastConfig)
 
 	local toastFrame = Create("Frame", {
 		Parent = container,
-		Size = UDim2.fromOffset(0, 30),
-		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 40),
+		AutomaticSize = Enum.AutomaticSize.None,
 		BackgroundColor3 = Color3.fromRGB(18, 18, 22),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
@@ -1024,13 +1067,15 @@ function library:Toast(ToastConfig)
 
 	Create("UIListLayout", {
 		Parent = toastbtnFrame,
-		FillDirection = Enum.FillDirection.Vertical,
+		FillDirection = Enum.FillDirection.Horizontal,
 		VerticalAlignment = Enum.VerticalAlignment.Center,
 		HorizontalAlignment = Enum.HorizontalAlignment.Left,
 		Padding = UDim.new(0, 2)
 	})
 
 	local iconLabel = Create("ImageLabel", {
+		AnchorPoint = Vector2.new(0,0.5)
+		Position = UDim2.new(0,0,0.5,0)
 		Size = UDim2.new(0, 16, 0, 16),
 		BackgroundTransparency = 1,
 		ImageColor3 = Color3.fromRGB(240, 240, 240),
@@ -1040,14 +1085,7 @@ function library:Toast(ToastConfig)
 	})
 
 	if icon and (icon ~= "" and icon ~= nil) then
-		if typeof(icon) == "string" and Icons then
-			local asset = getIcon(icon)
-			iconLabel.Image = "rbxassetid://" .. asset.id
-			iconLabel.ImageRectOffset = asset.imageRectOffset
-			iconLabel.ImageRectSize = asset.imageRectSize
-		else
-			iconLabel.Image = getAssetUri(icon.Image)
-		end
+		applyIcon(iconLabel, icon)
 	else
 		iconLabel:Destroy()
 	end
@@ -1055,7 +1093,7 @@ function library:Toast(ToastConfig)
 	local textLabel = Create("TextLabel", {
 		LayoutOrder = 2,
 		Parent = toastbtnFrame,
-		Size = UDim2.new(0, 0, 1, 0),
+		Size = UDim2.new(0, -16, 1, 0),
 		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundTransparency = 1,
 		Text = text,
@@ -1512,15 +1550,8 @@ local function makeGroupUI(option, parentContainer)
 		Parent = headerGroupHolder
 	})
 
-	if option.Icon and option.Icon ~= nil and option.Icon ~= "" then
-		if typeof(option.Icon) == "string" and Icons then
-			local asset = getIcon(option.Icon)
-			Iccon.Image = "rbxassetid://" .. asset.id
-			Iccon.ImageRectOffset = asset.imageRectOffset
-			Iccon.ImageRectSize = asset.imageRectSize
-		else
-			Iccon.Image = getAssetUri(option.Icon)
-		end
+	if option.Icon and (option.Icon ~= nil and option.Icon ~= "") then
+		applyIcon(Iccon, option.Icon)
 	else
 		Iccon:Destroy()
 	end
@@ -3261,15 +3292,8 @@ function library:CreateWindow(WinConfig)
 	})
 	AddThemeObject(HeaderIconLabel, "HeaderText", "ImageColor3")
 
-	if WinConfig.HeaderIcon and WinConfig.HeaderIcon ~= nil and WinConfig.HeaderIcon ~= "" then
-		if typeof(WinConfig.HeaderIcon) == "string" and Icons then
-			local asset = getIcon(WinConfig.HeaderIcon)
-			HeaderIconLabel.Image = "rbxassetid://" .. asset.id
-			HeaderIconLabel.ImageRectOffset = asset.imageRectOffset
-			HeaderIconLabel.ImageRectSize = asset.imageRectSize
-		else
-			HeaderIconLabel.Image = getAssetUri(WinConfig.HeaderIcon)
-		end
+	if WinConfig.HeaderIcon and (WinConfig.HeaderIcon ~= nil and WinConfig.HeaderIcon ~= "") then
+		applyIcon(HeaderIconLabel, WinConfig.HeaderIcon)
 	else
 		HeaderIconLabel:Destroy()
 	end
@@ -3620,15 +3644,8 @@ function library:CreateWindow(WinConfig)
 			Parent = BagdeFrame
 		})
 
-		if BadgeConfig.Icon and BadgeConfig.Icon ~= nil and BadgeConfig.Icon ~= "" then
-			if typeof(BadgeConfig.Icon) == "string" and Icons then
-				local asset = getIcon(BadgeConfig.Icon)
-				Iccon.Image = "rbxassetid://" .. asset.id
-				Iccon.ImageRectOffset = asset.imageRectOffset
-				Iccon.ImageRectSize = asset.imageRectSize
-			else
-				Iccon.Image = getAssetUri(BadgeConfig.Icon)
-			end
+		if BadgeConfig.Icon and (BadgeConfig.Icon ~= nil and BadgeConfig.Icon ~= "") then
+			applyIcon(Iccon, BadgeConfig.Icon)
 		else
 			Iccon:Destroy()
 		end
@@ -3757,15 +3774,8 @@ function library:CreateWindow(WinConfig)
 			Parent = tabButton
 		})
 
-		if TabConfig.Icon and TabConfig.Icon ~= nil and TabConfig.Icon ~= "" then
-			if typeof(TabConfig.Icon) == "string" and Icons then
-				local asset = getIcon(TabConfig.Icon)
-				Iccon.Image = "rbxassetid://" .. asset.id
-				Iccon.ImageRectOffset = asset.imageRectOffset
-				Iccon.ImageRectSize = asset.imageRectSize
-			else
-				Iccon.Image = getAssetUri(TabConfig.Icon)
-			end
+		if TabConfig.Icon and (TabConfig.Icon ~= nil and TabConfig.Icon ~= "") then
+			applyIcon(Iccon, TabConfig.Icon)
 		else
 			Iccon:Destroy()
 		end
