@@ -973,7 +973,7 @@ function library:Notification(NotificationConfig)
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 			--NotificationFrame:Destroy()
 
-			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
 				Size = UDim2.new(1, 0, 0, 0)
 			})
 			shrinkTween:Play()
