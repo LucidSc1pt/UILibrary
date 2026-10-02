@@ -971,9 +971,8 @@ function library:Notification(NotificationConfig)
 			task.wait(0.3)
 
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
-			--NotificationFrame:Destroy()
 
-			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
 				Size = UDim2.new(1, 0, 0, 0)
 			})
 			shrinkTween:Play()
@@ -1246,7 +1245,7 @@ function library:Popup(config)
 		btnConn = btn.MouseButton1Click:Connect(function()
 			local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 			TweenService:Create(overlay, tweenInfo, {BackgroundTransparency = 1}):Play()
-			local closeTween = TweenService:Create(popupFrame, tweenInfo, {Size = UDim2.new(0, 300, 0, 0)})
+			local closeTween = TweenService:Create(popupFrame, tweenInfo, {Size = UDim2.new(0, 0, 0, 0)})
 			closeTween:Play()
 			
 			closeTween.Completed:Connect(function()
@@ -1311,6 +1310,7 @@ function library:Destroy()
 	if library.Flags then table.clear(library.Flags) end
 	if library.OpenWindows then table.clear(library.OpenWindows) end
 	if library.Themes then table.clear(library.Themes) end
+	if IconPacks then table.clear(IconPacks) end
 
 	if getgenv().TurtleLib == library then
 		getgenv().TurtleLib = nil
@@ -2333,8 +2333,8 @@ local function makeDropdown(option, parentContainer)
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
 
 		local inset = GuiService:GetGuiInset()
-		local targetX = Dropdown.AbsolutePosition.X - inset.X - 10
-		local targetY = Dropdown.AbsolutePosition.Y - inset.Y + Dropdown.AbsoluteSize.Y + 4
+		local targetX = Dropdown.AbsolutePosition.X - 10
+		local targetY = Dropdown.AbsolutePosition.Y
 
 		if option.Floating and dragDropFrame then
 			local camSize = workspace.CurrentCamera.ViewportSize
