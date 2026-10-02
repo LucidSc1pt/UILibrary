@@ -1288,7 +1288,7 @@ function library:Destroy()
 				end)
 			end
 		end
-		task.wait(3)
+		task.wait(5)
 	end
 
 	if library.Connections then
@@ -2930,7 +2930,12 @@ local function makeColorPicker(option, parentContainer)
 		end
 	end)
 
+	attachLockSystem(option, droFrame, option)
+
 	function option:SetValue(color)
+		if option:_isLocked() then
+			return
+		end
 		if type(color) == "userdata" then
 			ToggleFiller_2.Visible = false
 			stopRainbow()
@@ -3358,8 +3363,9 @@ function library:CreateWindow(WinConfig)
 	})
 	AddThemeObject(SubHeaderText, "SubHeaderText", "TextColor3")
 
-	if not WinConfig.SubTitle or WinConfig.SubTitle == nil then
+	if not WinConfig.SubTitle and (WinConfig.SubTitle == nil and WinConfig.SubTitle == "") then
 		HeaderText.Size = UDim2.new(1,0,1,0)
+		SubHeaderText:Destroy()
 	end
 
 	MakeDraggable(Header, UiWindow)
