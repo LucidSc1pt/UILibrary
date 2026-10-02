@@ -966,9 +966,10 @@ function library:Notification(NotificationConfig)
 				TweenService:Create(Icon, TweenInfo.new(0.3), {ImageTransparency = 1}):Play()
 			end
 
+			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
+
 			task.wait(0.3)
 
-			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 			--NotificationFrame:Destroy()
 
