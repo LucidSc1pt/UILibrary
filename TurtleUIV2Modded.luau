@@ -2316,7 +2316,7 @@ local function makeDropdown(option, parentContainer)
 
 	function option:Close()
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
-		if dragDropFrame then
+			if dragDropFrame then
 			dragDropFrame.Visible = false
 		end
 		DropdownFrame.Visible = false
@@ -2333,11 +2333,22 @@ local function makeDropdown(option, parentContainer)
 
 		local targetFrame = (option.Floating and dragDropFrame) or DropdownFrame
 
+		targetFrame.AnchorPoint = Vector2.new(0, 0)
+
 		local dropPos = Dropdown.AbsolutePosition
 		local dropSize = Dropdown.AbsoluteSize
 
-		local targetX = dropPos.X
-		local targetY = dropPos.Y + dropSize.Y + 4
+		local targetX, targetY
+
+		if targetFrame.Parent == TurtleUiLib then
+			targetX = dropPos.X
+			targetY = dropPos.Y + dropSize.Y + 4
+			DropdownFrame = true
+		else
+			local parentPos = targetFrame.Parent.AbsolutePosition
+			targetX = dropPos.X - parentPos.X
+			targetY = (dropPos.Y + dropSize.Y + 4) - parentPos.Y
+		end
 
 		targetFrame.Visible = true
 
@@ -2347,12 +2358,11 @@ local function makeDropdown(option, parentContainer)
 
 			targetX = math.clamp(targetX, 5, math.max(5, camSize.X - frameSize.X - 5))
 			targetY = math.clamp(targetY, 5, math.max(5, camSize.Y - frameSize.Y - 5))
-
-			dragDropFrame.Position = UDim2.fromOffset(targetX, targetY)
-		else
-			DropdownFrame.Position = UDim2.fromOffset(targetX, targetY)
 		end
+
+		targetFrame.Position = UDim2.fromOffset(targetX, targetY)
 	end
+
 
 	local function createItemButton(name)
 		local name = tostring(name or "")
