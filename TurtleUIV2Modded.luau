@@ -2332,18 +2332,20 @@ local function makeDropdown(option, parentContainer)
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
 
 		if option.Floating and dragDropFrame then
-			local dropPos = Dropdown.AbsolutePosition
-			local camSize = workspace.CurrentCamera.ViewportSize
-
-			local targetX = dropPos.X
-			local targetY = dropPos.Y
-
-			targetX = math.clamp(targetX, 5, math.max(5, camSize.X - dragDropFrame.AbsoluteSize.X - 5))
-			targetY = math.clamp(targetY, 5, math.max(5, camSize.Y - dragDropFrame.AbsoluteSize.Y - 5))
-
-			dragDropFrame.Position = UDim2.fromOffset(targetX, targetY)
 			dragDropFrame.Visible = true
 			DropdownFrame.Visible = true
+
+			task.defer(function()
+				if not Dropdown or not dragDropFrame then return end
+
+				local dropAbs = Dropdown.AbsolutePosition
+				local parentAbs = dragDropFrame.Parent.AbsolutePosition
+
+				local targetX = dropAbs.X - parentAbs.X
+				local targetY = dropAbs.Y - parentAbs.Y
+
+				dragDropFrame.Position = UDim2.fromOffset(targetX, targetY)
+			end)
 		else
 			DropdownFrame.Position = UDim2.new(0, 0, 0, 26)
 			DropdownFrame.Visible = true
