@@ -60,7 +60,6 @@ local library = {
 local CurrentFolderName = nil
 local CurrentConfigName = nil
 local windowCount = 0
-local windows = {}
 local dropdowns = {}
 local dropdownSizes = {}
 local colorPickers = {}
@@ -2332,21 +2331,26 @@ local function makeDropdown(option, parentContainer)
 
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
 
-		local inset = GuiService:GetGuiInset()
-		local targetX = Dropdown.AbsolutePosition.X - 10
-		local targetY = Dropdown.AbsolutePosition.Y
+		local targetFrame = (option.Floating and dragDropFrame) or DropdownFrame
+
+		local dropPos = Dropdown.AbsolutePosition
+		local dropSize = Dropdown.AbsoluteSize
+
+		local targetX = dropPos.X
+		local targetY = dropPos.Y + dropSize.Y + 4
+
+		targetFrame.Visible = true
 
 		if option.Floating and dragDropFrame then
 			local camSize = workspace.CurrentCamera.ViewportSize
-			targetX = math.clamp(targetX, 5, camSize.X - dragDropFrame.AbsoluteSize.X - 5)
-			targetY = math.clamp(targetY, 5, camSize.Y - dragDropFrame.AbsoluteSize.Y - 5)
+			local frameSize = dragDropFrame.AbsoluteSize
+
+			targetX = math.clamp(targetX, 5, math.max(5, camSize.X - frameSize.X - 5))
+			targetY = math.clamp(targetY, 5, math.max(5, camSize.Y - frameSize.Y - 5))
 
 			dragDropFrame.Position = UDim2.fromOffset(targetX, targetY)
-			dragDropFrame.Visible = true
-			DropdownFrame.Visible = true
 		else
 			DropdownFrame.Position = UDim2.fromOffset(targetX, targetY)
-			DropdownFrame.Visible = true
 		end
 	end
 
