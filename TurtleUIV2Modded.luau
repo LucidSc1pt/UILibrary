@@ -2332,33 +2332,23 @@ local function makeDropdown(option, parentContainer)
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
 
 		if option.Floating and dragDropFrame then
-			local dropAbsPos = Dropdown.AbsolutePosition
-			local dropAbsSize = Dropdown.AbsoluteSize
-			local parentAbsPos = droFrame.AbsolutePosition
-
-			local targetX = dropAbsPos.X - parentAbsPos.X
-			local targetY = (dropAbsPos.Y + dropAbsSize.Y + 4) - parentAbsPos.Y
-		
+			local dropPos = Dropdown.AbsolutePosition
 			local camSize = workspace.CurrentCamera.ViewportSize
-			local frameSize = dragDropFrame.AbsoluteSize
 
-			local minX = 5 - parentAbsPos.X
-			local minY = 5 - parentAbsPos.Y
-			local maxX = (camSize.X - frameSize.X - 5) - parentAbsPos.X
-			local maxY = (camSize.Y - frameSize.Y - 5) - parentAbsPos.Y
+			local targetX = dropPos.X
+			local targetY = dropPos.Y
 
-			targetX = math.clamp(targetX, minX, math.max(minX, maxX))
-			targetY = math.clamp(targetY, minY, math.max(minY, maxY))
+			targetX = math.clamp(targetX, 5, math.max(5, camSize.X - dragDropFrame.AbsoluteSize.X - 5))
+			targetY = math.clamp(targetY, 5, math.max(5, camSize.Y - dragDropFrame.AbsoluteSize.Y - 5))
 
 			dragDropFrame.Position = UDim2.fromOffset(targetX, targetY)
 			dragDropFrame.Visible = true
 			DropdownFrame.Visible = true
 		else
-			DropdownFrame.Position = UDim2.fromOffset(0, 0)
+			DropdownFrame.Position = UDim2.new(0, 0, 0, 26)
 			DropdownFrame.Visible = true
 		end
 	end
-
 
 	local function createItemButton(name)
 		local name = tostring(name or "")
