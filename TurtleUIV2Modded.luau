@@ -2331,36 +2331,32 @@ local function makeDropdown(option, parentContainer)
 
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
 
-		local targetFrame = (option.Floating and dragDropFrame) or DropdownFrame
-
-		targetFrame.AnchorPoint = Vector2.new(0, 0)
-
-		local dropPos = Dropdown.AbsolutePosition
-		local dropSize = Dropdown.AbsoluteSize
-
-		local targetX, targetY
-
-		if targetFrame.Parent == TurtleUiLib then
-			targetX = dropPos.X
-			targetY = dropPos.Y + dropSize.Y + 4
-			DropdownFrame.Visible = true
-		else
-			local parentPos = targetFrame.Parent.AbsolutePosition
-			targetX = dropPos.X - parentPos.X
-			targetY = (dropPos.Y + dropSize.Y + 4) - parentPos.Y
-		end
-
-		targetFrame.Visible = true
-
 		if option.Floating and dragDropFrame then
+			local dropAbsPos = Dropdown.AbsolutePosition
+			local dropAbsSize = Dropdown.AbsoluteSize
+			local parentAbsPos = droFrame.AbsolutePosition
+
+			local targetX = dropAbsPos.X - parentAbsPos.X
+			local targetY = (dropAbsPos.Y + dropAbsSize.Y + 4) - parentAbsPos.Y
+		
 			local camSize = workspace.CurrentCamera.ViewportSize
 			local frameSize = dragDropFrame.AbsoluteSize
 
-			targetX = math.clamp(targetX, 5, math.max(5, camSize.X - frameSize.X - 5))
-			targetY = math.clamp(targetY, 5, math.max(5, camSize.Y - frameSize.Y - 5))
-		end
+			local minX = 5 - parentAbsPos.X
+			local minY = 5 - parentAbsPos.Y
+			local maxX = (camSize.X - frameSize.X - 5) - parentAbsPos.X
+			local maxY = (camSize.Y - frameSize.Y - 5) - parentAbsPos.Y
 
-		targetFrame.Position = UDim2.fromOffset(targetX, targetY)
+			targetX = math.clamp(targetX, minX, math.max(minX, maxX))
+			targetY = math.clamp(targetY, minY, math.max(minY, maxY))
+
+			dragDropFrame.Position = UDim2.fromOffset(targetX, targetY)
+			dragDropFrame.Visible = true
+			DropdownFrame.Visible = true
+		else
+			DropdownFrame.Position = UDim2.fromOffset(0, 0)
+			DropdownFrame.Visible = true
+		end
 	end
 
 
