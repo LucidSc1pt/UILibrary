@@ -767,21 +767,30 @@ local keybindConnection
 -- // ⚠️ Function ⚠️ \\ --
 
 -- // Notification Function \\ --
-local NotificationHolder = Instance.new("Frame")
-NotificationHolder.Name = "NotificationHolder"
-NotificationHolder.Size = UDim2.new(0, 280, 1, -25)
-NotificationHolder.Position = UDim2.new(1, -25, 1, -25)
-NotificationHolder.AnchorPoint = Vector2.new(1, 1)
-NotificationHolder.BackgroundTransparency = 1
-NotificationHolder.Parent = TurtleUiLib
-NotificationHolder.ZIndex = 15 + zindex
+local function getNotificationContainer()
+	local container = TurtleUiLib:FindFirstChild("NotificationHolder")
+	if not container then
+		container = Create("Frame", {
+			Name = "NotificationHolder",
+			Parent = TurtleUiLib,
+			AnchorPoint = Vector2.new(1, 1),
+			Position = UDim2.new(1, -25, 1, -25),
+			Size = UDim2.new(0, 280, 1, -25),
+			BackgroundTransparency = 1,
+			ClipsDescendants = false,
+			ZIndex = 15 + zindex
+		})
 
-local ListLayout = Instance.new("UIListLayout")
-ListLayout.Parent = NotificationHolder
-ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ListLayout.Padding = UDim.new(0, 5)
-ListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-ListLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+		Create("UIListLayout", {
+			Parent = container,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Bottom,
+			Padding = UDim.new(0, 5)
+		})
+	end
+	return container
+end
 
 function library:Notification(NotificationConfig)
 	task.spawn(function()
@@ -791,6 +800,8 @@ function library:Notification(NotificationConfig)
 		NotificationConfig.Image = (NotificationConfig.Image or NotificationConfig.Icon) or 4384403532
 		NotificationConfig.Type = NotificationConfig.Type or "info"
 		NotificationConfig.Time = (NotificationConfig.Time or NotificationConfig.Duration) or 5
+		
+		local NotificationHolder = getNotificationContainer()
 		
 		local accentColors = {
 			Info = Color3.fromRGB(52, 152, 219),
@@ -807,7 +818,6 @@ function library:Notification(NotificationConfig)
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
 			ClipsDescendants = true,
-			ZIndex = 15 + zindex,
 			Parent = NotificationHolder
 		})
 
