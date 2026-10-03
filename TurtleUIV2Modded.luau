@@ -2316,7 +2316,7 @@ local function makeDropdown(option, parentContainer)
 
 	function option:Close()
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
-			if dragDropFrame then
+		if dragDropFrame then
 			dragDropFrame.Visible = false
 		end
 		DropdownFrame.Visible = false
@@ -2343,7 +2343,7 @@ local function makeDropdown(option, parentContainer)
 		if targetFrame.Parent == TurtleUiLib then
 			targetX = dropPos.X
 			targetY = dropPos.Y + dropSize.Y + 4
-			DropdownFrame = true
+			DropdownFrame.Visible = true
 		else
 			local parentPos = targetFrame.Parent.AbsolutePosition
 			targetX = dropPos.X - parentPos.X
