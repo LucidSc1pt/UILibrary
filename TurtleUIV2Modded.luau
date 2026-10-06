@@ -458,7 +458,12 @@ local function execCallback(callback, itemConfig, ...)
 		end, ...)
 
 		if not success then
-			warn("[TurtleUI SafeCallback Error on " .. itemConfig.Title .. "]:\n" .. tostring(err))
+			local elementName = "Unknown Element"
+			if type(itemConfig) == "table" then
+				elementName = itemConfig.Title or itemConfig.Name or itemConfig.Text or "Element"
+			end
+
+			warn("[TurtleUI SafeCallback Error on " .. tostring(elementName) .. "]:\n" .. tostring(err))
 			return false
 		end
 		return true
@@ -2006,7 +2011,7 @@ function makeBox(option, parent)
 		end
 
 		if type(self.Callback) == "function" then
-			execCallback(self.Callback, self, (value, true))
+			execCallback(self.Callback, self, value, true)
 		end
 		
 		if TextBox then
