@@ -1786,7 +1786,7 @@ function makeButton(option, parent)
 		execCallback(option.Callback, option)
 	end)
 
-	option.Instance = btnFrame
+	option.Instance = btnFrameParent
 	return option
 end
 
@@ -1841,7 +1841,7 @@ function makeLabel(option, parent)
 		Label.TextColor3 = option.Color
 	end
 	
-	option.Instance = Label
+	option.Instance = labelFrameParent
 	return option
 end
 
@@ -1969,7 +1969,7 @@ function makeToggle(option, parent)
 		end)
 	end
 	
-	option.Instance = togFrame
+	option.Instance = togFrameParent
 	return option
 end
 
@@ -2060,7 +2060,7 @@ function makeBox(option, parent)
 		option:SetValue(TextBox.Text)
 	end)
 
-	option.Instance = boxFrame
+	option.Instance = boxFrameParent
 	return option
 end
 
@@ -2236,7 +2236,7 @@ function makeSlider(option, parent)
 		Description.Text = tostring(newTitle)
 	end
 	
-	option.Instance = sliFrame
+	option.Instance = sliFrameParent
 	return option
 end
 
@@ -2627,7 +2627,7 @@ local function makeDropdown(option, parentContainer)
 		end
 	end)
 
-	option.Instance = droFrame
+	option.Instance = droFrameParent
 	return option
 end
 
@@ -2906,6 +2906,9 @@ local function makeColorPicker(option, parentContainer)
 		BInput.Text = tostring(math.round(color.B * 255))
 	end
 
+	local defaultColor = option.Default or Color3.fromRGB(255, 0, 0)
+	local hue, sat, brightness = Color3.toHSV(defaultColor)
+
 	ColorPicker.BackgroundColor3 = defaultColor
 	setRGBText(defaultColor)
 
@@ -2919,9 +2922,24 @@ local function makeColorPicker(option, parentContainer)
 		end
 	end
 
-	local function updateVisuals(color, isFromRainbow)
-		local h, s, v = Color3.toHSV(color)
-		hue, sat, brightness = h, s, v
+	local function updatePicker(h, s, v, skipRainbowStop, triggerCallback)
+		if option:_isLocked() then return end
+
+		if not skipRainbowStop then
+			ToggleFiller_2.Visible = false
+			stopRainbow()
+		end
+
+		hue = h
+		sat = s
+		brightness = v
+
+		local color = Color3.fromHSV(hue, sat, brightness)
+
+		option.Value = color
+		if option.Flag and library and library.Flags then
+			library.Flags[option.Flag] = color
+		end
 
 		CanvasGradient.Color = ColorSequence.new{
 			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
@@ -2934,7 +2952,7 @@ local function makeColorPicker(option, parentContainer)
 		ColorPicker.BackgroundColor3 = color
 		setRGBText(color)
 
-		if not isFromRainbow then
+		if triggerCallback ~= false then
 			execCallback(option.Callback, option, color)
 		end
 	end
@@ -2944,8 +2962,7 @@ local function makeColorPicker(option, parentContainer)
 		con = stepService:Connect(function()
 			if ToggleFiller_2.Visible then
 				local hue2 = (tick() % 5) / 5
-				local rainbowColor = Color3.fromHSV(hue2, 1, 1)
-				option:SetValue(rainbowColor, true)
+				updatePicker(hue2, 1, 1, true, true)
 			else
 				stopRainbow()
 			end
@@ -2969,8 +2986,7 @@ local function makeColorPicker(option, parentContainer)
 				local relX = math.clamp((inputObj.Position.X - Canvas.AbsolutePosition.X) / Canvas.AbsoluteSize.X, 0, 1)
 				local relY = math.clamp((inputObj.Position.Y - Canvas.AbsolutePosition.Y) / Canvas.AbsoluteSize.Y, 0, 1)
 
-				local color3 = Color3.fromHSV(hue, relX, 1 - relY)
-				option:SetValue(color3)
+				updatePicker(hue, relX, 1 - relY, false, true)
 			end
 
 			updateCanvas(input)
@@ -3002,8 +3018,7 @@ local function makeColorPicker(option, parentContainer)
 				if Color.AbsoluteSize.Y == 0 then return end
 				local relY = math.clamp((inputObj.Position.Y - Color.AbsolutePosition.Y) / Color.AbsoluteSize.Y, 0, 1)
 
-				local color3 = Color3.fromHSV(relY, sat, brightness)
-				option:SetValue(color3)
+				updatePicker(relY, sat, brightness, false, true)
 			end
 
 			updateHue(input)
@@ -3029,7 +3044,9 @@ local function makeColorPicker(option, parentContainer)
 		local g = math.clamp(tonumber(GInput.Text) or 0, 0, 255)
 		local b = math.clamp(tonumber(BInput.Text) or 0, 0, 255)
 
-		option:SetValue(Color3.fromRGB(r, g, b))
+		local newColor = Color3.fromRGB(r, g, b)
+		local h, s, v = Color3.toHSV(newColor)
+		updatePicker(h, s, v, false, true)
 	end
 
 	RInput.FocusLost:Connect(updateFromRGB)
@@ -3037,7 +3054,12 @@ local function makeColorPicker(option, parentContainer)
 	BInput.FocusLost:Connect(updateFromRGB)
 
 	SafeConnect(ToggleRGB.MouseButton1Down, function()
-		option:SetValue(not ToggleFiller_2.Visible)
+		ToggleFiller_2.Visible = not ToggleFiller_2.Visible
+		if ToggleFiller_2.Visible then
+			startRainbow()
+		else
+			stopRainbow()
+		end
 	end)
 
 	SafeConnect(ColorPickerFrame.AncestryChanged, function(_, parent)
@@ -3052,31 +3074,8 @@ local function makeColorPicker(option, parentContainer)
 		if option:_isLocked() then return end
 
 		if typeof(color) == "Color3" then
-			if not skipRainbowStop then
-				ToggleFiller_2.Visible = false
-				stopRainbow()
-			end
-
-			option.Value = color
-			if option.Flag and library and library.Flags then
-				library.Flags[option.Flag] = color
-			end
-
 			local h, s, v = Color3.toHSV(color)
-			hue, sat, brightness = h, s, v
-
-			CanvasGradient.Color = ColorSequence.new{
-				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-				ColorSequenceKeypoint.new(1.00, Color3.fromHSV(hue, 1, 1))
-			}
-
-			Cursor.Position = UDim2.new(sat, 0, 1 - brightness, 0)
-			ColorSlider.Position = UDim2.new(0, -1, hue, 0)
-
-			ColorPicker.BackgroundColor3 = color
-			setRGBText(color)
-
-			execCallback(option.Callback, option, color)
+			updatePicker(h, s, v, skipRainbowStop, true)
 		elseif type(color) == "boolean" then
 			ToggleFiller_2.Visible = color
 			if color then
@@ -3129,7 +3128,7 @@ local function makeColorPicker(option, parentContainer)
 		end
 	end)
 
-	option.Instance = colFrame
+	option.Instance = colFrameParent
 	return option
 end
 
