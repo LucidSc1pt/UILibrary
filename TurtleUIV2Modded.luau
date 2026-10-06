@@ -3136,7 +3136,7 @@ end
 local function makeElementDivider(option, parentContainer)
 	local divFrameParent = Create("Frame", {
 		Parent = parentContainer,
-		Size = UDim2.new(1,0,0,2)
+		Size = UDim2.new(1,0,0,2),
 		BackgroundTransparency = 1,
 		Name = "_Div_",
 		AutomaticSize = Enum.AutomaticSize.Y,
