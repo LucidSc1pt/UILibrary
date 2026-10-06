@@ -192,7 +192,11 @@ end
 local API_VALIDATORS = {
 	["luarmor"] = function(key, cfg, hwid)
 		local scriptId = cfg.ScriptId or cfg.ServiceId or ""
-		local url = string.format("https://api.luarmor.net/v3/projects/%s/keys/%s", scriptId, HttpService:UrlEncode(key))
+		local url = string.format(
+			"https://api.luarmor.net/v3/projects/%s/keys/%s",
+			scriptId,
+			HttpService:UrlEncode(key)
+		)
 		
 		local success, res = pcall(function() return game:HttpGet(url) end)
 		if not success or not res then return false, "NETWORK_ERROR" end
@@ -437,15 +441,15 @@ local function AddThemeObject(Object, ThemeKey, SpecificProperty)
 
 	return Object
 end
---[[ Useless for now
-local function execCallback(callback, winConfig, itemConfig, ...)
+-- testing...
+local function execCallback(callback, itemConfig, ...)
 	if type(callback) ~= "function" then return true end
 
 	local isSafe = true
-	if itemConfig and itemConfig.SafeCallback ~= nil then
+	if itemConfig and (typeof(itemConfig.SafeCallback) == "boolean" and itemConfig.SafeCallback ~= nil) then
 		isSafe = itemConfig.SafeCallback
-	elseif winConfig and winConfig.SafeCallback ~= nil then
-		isSafe = winConfig.SafeCallback
+	elseif library and library.IsDebug ~= nil then
+		isSafe = library.IsDebug
 	end
 
 	if isSafe then
@@ -454,7 +458,7 @@ local function execCallback(callback, winConfig, itemConfig, ...)
 		end, ...)
 
 		if not success then
-			warn("[TurtleUI SafeCallback Error]:\n" .. tostring(err))
+			warn("[TurtleUI SafeCallback Error on " .. itemConfig.Title .. "]:\n" .. tostring(err))
 			return false
 		end
 		return true
@@ -463,7 +467,7 @@ local function execCallback(callback, winConfig, itemConfig, ...)
 		return true
 	end
 end
-]]
+
 local function attachLockSystem(controller, targetFrame, initialConfig)
 	initialConfig = initialConfig or {}
 	local lockOverlay = nil
@@ -534,7 +538,7 @@ local function attachLockSystem(controller, targetFrame, initialConfig)
 	end
 
 	if initialConfig.Locked then
-		controller:Lock(initialConfig.LockText or "🔒 Premium")
+		controller:Lock((initialConfig.LockText or initialConfig.LockTitle or initialConfig.LockName) or "🔒 Premium")
 	end
 
 	return controller
@@ -778,7 +782,7 @@ local function getNotificationContainer()
 			Size = UDim2.new(0, 280, 1, -25),
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
-			ZIndex = 15 + zindex
+			ZIndex = 99999999999999
 		})
 
 		Create("UIListLayout", {
@@ -825,9 +829,14 @@ function library:Notification(NotificationConfig)
 			Size = UDim2.new(1, 0, 0, 0),
 			Position = UDim2.new(1, 50, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+			BackgroundColor3 = library["Themes"]["Default"].WindowBackground,
 			BackgroundTransparency = 0,
 			Parent = NotificationParent
+		})
+
+		Create("UICorner", {
+			CornerRadius = UDim.new(1, 0),
+			Parent = NotificationFrame
 		})
 
 		local NotificationFrame_Stroke = Create("UIStroke", {
@@ -1011,7 +1020,7 @@ local function getToastContainer()
 			Size = UDim2.new(0, 500, 1, -18),
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
-			ZIndex = 15 + zindex
+			ZIndex = 99999999999999
 		})
 
 		Create("UIListLayout", {
@@ -1039,10 +1048,10 @@ function library:Toast(ToastConfig)
 
 	local toastFrame = Create("Frame", {
 		Parent = container,
-		Size = UDim2.fromOffset(0, 40),
+		Size = UDim2.fromOffset(0, 0),
 		AutomaticSize = Enum.AutomaticSize.X,
-		BackgroundColor3 = Color3.fromRGB(18, 18, 22),
-		BackgroundTransparency = 1,
+		BackgroundColor3 = library["Themes"]["Default"].WindowBackground,
+		BackgroundTransparency = 0,
 		BorderSizePixel = 0,
 		ClipsDescendants = true
 	})
@@ -1145,7 +1154,13 @@ function library:Toast(ToastConfig)
 		TweenService:Create(iconLabel, tweenIn, { ImageTransparency = 0 }):Play()
 	end
 	TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
-
+	local SizeIn = TweenService:Create(textLabel, tweenIn, { Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40) })
+	SizeIn:Play()
+	SizeIn.Completed:Connect(function()
+		toastFrame.Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40)
+		toastFrame.AutomaticSize = Enum.AutomaticSize.None
+	end)
+	
 	toastbtnFrame.MouseButton1Click:Connect(DismissNotification)
 
 	task.delay(duration, function()
@@ -1261,7 +1276,7 @@ function library:Popup(config)
 				if btnConn then btnConn:Disconnect() end
 				overlay:Destroy()
 				if callback then
-					callback()
+					execCallback(callback, config)
 				end
 			end)
 		end)
@@ -1297,7 +1312,7 @@ function library:Destroy()
 				end)
 			end
 		end
-		task.wait(5)
+		task.wait(4)
 	end
 
 	if library.Connections then
@@ -1349,7 +1364,7 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundColor3 = Color3.fromRGB(10, 10, 12),
 		BackgroundTransparency = 0.2,
-		ZIndex = 2000
+		ZIndex = 16 + zindex
 	})
 
 	local keyFrame = Create("Frame", {
@@ -1358,12 +1373,12 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0.5, 0),
 		Size = UDim2.new(0, 340, 0, 210),
-		BackgroundColor3 = Color3.fromRGB(28, 31, 36),
+		BackgroundColor3 = library["Themes"]["Default"].WindowBackground,
 		ZIndex = 2001
 	})
 
 	Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = keyFrame })
-	Create("UIStroke", { Color = Color3.fromRGB(60, 65, 75), Thickness = 1, Parent = keyFrame })
+	Create("UIStroke", { Color = library["Themes"]["Default"].WindowBorder, Thickness = 1, Parent = keyFrame })
 
 	local btnClose = Create("TextButton", {
 		Name = "CloseButton",
@@ -1594,13 +1609,13 @@ local function makeGroupUI(option, parentContainer)
 	local contentLayout = Instance.new("UIListLayout")
 	contentLayout.FillDirection = Enum.FillDirection.Vertical
 	contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	contentLayout.Padding = UDim.new(0, 6)
+	contentLayout.Padding = UDim.new(0, 5)
 	contentLayout.Parent = contentHolder
 
 	local contentPadding = Instance.new("UIPadding")
-	contentPadding.PaddingLeft = UDim.new(0, 8)
-	contentPadding.PaddingRight = UDim.new(0, 8)
-	contentPadding.PaddingBottom = UDim.new(0, 8)
+	contentPadding.PaddingLeft = UDim.new(0, 5)
+	contentPadding.PaddingRight = UDim.new(0, 5)
+	contentPadding.PaddingBottom = UDim.new(0, 5)
 	contentPadding.Parent = contentHolder
 
 	if option.Collapsible then
@@ -1703,6 +1718,12 @@ function makeButton(option, parent)
 		Name = "_ButtonHolder_"
 	})
 
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5),
+		Parent = btnFrame
+	})
+
 	local Button = Create("TextButton", {
 		AnchorPoint = Vector2.new(0,0.5),
 		Parent = btnFrame,
@@ -1749,7 +1770,7 @@ function makeButton(option, parent)
 		if option:_isLocked() then
 			return
 		end
-		option.Callback()
+		execCallback(option.Callback, option)
 	end)
 
 	option.Instance = btnFrame
@@ -1812,6 +1833,12 @@ function makeToggle(option, parent)
 		Name = "_ToggleHolder_"
 	})
 
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5),
+		Parent = togFrame
+	})
+
 	local ToggleTitle = Create("TextLabel", {
 		AnchorPoint = Vector2.new(0,0.5),
 		Name = "ToggleTitle",
@@ -1872,7 +1899,7 @@ function makeToggle(option, parent)
 		end
 
 		if not self.Loop and type(self.Callback) == "function" then
-			self.Callback(state)
+			execCallback(self.Callback, self, state)
 		end
 
 		if ToggleFiller then 
@@ -1886,16 +1913,6 @@ function makeToggle(option, parent)
 	end
 
 	SafeConnect(ToggleButton.MouseButton1Click, function()
-		if option.IsLocked then
-			library:Notification({
-				Title = "Access denied",
-				Content = "This Toggle is currently locked!",
-				Type = "Error",
-				Duration = 2
-			})
-			return
-		end
-		
 		option:SetValue(not option.Default)
 	end)
 
@@ -1907,7 +1924,7 @@ function makeToggle(option, parent)
 				if os.clock() - lastTick >= option.Delay then
 					lastTick = os.clock()
 					task.spawn(function()
-						option.Callback(option.Default)
+						option:SetValue(option.Default)
 					end)
 				end
 			else
@@ -1934,6 +1951,12 @@ function makeBox(option, parent)
 		BackgroundTransparency = 1,
 		Name = "_BoxHolder_",
 		ZIndex = 12 + zindex
+	})
+
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5),
+		Parent = boxFrame
 	})
 
 	local TextBox = Create("TextBox", {
@@ -1983,7 +2006,7 @@ function makeBox(option, parent)
 		end
 
 		if type(self.Callback) == "function" then
-			self.Callback(value, true)
+			execCallback(self.Callback, self, (value, true))
 		end
 		
 		if TextBox then
@@ -2013,6 +2036,12 @@ function makeSlider(option, parent)
 	sliFrame.Size = UDim2.new(1, 0, 0, 60)
 	sliFrame.BackgroundTransparency = 1
 	sliFrame.Name = "_SliderHolder_"
+
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5),
+		Parent = sliFrame
+	})
 
 	local Slider = Instance.new("Frame")
 	local SliderButton = Instance.new("Frame")
@@ -2152,7 +2181,7 @@ function makeSlider(option, parent)
 
 		updateSliderFromValue(value)
 		if type(self.Callback) == "function" then
-			self.Callback(value)
+			execCallback(self.Callback, self, value)
 		end
 	end
 
@@ -2194,6 +2223,12 @@ local function makeDropdown(option, parentContainer)
 	droLayout.Padding = UDim.new(0, 5)
 	droLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	droLayout.Parent = droFrame
+
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5),
+		Parent = droFrame
+	})
 
 	local Dropdown = Instance.new("TextButton")
 	Dropdown.Name = "Dropdown"
@@ -2512,10 +2547,9 @@ local function makeDropdown(option, parentContainer)
 		updateDropdownText()
 
 		if type(option.Callback) == "function" then
-			option.Callback(val)
+			execCallback(option.Callback, option, val)
 		end
 	end
-
 
 	function option:SetTitle(newTitle)
 		option.Title = newTitle
@@ -2546,6 +2580,12 @@ local function makeColorPicker(option, parentContainer)
 	colFrame.BackgroundTransparency = 1
 	colFrame.AutomaticSize = Enum.AutomaticSize.Y
 	colFrame.Name = "_ColorPickerHolder_"
+
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5),
+		Parent = colFrame
+	})
 
 	local colLayout = Instance.new("UIListLayout")
 	colLayout.FillDirection = Enum.FillDirection.Vertical
@@ -2964,7 +3004,7 @@ local function makeColorPicker(option, parentContainer)
 
 			ColorPicker.BackgroundColor3 = color
 			setRGBText(color)
-			option.Callback(color)
+			execCallback(option.Callback, option, color)
 		elseif type(color) == "boolean" then
 			ToggleFiller_2.Visible = color
 			if color then
@@ -3166,7 +3206,6 @@ function library:CreateWindow(WinConfig)
 	WinConfig.Title = WinConfig.Title or "TurtleUiLib"
 	WinConfig.SubTitle = WinConfig.SubTitle or "Ui Library V2"
 	WinConfig.Size = WinConfig.Size or UDim2.new(0,220,0,288)
-	WinConfig.MultiWindow = WinConfig.MultiWindow or true
 	WinConfig.Keybind = WinConfig.Keybind or "LeftControl"
 	WinConfig.MobileUI = WinConfig.MobileUI or false
 	WinConfig.MobileUIText = WinConfig.MobileUIText or "Show TurtleUiLib"
@@ -3175,6 +3214,10 @@ function library:CreateWindow(WinConfig)
 	WinConfig.ContentFillDirection = WinConfig.ContentFillDirection or "Vertical"
 	WinConfig.HeaderIcon = WinConfig.HeaderIcon or ""
 	WinConfig.IsDebugMode = WinConfig.IsDebugMode or true
+	
+	windowCount = windowCount + 1
+	winCount = windowCount
+	zindex = zindex * winCount
 	
 	if WinConfig.IsDebugMode ~= nil and WinConfig.IsDebugMode then
 		library.IsDebug = WinConfig.IsDebugMode
@@ -3227,22 +3270,8 @@ function library:CreateWindow(WinConfig)
 		library.SelectedTheme = WinConfig.Theme or "Default"
 	end
 
-	if WinConfig.MultiWindow then
-		windowCount = windowCount + 1
-		winCount = windowCount
-		zindex = zindex * winCount
-	else
-		if gethui then
-			for _, Interface in ipairs(gethui():GetChildren()) do
-				if Interface.Name == TurtleUiLib.Name and Interface ~= TurtleUiLib then
-					Interface:Destroy()
-				end
-			end
-		end
-	end
-
 	local UiWindow = Create("Frame", {
-		Name = "UiWindow" .. windowCount,
+		Name = "UiWindow_" .. windowCount,
 		Parent = TurtleUiLib,
 		BackgroundTransparency = 1,
 		BorderColor3 = Color3.fromRGB(0, 151, 230),
@@ -3381,7 +3410,7 @@ function library:CreateWindow(WinConfig)
 	end
 
 	MakeDraggable(Header, UiWindow)
-	
+
 	local Window = Create("Frame", {
 		Name = "Window",
 		Parent = UiWindow,
@@ -3428,105 +3457,105 @@ function library:CreateWindow(WinConfig)
 	Minimise.Parent = utilityButt
 	Minimise.BackgroundColor3 = Color3.fromRGB(0, 168, 255)
 	Minimise.BackgroundTransparency = 1
-    Minimise.BorderColor3 = Color3.fromRGB(0, 168, 255)
-    Minimise.Position = UDim2.new(0, 0, 0, 0)
-    Minimise.Size = UDim2.new(0, 22, 0, 22)
-    Minimise.ZIndex = 7 + zindex
-    Minimise.Font = Enum.Font.SourceSansBold
-    Minimise.Text = "–"
+	Minimise.BorderColor3 = Color3.fromRGB(0, 168, 255)
+	Minimise.Position = UDim2.new(0, 0, 0, 0)
+	Minimise.Size = UDim2.new(0, 22, 0, 22)
+	Minimise.ZIndex = 7 + zindex
+	Minimise.Font = Enum.Font.SourceSansBold
+	Minimise.Text = "–"
 	Minimise.TextSize = 20
-    AddThemeObject(Minimise, "HeaderText", "TextColor3")
-	
+	AddThemeObject(Minimise, "HeaderText", "TextColor3")
+
 	if UiWindow.Size.X.Offset >= 380 then
 		CloseWindowBtn = Create("ImageButton", {
 			Size = UDim2.new(0, 22, 0, 22),
 			BackgroundTransparency = 1,
-    		ZIndex = 7 + zindex,
+			ZIndex = 7 + zindex,
 			Parent = utilityButt,
 			Image = "rbxassetid://7072725342"
 		})
 		AddThemeObject(CloseWindowBtn, "HeaderText", "ImageColor3")
-	
+
 		if WinConfig.Keybind then
 			uiKeybind(WinConfig.Keybind, UiWindow)
 		end
-		
+
 		local MobileUIToggle = Create("Frame", {
-        	AnchorPoint = Vector2.new(0.5, 0.5),
-        	AutomaticSize = Enum.AutomaticSize.X,
-        	Parent = TurtleUiLib,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Parent = TurtleUiLib,
 			Size = UDim2.new(0.1, 0, 0, 40),
 			Position = UDim2.new(0.5, 0, 0.1, 0),
 			BackgroundTransparency = 0.05,
-        	Visible = false
+			Visible = false
 		})
 		AddThemeObject(MobileUIToggle, "WindowBackground", "BackgroundColor3")
-        local MobileUIButton = Create("TextButton", {
-        	Parent = MobileUIToggle,
-            AutomaticSize = Enum.AutomaticSize.X,
-            Name = "Click",
-            BackgroundTransparency = 1,
-            ZIndex = 15 + zindex,
-            Size = UDim2.new(1, 0, 1, 0)
+		local MobileUIButton = Create("TextButton", {
+			Parent = MobileUIToggle,
+			AutomaticSize = Enum.AutomaticSize.X,
+			Name = "Click",
+			BackgroundTransparency = 1,
+			ZIndex = 15 + zindex,
+			Size = UDim2.new(1, 0, 1, 0)
 		})
 		local mobilePaddingui = Create("UIPadding", {
 			Parent = MobileUIButton,
-            PaddingTop = UDim.new(0, 2),
+			PaddingTop = UDim.new(0, 2),
 			PaddingBottom = UDim.new(0, 2),
 			PaddingLeft = UDim.new(0, 8),
 			PaddingRight = UDim.new(0, 8)
 		})
 		local uiMobileDragPoint = Create("ImageLabel", {
 			Parent = MobileUIButton,
-            Name = "DragPoint",
-            Active = true,
-            BackgroundTransparency = 1,
-            AnchorPoint = Vector2.new(0, 0.5),
-		    Position = UDim2.new(0, 0, 0.5, 0),
-		    Size = UDim2.new(0, 20, 0, 20),
-		    ZIndex = 15 + zindex,
-		    Image = "rbxassetid://7072725342"
-	    })
-        local uiMobileTitle = Create("TextLabel", {
-        	Parent = MobileUIButton,
-            AnchorPoint = Vector2.new(0, 0.5),
-            AutomaticSize = Enum.AutomaticSize.X,
-		    Size = UDim2.new(0, 0, 1, 0),
-	        Position = UDim2.new(0, 25, 0.5, 0),
-	        Font = Enum.Font.GothamBlack,
-	        TextSize = 14,
-	        BackgroundTransparency = 1,
-	        ZIndex = 15 + zindex,
-	        Text = WinConfig.MobileUIText,
-	        TextSize = 14
-	    })
-	    AddThemeObject(uiMobileTitle, "NormalText", "TextColor3")
+			Name = "DragPoint",
+			Active = true,
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 0, 0.5, 0),
+			Size = UDim2.new(0, 20, 0, 20),
+			ZIndex = 15 + zindex,
+			Image = "rbxassetid://7072725342"
+		})
+		local uiMobileTitle = Create("TextLabel", {
+			Parent = MobileUIButton,
+			AnchorPoint = Vector2.new(0, 0.5),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.new(0, 0, 1, 0),
+			Position = UDim2.new(0, 25, 0.5, 0),
+			Font = Enum.Font.GothamBlack,
+			TextSize = 14,
+			BackgroundTransparency = 1,
+			ZIndex = 15 + zindex,
+			Text = WinConfig.MobileUIText,
+			TextSize = 14
+		})
+		AddThemeObject(uiMobileTitle, "NormalText", "TextColor3")
 
 		MakeDraggable(uiMobileDragPoint, MobileUIToggle)
 
-    	MobileUIButton.MouseButton1Click:Connect(function()
+		MobileUIButton.MouseButton1Click:Connect(function()
 			UiWindow.Visible = not UiWindow.Visible
-        	if WinConfig.MobileUI then
-        		MobileUIToggle.Visible = false
-        	end
-    	end)
-	
+			if WinConfig.MobileUI then
+				MobileUIToggle.Visible = false
+			end
+		end)
+
 		CloseWindowBtn.MouseButton1Click:Connect(function()
-    		UiWindow.Visible = not UiWindow.Visible
-    		if WinConfig.MobileUI then
-        		MobileUIToggle.Visible = true
-        	end
+			UiWindow.Visible = not UiWindow.Visible
+			if WinConfig.MobileUI then
+				MobileUIToggle.Visible = true
+			end
 		end)
 	end
-	
-    Minimise.MouseButton1Click:Connect(function()
-    	Window.Visible = not Window.Visible
-    	if Window.Visible then
-        	Minimise.Text = "–"
-    	else
-        	Minimise.Text = "+"
-    	end
-    end)
+
+	Minimise.MouseButton1Click:Connect(function()
+		Window.Visible = not Window.Visible
+		if Window.Visible then
+			Minimise.Text = "–"
+		else
+			Minimise.Text = "+"
+		end
+	end)
 
 	local TabHolder = Create("ScrollingFrame", {
 		Name = "TabFrame",
@@ -3553,7 +3582,7 @@ function library:CreateWindow(WinConfig)
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = TabHolder
 	})
-	
+
 	local TabHolderPadding = Create("UIPadding", {
 		PaddingRight = UDim.new(0, 5),
 		PaddingLeft = UDim.new(0, 5),
@@ -3567,7 +3596,7 @@ function library:CreateWindow(WinConfig)
 	contentArea.Position = UDim2.new(0, 0, 0, 0)
 	contentArea.Size = UDim2.new(1, 0, 1, 0)
 	contentArea.Parent = Window
-	
+
 	local WindowScroll = Create("ScrollingFrame", {
 		Name = "WindowScroll",
 		Parent = contentArea,
@@ -3617,14 +3646,14 @@ function library:CreateWindow(WinConfig)
 	}
 
 	injectElements(window, window.fastScroll)
-	
+
 	function window:AddBadge(BadgeConfig)
 		BadgeConfig = BadgeConfig or {}
 		BadgeConfig.Title = BadgeConfig.Title or "V1.0.0"
 		BadgeConfig.Color = BadgeConfig.Color or Color3.fromRGB(255,68,68)
 		BadgeConfig.TitleColor = BadgeConfig.TitleColor or Color3.fromRGB(255,255,255)
 		BadgeConfig.Icon = BadgeConfig.Icon or ""
-		
+
 		local BagdeFrame = Create("Frame", {
 			Name = BadgeConfig.Title,
 			LayoutOrder = 3,
@@ -3638,7 +3667,7 @@ function library:CreateWindow(WinConfig)
 			Visible = true,
 			Active = false
 		})
-		
+
 		local ListLayouttt = Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Left,
@@ -3740,7 +3769,7 @@ function library:CreateWindow(WinConfig)
 			window.sidebarFrame.TabHolderListLayout.FillDirection = Enum.FillDirection.Vertical
 			window.sidebarFrame.TabHolderListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 		end
-		
+
 		local tabButtonFrame = Create("Frame", {
 			Name = TabConfig.Title,
 			Parent = window.sidebarFrame,
@@ -3753,7 +3782,7 @@ function library:CreateWindow(WinConfig)
 			Visible = true,
 			Active = true
 		})
-		
+
 		local tabButton = Create("TextButton", {
 			Name = "_Button",
 			Parent = tabButtonFrame,
@@ -3768,7 +3797,7 @@ function library:CreateWindow(WinConfig)
 			Visible = true,
 			Active = false
 		})
-		
+
 		local ListLayouttt = Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Left,
@@ -3820,7 +3849,7 @@ function library:CreateWindow(WinConfig)
 		})
 		AddThemeObject(tabButtonTitle, "NormalText", "TextColor3")
 		tab.buttonInstance = tabButtonFrame
-		
+
 		local tabContainer = Create("ScrollingFrame", {
 			Name = "Content_" .. TabConfig.Title,
 			Parent = window.contentArea,
@@ -3856,7 +3885,7 @@ function library:CreateWindow(WinConfig)
 		tab.containerInstance = tabContainer
 
 		injectElements(tab, tab.containerInstance)
-		
+
 		function tab:Select()
 			for _, otherTab in ipairs(window.tabs) do
 				if otherTab.containerInstance then
@@ -3886,7 +3915,15 @@ function library:CreateWindow(WinConfig)
 
 		return tab
 	end
-	
+
+	function window:AddTabDivider(TabDivConfig)
+		-- WIP
+	end
+
+	function window:AddTabLabel(TabLabelConfig)
+		-- WIP
+	end
+
 	if configSettings.Enabled and (configSettings.AutoLoadConfig and configSettings.AutoLoadConfig ~= nil) then
 		task.defer(function()
 			pcall(function()
@@ -3914,11 +3951,10 @@ function library:CreateWindow(WinConfig)
 			end)
 		end
 	end
-	
+
 	table.insert(library.OpenWindows, window)
-	
+
 	return window
 end
-
 
 return library
