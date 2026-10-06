@@ -840,7 +840,7 @@ function library:Notification(NotificationConfig)
 		})
 
 		Create("UICorner", {
-			CornerRadius = UDim.new(1, 0),
+			CornerRadius = UDim.new(0.1, 0),
 			Parent = NotificationFrame
 		})
 
@@ -1715,12 +1715,20 @@ local function makeGridUI(option, parentContainer)
 end
 
 function makeButton(option, parent)
-	local btnFrame = Create("Frame", {
+	local btnFrameParent = Create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
 		ZIndex = 12 + zindex,
 		Name = "_ButtonHolder_"
+	})
+
+	local btnFrame = Create("Frame", {
+		Parent = btnFrameParent,
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		ZIndex = 12 + zindex,
+		Name = ""
 	})
 
 	Create("UIPadding", {
@@ -1769,7 +1777,7 @@ function makeButton(option, parent)
 		ButtonTitle.Text = tostring(newTitle)
 	end
 
-	attachLockSystem(option, btnFrame, option)
+	attachLockSystem(option, btnFrameParent, option)
 
 	SafeConnect(Button.MouseButton1Click, function()
 		if option:_isLocked() then
@@ -1783,12 +1791,20 @@ function makeButton(option, parent)
 end
 
 function makeLabel(option, parent)
-	local labelFrame = Create("Frame", {
+	local labelFrameParent = Create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 28),
 		BackgroundTransparency = 1,
 		ZIndex = 12 + zindex,
 		Name = "_LabelHolder_"
+	})
+
+	local labelFrame = Create("Frame", {
+		Parent = labelFrameParent,
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		ZIndex = 12 + zindex,
+		Name = ""
 	})
 
 	local Label = Create("TextLabel", {
@@ -1830,12 +1846,20 @@ function makeLabel(option, parent)
 end
 
 function makeToggle(option, parent)
-	local togFrame = Create("Frame", {
+	local togFrameParent = Create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
 		ZIndex = 12 + zindex,
 		Name = "_ToggleHolder_"
+	})
+
+	local togFrame = Create("Frame", {
+		Parent = togFrameParent,
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		ZIndex = 12 + zindex,
+		Name = ""
 	})
 
 	Create("UIPadding", {
@@ -1892,7 +1916,7 @@ function makeToggle(option, parent)
 		Position = UDim2.fromScale(0.5,0.5)
 	})
 
-	attachLockSystem(option, togFrame, option)
+	attachLockSystem(option, togFrameParent, option)
 
 	function option:SetValue(state)
 		if option:_isLocked() then
@@ -1950,11 +1974,19 @@ function makeToggle(option, parent)
 end
 
 function makeBox(option, parent)
-	local boxFrame = Create("Frame", {
+	local boxFrameParent = Create("Frame", {
 		Parent = parent,
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
 		Name = "_BoxHolder_",
+		ZIndex = 12 + zindex
+	})
+
+	local boxFrame = Create("Frame", {
+		Parent = boxFrameParent,
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		Name = "",
 		ZIndex = 12 + zindex
 	})
 
@@ -1997,7 +2029,7 @@ function makeBox(option, parent)
 		Active = false
 	})
 
-	attachLockSystem(option, boxFrame, option)
+	attachLockSystem(option, boxFrameParent, option)
 
 	local LastText = ""
 	
@@ -2036,11 +2068,21 @@ function makeSlider(option, parent)
 	local offset = 70
 	local defaultAlpha = (option.Default - option.Min) / (option.Max - option.Min)
 
-	local sliFrame = Instance.new("Frame")
-	sliFrame.Parent = parent
-	sliFrame.Size = UDim2.new(1, 0, 0, 60)
-	sliFrame.BackgroundTransparency = 1
-	sliFrame.Name = "_SliderHolder_"
+	local sliFrameParent = Create("Frame", {
+		Parent = parent,
+		Size = UDim2.new(1, 0, 0, 60),
+		BackgroundTransparency = 1,
+		Name = "_SliderHolder_",
+		ZIndex = 12 + zindex
+	})
+
+	local sliFrame = Create("Frame", {
+		Parent = sliFrameParent,
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		Name = "",
+		ZIndex = 12 + zindex
+	})
 
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 5),
@@ -2130,11 +2172,11 @@ function makeSlider(option, parent)
 
 	Current.AnchorPoint = Vector2.new(1,0)
 	Current.Name = "Current"
-	Current.Parent = Slider
+	Current.Parent = sliFrame
 	Current.BackgroundColor3 = Color3.fromRGB(35, 40, 48)
 	Current.BackgroundTransparency = 1
 	Current.BorderColor3 = Color3.fromRGB(113, 128, 147)
-	Current.Position = UDim2.new(1, 0, 0, -33)
+	Current.Position = UDim2.new(1, 0, 0, 0)
 	Current.Size = UDim2.new(0, 45, 0, 20)
 	Current.Font = Enum.Font.SourceSans
 	Current.Text = tostring(option.Default)
@@ -2155,10 +2197,10 @@ function makeSlider(option, parent)
 
 	Description.AnchorPoint = Vector2.new(0, 0)
 	Description.Name = "Description"
-	Description.Parent = Slider
+	Description.Parent = sliFrame
 	Description.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	Description.BackgroundTransparency = 1.000
-	Description.Position = UDim2.new(0, 0, 0, -35)
+	Description.Position = UDim2.new(0, 0, 0, 0)
 	Description.Size = UDim2.new(0, 180, 0, 21)
 	Description.Font = Enum.Font.SourceSans
 	Description.Text = option.Title
@@ -2173,7 +2215,7 @@ function makeSlider(option, parent)
 	SilderFiller.Size = UDim2.new(defaultAlpha, 0, 1, 0)
 	SilderFiller.ZIndex = 12 + zindex
 
-	attachLockSystem(option, sliFrame, option)
+	attachLockSystem(option, sliFrameParent, option)
 
 	function option:SetValue(value)
 		if option:_isLocked() then
@@ -2214,12 +2256,23 @@ local function makeDropdown(option, parentContainer)
 		selectedSingle = option.Default
 	end
 
-	local droFrame = Instance.new("Frame")
-	droFrame.Name = "_DropdownHolder"
-	droFrame.Size = UDim2.new(1, 0, 0, 32)
-	droFrame.BackgroundTransparency = 1
-	droFrame.AutomaticSize = Enum.AutomaticSize.Y
-	droFrame.Parent = contentParent
+	local droFrameParent = Create("Frame", {
+		Parent = parent,
+		Size = UDim2.new(1, 0, 0, 32),
+		BackgroundTransparency = 1,
+		Name = "_DropdownHolder_",
+		AutomaticSize = Enum.AutomaticSize.Y,
+		ZIndex = 12 + zindex
+	})
+
+	local droFrame = Create("Frame", {
+		Parent = droFrameParent,
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		Name = "",
+		AutomaticSize = Enum.AutomaticSize.Y,
+		ZIndex = 12 + zindex
+	})
 
 	local droLayout = Instance.new("UIListLayout")
 	droLayout.FillDirection = Enum.FillDirection.Vertical
@@ -2482,7 +2535,7 @@ local function makeDropdown(option, parentContainer)
 		PlaceholderLabel.Parent = DropdownFrame
 	end
 
-	attachLockSystem(option, droFrame, option)
+	attachLockSystem(option, droFrameParent, option)
 
 	function option:Refresh(newItems)
 		option.Items = newItems or {}
@@ -2579,12 +2632,23 @@ local function makeDropdown(option, parentContainer)
 end
 
 local function makeColorPicker(option, parentContainer)
-	local colFrame = Instance.new("Frame")
-	colFrame.Parent = parentContainer
-	colFrame.Size = UDim2.new(1, 0, 0, 32)
-	colFrame.BackgroundTransparency = 1
-	colFrame.AutomaticSize = Enum.AutomaticSize.Y
-	colFrame.Name = "_ColorPickerHolder_"
+	local colFrameParent = Create("Frame", {
+		Parent = parentContainer,
+		Size = UDim2.new(1, 0, 0, 32),
+		BackgroundTransparency = 1,
+		Name = "_ColorPickerHolder_",
+		AutomaticSize = Enum.AutomaticSize.Y,
+		ZIndex = 12 + zindex
+	})
+
+	local colFrame = Create("Frame", {
+		Parent = colFrameParent,
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+		Name = "",
+		AutomaticSize = Enum.AutomaticSize.Y,
+		ZIndex = 12 + zindex
+	})
 
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 5),
@@ -2807,6 +2871,9 @@ local function makeColorPicker(option, parentContainer)
 	Cursor.Position = UDim2.new(sat, -4, 1 - brightness, -4)
 	ColorSlider.Position = UDim2.new(0, -1, hue, 0)
 
+	Cursor.AnchorPoint = Vector2.new(0.5, 0.5)
+	ColorSlider.AnchorPoint = Vector2.new(0, 0.5)
+
 	local function createRGBBox(name, xOffset, defaultText)
 		local box = Instance.new("TextBox")
 		box.Name = name
@@ -2842,7 +2909,7 @@ local function makeColorPicker(option, parentContainer)
 	ColorPicker.BackgroundColor3 = defaultColor
 	setRGBText(defaultColor)
 
-	local con
+	local con = nil
 	local stepService = game:GetService("RunService").RenderStepped
 
 	local function stopRainbow()
@@ -2852,15 +2919,33 @@ local function makeColorPicker(option, parentContainer)
 		end
 	end
 
+	local function updateVisuals(color, isFromRainbow)
+		local h, s, v = Color3.toHSV(color)
+		hue, sat, brightness = h, s, v
+
+		CanvasGradient.Color = ColorSequence.new{
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromHSV(hue, 1, 1))
+		}
+
+		Cursor.Position = UDim2.new(sat, 0, 1 - brightness, 0)
+		ColorSlider.Position = UDim2.new(0, -1, hue, 0)
+
+		ColorPicker.BackgroundColor3 = color
+		setRGBText(color)
+
+		if not isFromRainbow then
+			execCallback(option.Callback, option, color)
+		end
+	end
+
 	local function startRainbow()
 		stopRainbow()
 		con = stepService:Connect(function()
 			if ToggleFiller_2.Visible then
-				local hue2 = tick() % 5 / 5
+				local hue2 = (tick() % 5) / 5
 				local rainbowColor = Color3.fromHSV(hue2, 1, 1)
-				ColorPicker.BackgroundColor3 = rainbowColor
-				setRGBText(rainbowColor)
-				option:SetValue(rainbowColor)
+				option:SetValue(rainbowColor, true)
 			else
 				stopRainbow()
 			end
@@ -2880,16 +2965,11 @@ local function makeColorPicker(option, parentContainer)
 			local moveConn, releaseConn
 
 			local function updateCanvas(inputObj)
+				if Canvas.AbsoluteSize.X == 0 or Canvas.AbsoluteSize.Y == 0 then return end
 				local relX = math.clamp((inputObj.Position.X - Canvas.AbsolutePosition.X) / Canvas.AbsoluteSize.X, 0, 1)
 				local relY = math.clamp((inputObj.Position.Y - Canvas.AbsolutePosition.Y) / Canvas.AbsoluteSize.Y, 0, 1)
 
-				sat = relX
-				brightness = 1 - relY
-				local color3 = Color3.fromHSV(hue, sat, brightness)
-
-				Cursor.Position = UDim2.fromOffset(relX * Canvas.AbsoluteSize.X - 4, relY * Canvas.AbsoluteSize.Y - 4)
-				ColorPicker.BackgroundColor3 = color3
-				setRGBText(color3)
+				local color3 = Color3.fromHSV(hue, relX, 1 - relY)
 				option:SetValue(color3)
 			end
 
@@ -2919,19 +2999,10 @@ local function makeColorPicker(option, parentContainer)
 			local moveConn, releaseConn
 
 			local function updateHue(inputObj)
+				if Color.AbsoluteSize.Y == 0 then return end
 				local relY = math.clamp((inputObj.Position.Y - Color.AbsolutePosition.Y) / Color.AbsoluteSize.Y, 0, 1)
-				hue = relY
 
-				CanvasGradient.Color = ColorSequence.new{
-					ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-					ColorSequenceKeypoint.new(1.00, Color3.fromHSV(hue, 1, 1))
-				}
-
-				ColorSlider.Position = UDim2.new(0, -1, 0, math.clamp(relY * Color.AbsoluteSize.Y - 1, 0, Color.AbsoluteSize.Y - 3))
-
-				local color3 = Color3.fromHSV(hue, sat, brightness)
-				ColorPicker.BackgroundColor3 = color3
-				setRGBText(color3)
+				local color3 = Color3.fromHSV(relY, sat, brightness)
 				option:SetValue(color3)
 			end
 
@@ -2958,20 +3029,7 @@ local function makeColorPicker(option, parentContainer)
 		local g = math.clamp(tonumber(GInput.Text) or 0, 0, 255)
 		local b = math.clamp(tonumber(BInput.Text) or 0, 0, 255)
 
-		local newColor = Color3.fromRGB(r, g, b)
-		local h, s, v = Color3.toHSV(newColor)
-		hue, sat, brightness = h, s, v
-
-		CanvasGradient.Color = ColorSequence.new{
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromHSV(hue, 1, 1))
-		}
-		Cursor.Position = UDim2.fromOffset(sat * Canvas.AbsoluteSize.X - 4, (1 - brightness) * Canvas.AbsoluteSize.Y - 4)
-		ColorSlider.Position = UDim2.new(0, -1, 0, hue * Color.AbsoluteSize.Y)
-		ColorPicker.BackgroundColor3 = newColor
-
-		setRGBText(newColor)
-		option:SetValue(newColor)
+		option:SetValue(Color3.fromRGB(r, g, b))
 	end
 
 	RInput.FocusLost:Connect(updateFromRGB)
@@ -2979,23 +3037,30 @@ local function makeColorPicker(option, parentContainer)
 	BInput.FocusLost:Connect(updateFromRGB)
 
 	SafeConnect(ToggleRGB.MouseButton1Down, function()
-		ToggleFiller_2.Visible = not ToggleFiller_2.Visible
-		if ToggleFiller_2.Visible then
-			startRainbow()
-		else
+		option:SetValue(not ToggleFiller_2.Visible)
+	end)
+
+	SafeConnect(ColorPickerFrame.AncestryChanged, function(_, parent)
+		if not parent then
 			stopRainbow()
 		end
 	end)
 
-	attachLockSystem(option, droFrame, option)
+	attachLockSystem(option, colFrameParent, option)
 
-	function option:SetValue(color)
-		if option:_isLocked() then
-			return
-		end
-		if type(color) == "userdata" then
-			ToggleFiller_2.Visible = false
-			stopRainbow()
+	function option:SetValue(color, skipRainbowStop)
+		if option:_isLocked() then return end
+
+		if typeof(color) == "Color3" then
+			if not skipRainbowStop then
+				ToggleFiller_2.Visible = false
+				stopRainbow()
+			end
+
+			option.Value = color
+			if option.Flag and library and library.Flags then
+				library.Flags[option.Flag] = color
+			end
 
 			local h, s, v = Color3.toHSV(color)
 			hue, sat, brightness = h, s, v
@@ -3004,11 +3069,13 @@ local function makeColorPicker(option, parentContainer)
 				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
 				ColorSequenceKeypoint.new(1.00, Color3.fromHSV(hue, 1, 1))
 			}
-			Cursor.Position = UDim2.fromOffset(sat * Canvas.AbsoluteSize.X - 4, (1 - brightness) * Canvas.AbsoluteSize.Y - 4)
-			ColorSlider.Position = UDim2.new(0, -1, 0, hue * Color.AbsoluteSize.Y)
+
+			Cursor.Position = UDim2.new(sat, 0, 1 - brightness, 0)
+			ColorSlider.Position = UDim2.new(0, -1, hue, 0)
 
 			ColorPicker.BackgroundColor3 = color
 			setRGBText(color)
+
 			execCallback(option.Callback, option, color)
 		elseif type(color) == "boolean" then
 			ToggleFiller_2.Visible = color
@@ -3066,22 +3133,81 @@ local function makeColorPicker(option, parentContainer)
 	return option
 end
 
+local function makeElementDivider(option, parentContainer)
+	local divFrameParent = Create("Frame", {
+		Parent = parentContainer,
+		Size = UDim2.new(1,0,0,2)
+		BackgroundTransparency = 1,
+		Name = "_Div_",
+		AutomaticSize = Enum.AutomaticSize.Y,
+		ZIndex = 12 + zindex
+	})
+
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5),
+		Parent = divFrameParent
+	})
+
+	local divParentLayout = Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Vertical,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		VerticalAlignment = Enum.VerticalAlignment.Top,
+		Padding = UDim.new(0, 5),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = divFrameParent
+	})
+
+	local divFrame = Create("Frame", {
+		LayoutOrder = 2,
+		Parent = divFrameParent,
+		Size = option.Size,
+		BackgroundColor3 = option.Color,
+		Name = "Div",
+		ZIndex = 12 + zindex
+	})
+
+	if option.Title and (option.Title ~= nil and option.Title ~= "") then
+		local BoxTitle = Create("TextLabel", {
+			LayoutOrder = 1,
+			AnchorPoint = Vector2.new(0,0),
+			Name = "DivText",
+			Parent = boxFrameParent,
+			BackgroundTransparency = 1,
+			Position = UDim2.new(0, 0, 0, 0),
+			Size = UDim2.new(1, 0, 0, 5),
+			Font = Enum.Font.SourceSans,
+			Text = option.Title,
+			TextColor3 = option.TextColor,
+			TextSize = 16,
+			TextWrapped = true,
+			ZIndex = 12 + zindex,
+			TextXAlignment = Enum.TextXAlignment[option.XAlignment],
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Active = false
+		})
+	end
+	
+	option.Instance = divFrameParent
+	return option
+end
+
 local function injectElements(targetContainer, parentUI, winConfig)
 	function targetContainer:AddButton(config)
 		config = type(config) == "table" and config or {}
-		config.Title = config.Title or "Button"
-		config.Callback = config.Callback or function() end
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Button"
+		config.Callback = (config.Callback or config.callback) or function() end
 
 		return makeButton(config, parentUI)
 	end
 
 	function targetContainer:AddToggle(config)
 		config = type(config) == "table" and config or {}
-		config.Title = config.Title or config.text or "Toggle"
-		config.Default = config.Default or false
-		config.Delay = config.Delay or 0
-		config.Flag = config.Flag or config.Title
-		config.Callback = config.Callback or function() end
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Toggle"
+		config.Default = ((config.Default or config.Value or config.state) or (config.default or config.value or config.state)) or false
+		config.Delay = (config.Delay or config.delay) or 0
+		config.Flag = (config.Flag or config.flag) or config.Title
+		config.Callback = (config.Callback or config.callback) or function() end
 
 		if registerFlag then
 			registerFlag(config)
@@ -3092,19 +3218,30 @@ local function injectElements(targetContainer, parentUI, winConfig)
 
 	function targetContainer:AddLabel(config)
 		config = type(config) == "table" and config or {}
-		config.Title = config.Title or "Label"
-		config.XAlignment = config.XAlignment or "Left"
-		config.Color = config.Color or Color3.new(1, 1, 1)
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Label"
+		config.XAlignment = (config.XAlignment or config.xAlignment or config.xalignment) or "Left"
+		config.Color = (config.Color or config.color) or Color3.new(1, 1, 1)
 
 		return makeLabel(config, parentUI)
 	end
 
+	function targetContainer:AddDivider(config)
+		config = type(config) == "table" and config or {}
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Label"
+		config.XAlignment = (config.XAlignment or config.xAlignment or config.xalignment) or "Left"
+		config.Size = (config.Size or config.size) or UDim2.new(1,0,0,2)
+		config.Color = (config.Color or config.color) or library["Themes"][library.SelectedTheme].ElementDivider
+		config.TextColor = (config.TextColor or config.textColor or config.textcolor) or library["Themes"][library.SelectedTheme].ElementDividerText
+
+		return makeElementDivider(config, parentUI)
+	end
+
 	function targetContainer:AddTextBox(config)
 		config = type(config) == "table" and config or {}
-		config.Title = config.Title or "TextBox"
-		config.Default = config.Default or ""
-		config.Flag = config.Flag or config.Title
-		config.Callback = config.Callback or function() end
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "TextBox"
+		config.Default = ((config.Default or config.Value) or (config.default or config.value)) or ""
+		config.Flag = (config.Flag or config.flag) or config.Title
+		config.Callback = (config.Callback or config.callback) or function() end
 
 		if registerFlag then
 			registerFlag(config)
@@ -3115,13 +3252,13 @@ local function injectElements(targetContainer, parentUI, winConfig)
 
 	function targetContainer:AddSlider(config)
 		config = type(config) == "table" and config or {}
-		config.Title = config.Title or "Slider"
-		config.Min = config.Min or 1
-		config.Max = config.Max or 100
-		config.Increment = config.Increment or 1
-		config.Default = config.Default or (config.Max / 2)
-		config.Flag = config.Flag or config.Title
-		config.Callback = config.Callback or function() end
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Slider"
+		config.Min = (config.Min or config.min) or 1
+		config.Max = (config.Max or config.max) or 100
+		config.Increment = (config.Increment or config.increment) or 1
+		config.Default = ((config.Default or config.Value) or (config.default or config.value)) or (config.Max / 2)
+		config.Flag = (config.Flag or config.flag) or config.Title
+		config.Callback = (config.Callback or config.callback) or function() end
 
 		if registerFlag then
 			registerFlag(config)
@@ -3132,13 +3269,13 @@ local function injectElements(targetContainer, parentUI, winConfig)
 
 	function targetContainer:AddDropdown(config)
 		config = type(config) == "table" and config or {}
-		config.Title = config.Title or config.text or "Dropdown"
-		config.Items = config.Items or config.items or {}
-		config.MultiSelect = config.MultiSelect or config.multiSelect or false
-		config.Floating = config.Floating or config.floating or false
-		config.Flag = config.Flag or config.Title
-		config.Callback = config.Callback or config.callback or function() end
-		config.Default = config.Default or (config.MultiSelect and {} or nil)
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or config.text or "Dropdown"
+		config.Items = (config.Items or config.items) or {}
+		config.MultiSelect = (config.MultiSelect or config.multiSelect) or false
+		config.Floating = (config.Floating or config.floating) or false
+		config.Flag = (config.Flag or config.flag) or config.Title
+		config.Callback = (config.Callback or config.callback) or function() end
+		config.Default = (config.Default or config.default) or (config.MultiSelect and {} or nil)
 
 		if registerFlag then
 			registerFlag(config)
@@ -3149,11 +3286,11 @@ local function injectElements(targetContainer, parentUI, winConfig)
 
 	function targetContainer:AddColorPicker(config)
 		config = type(config) == "table" and config or {}
-		config.Title = config.Title or "Color Picker"
-		config.Default = config.Default or Color3.fromRGB(255, 0, 0)
-		config.Floating = config.Floating or false
-		config.Flag = config.Flag or config.Title
-		config.Callback = config.Callback or function() end
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Color Picker"
+		config.Default = (config.Default or config.default) or Color3.fromRGB(255, 0, 0)
+		config.Floating = (config.Floating or config.floating) or false
+		config.Flag = (config.Flag or config.flag) or config.Title
+		config.Callback = (config.Callback or config.callback) or function() end
 
 		if registerFlag then
 			registerFlag(config)
@@ -3164,8 +3301,8 @@ local function injectElements(targetContainer, parentUI, winConfig)
 
 	function targetContainer:AddGroup(config)
 		config = type(config) == "table" and config or {}
-		config.Title = config.Title or config.Name or config.text or "Group Box"
-		config.Collapsible = config.Collapsible or false
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Group Box"
+		config.Collapsible = (config.Collapsible or config.collapsible) or false
 		config.Open = config.Open ~= nil and config.Open or true
 
 		local groupController, contentHolder = makeGroupUI(config, parentUI)
@@ -3178,7 +3315,7 @@ local function injectElements(targetContainer, parentUI, winConfig)
 
 	function targetContainer:AddColumns(config)
 		config = type(config) == "table" and config or {}
-		config.Count = config.Count or config.count or 2
+		config.Count = (config.Count or config.count) or 2
 
 		local colFrames = makeColumnsUI(config, parentUI, config.Count)
 
@@ -3194,8 +3331,8 @@ local function injectElements(targetContainer, parentUI, winConfig)
 
 	function targetContainer:AddGrid(config)
 		config = type(config) == "table" and config or {}
-		config.CellSize = config.CellSize or config.cellSize or UDim2.new(0, 80, 0, 80)
-		config.CellPadding = config.CellPadding or config.cellPadding or UDim2.new(0, 6, 0, 6)
+		config.CellSize = (config.CellSize or config.cellSize) or UDim2.new(0, 80, 0, 80)
+		config.CellPadding = (config.CellPadding or config.cellPadding) or UDim2.new(0, 6, 0, 6)
 
 		local gridController, gridHolder = makeGridUI(config, parentUI)
 
@@ -3619,10 +3756,10 @@ function library:CreateWindow(WinConfig)
 	})
 
 	local winPaddingLayout = Create("UIPadding", {
-		PaddingBottom = UDim.new(0, 5),
-		PaddingTop = UDim.new(0, 5),
-		PaddingRight = UDim.new(0, 5),
-		PaddingLeft = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 0),
+		PaddingTop = UDim.new(0, 0),
+		PaddingRight = UDim.new(0, 0),
+		PaddingLeft = UDim.new(0, 0),
 		Parent = WindowScroll
 	})
 
@@ -3630,7 +3767,7 @@ function library:CreateWindow(WinConfig)
 		FillDirection = Enum.FillDirection.Vertical,
 		HorizontalAlignment = Enum.HorizontalAlignment.Left,
 		VerticalAlignment = Enum.VerticalAlignment.Top,
-		Padding = UDim.new(0, 6),
+		Padding = UDim.new(0, 5),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = WindowScroll
 	})
@@ -3872,10 +4009,10 @@ function library:CreateWindow(WinConfig)
 		})
 
 		local PaddingLayouttt = Create("UIPadding", {
-			PaddingBottom = UDim.new(0, 5),
-			PaddingTop = UDim.new(0, 5),
-			PaddingRight = UDim.new(0, 5),
-			PaddingLeft = UDim.new(0, 5),
+			PaddingBottom = UDim.new(0, 0),
+			PaddingTop = UDim.new(0, 0),
+			PaddingRight = UDim.new(0, 0),
+			PaddingLeft = UDim.new(0, 0),
 			Parent = tabContainer
 		})
 
