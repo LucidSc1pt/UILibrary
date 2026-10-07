@@ -2007,6 +2007,7 @@ function makeBox(option, parent)
 		PlaceholderText = "...",
 		Text = option.Default,
 		ZIndex = 12 + zindex,
+		ClearTextOnFocus = option.TextDisappear,
 		TextColor3 = Color3.fromRGB(245, 246, 250),
 		TextSize = 14,
 		Name = "TextBox"
@@ -3238,6 +3239,7 @@ local function injectElements(targetContainer, parentUI, winConfig)
 	function targetContainer:AddTextBox(config)
 		config = type(config) == "table" and config or {}
 		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "TextBox"
+		config.TextDisappear = ((config.TextDisappear or config.ClearText) or (config.textDisappear or config.clearText) or (config.textdisappear or config.cleartext)) or false
 		config.Default = ((config.Default or config.Value) or (config.default or config.value)) or ""
 		config.Flag = (config.Flag or config.flag) or config.Title
 		config.Callback = (config.Callback or config.callback) or function() end
