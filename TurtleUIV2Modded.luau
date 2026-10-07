@@ -1014,13 +1014,15 @@ function library:Notification(NotificationConfig)
 				NotificationParent:Destroy()
 			end)
 		end
-
+		
+		NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 		SlideInTween:Play()
+		task.wait(0.25)
 		SizeInTween:Play()
 
 		SizeInTween.Completed:Connect(function()
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
-			
+
 			if (typeof(NotificationConfig.Time) == "string" and NotificationConfig.Time == "inf") or NotificationConfig.Time == 0 then
 				ProgressBarParent:Destroy()
 			else
