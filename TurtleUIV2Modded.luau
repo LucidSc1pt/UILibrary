@@ -25,11 +25,11 @@ local library = {
 			UIWindow = Color3.fromRGB(0, 151, 230),
 			UIWindowBorder = Color3.fromRGB(0, 151, 230),
 
-			ElementDivider = Color3.fromRGB(97, 104, 114),
-			ElementDividerText = Color3.fromRGB(97, 104, 114),
+			ElementDivider = Color3.fromRGB(107, 114, 124),
+			ElementDividerText = Color3.fromRGB(107, 114, 124),
 
-			TabDivider = Color3.fromRGB(97, 104, 114),
-			TabDividerText = Color3.fromRGB(97, 104, 114),
+			TabDivider = Color3.fromRGB(107, 114, 124),
+			TabDividerText = Color3.fromRGB(107, 114, 124),
 			TabBtnBackground = Color3.fromRGB(40, 148, 215),
 			TabBtnBackgroundSelect = Color3.fromRGB(0, 168, 255),
 
@@ -972,7 +972,7 @@ function library:Notification(NotificationConfig)
 			BackgroundTransparency = 0
 		}):Play()
 		TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-			Position = UDim2.new(1, 0, NotificationFrame.AbsoluteSize.Y, 0)
+			Size = UDim2.new(1, 0, NotificationFrame.AbsoluteSize.Y, 0)
 		}):Play()
 
 		TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.3), {Transparency = 0}):Play()
@@ -1151,12 +1151,12 @@ function library:Toast(ToastConfig)
 		if not toastFrame or not toastFrame.Parent then return end
 
 		local tweenOut = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		TweenService:Create(textLabel, tweenOut, { TextTransparency = 1 }):Play()
 		
 		TweenService:Create(stroke, tweenOut, { Transparency = 1 }):Play()
 		if iconLabel then
 			TweenService:Create(iconLabel, tweenOut, { ImageTransparency = 1 }):Play()
 		end
-		TweenService:Create(textLabel, tweenOut, { TextTransparency = 1 }):Play()
 		
 		toastFrame.Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40)
 		toastFrame.AutomaticSize = Enum.AutomaticSize.None
@@ -3775,8 +3775,8 @@ function library:CreateWindow(WinConfig)
 	})
 
 	local winPaddingLayout = Create("UIPadding", {
-		PaddingBottom = UDim.new(0, 0),
-		PaddingTop = UDim.new(0, 0),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 0),
 		PaddingLeft = UDim.new(0, 0),
 		Parent = WindowScroll
@@ -3843,6 +3843,11 @@ function library:CreateWindow(WinConfig)
 			PaddingTop = UDim.new(0, 5),
 			PaddingRight = UDim.new(0, 5),
 			PaddingLeft = UDim.new(0, 5),
+			Parent = BagdeFrame
+		})
+	
+		Create("UICorner", {
+			CornerRadius = UDim.new(1, 0),
 			Parent = BagdeFrame
 		})
 
@@ -4028,8 +4033,8 @@ function library:CreateWindow(WinConfig)
 		})
 
 		local PaddingLayouttt = Create("UIPadding", {
-			PaddingBottom = UDim.new(0, 0),
-			PaddingTop = UDim.new(0, 0),
+			PaddingBottom = UDim.new(0, 5),
+			PaddingTop = UDim.new(0, 5),
 			PaddingRight = UDim.new(0, 0),
 			PaddingLeft = UDim.new(0, 0),
 			Parent = tabContainer
