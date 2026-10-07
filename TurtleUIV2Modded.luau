@@ -807,8 +807,8 @@ function library:Notification(NotificationConfig)
 		NotificationConfig.Title = (NotificationConfig.Title or NotificationConfig.Name or NotificationConfig.Text) or "Notification"
 		NotificationConfig.Content = (NotificationConfig.Content or NotificationConfig.Desc or NotificationConfig.Description) or "Hello World"
 		NotificationConfig.Image = (NotificationConfig.Image or NotificationConfig.Icon) or 4384403532
-		NotificationConfig.Type = NotificationConfig.Type or "info"
-		NotificationConfig.Time = (NotificationConfig.Time or NotificationConfig.Duration) or 5
+		NotificationConfig.Type = NotificationConfig.Type or "Info"
+		NotificationConfig.Time = ((NotificationConfig.Time or NotificationConfig.Duration) or (NotificationConfig.time or NotificationConfig.duration)) or 5
 		
 		local NotificationHolder = getNotificationContainer()
 		
@@ -824,7 +824,7 @@ function library:Notification(NotificationConfig)
 
 		local NotificationParent = Create("Frame", {
 			Size = UDim2.new(1, 0, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
+			AutomaticSize = Enum.AutomaticSize.None,
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
 			Parent = NotificationHolder
@@ -965,33 +965,12 @@ function library:Notification(NotificationConfig)
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
 
-		NotificationParent.AutomaticSize = Enum.AutomaticSize.None
-
-		TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-			Position = UDim2.new(0, 0, 0, 0),
-			BackgroundTransparency = 0
-		}):Play()
-		local SizeIn = TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-			Size = UDim2.new(1, 0, NotificationFrame.AbsoluteSize.Y, 0)
-		})
-		SizeIn:Play()
-		SizeIn.Completed:Connect(function()
-			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
-		end)
-
-		TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.3), {Transparency = 0}):Play()
-		TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
-		TweenService:Create(Content, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
-		TweenService:Create(ProgressBarParent, TweenInfo.new(0.1), {BackgroundTransparency = 0}):Play()
-		TweenService:Create(ProgressBar, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
-		if Icon and Icon.Parent then
-			TweenService:Create(Icon, TweenInfo.new(0.3), {ImageTransparency = 0}):Play()
-		end
-
 		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
 			Size = UDim2.new(0, 0, 1, 0)
 		})
-		barTween:Play()
+		local SizeIn = TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+			Size = UDim2.new(1, 0, NotificationFrame.AbsoluteSize.Y, 0)
+		})
 
 		local function DismissNotification()
 			if isDismissed then return end
@@ -1027,13 +1006,37 @@ function library:Notification(NotificationConfig)
 			end)
 		end
 
+		SizeIn:Play()
+		SizeIn.Completed:Connect(function()
+			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
+		end)
+		TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+			Position = UDim2.new(0, 0, 0, 0),
+			BackgroundTransparency = 0
+		}):Play()
+
+		TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.3), {Transparency = 0}):Play()
+		TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+		TweenService:Create(Content, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+		TweenService:Create(ProgressBarParent, TweenInfo.new(0.1), {BackgroundTransparency = 0}):Play()
+		TweenService:Create(ProgressBar, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+		if Icon and Icon.Parent then
+			TweenService:Create(Icon, TweenInfo.new(0.3), {ImageTransparency = 0}):Play()
+		end
+
 		closeNotifButton.MouseButton1Click:Connect(DismissNotification)
 
-		task.delay(NotificationConfig.Time, function()
-			if not isDismissed then
-				DismissNotification()
-			end
-		end)
+		if (typeof(NotificationConfig.Time) == "string" and NotificationConfig.Time == "inf") or NotificationConfig.Time == 0 then
+			ProgressBarParent:Destroy()
+		else
+			barTween:Play()
+			
+			task.delay(NotificationConfig.Time, function()
+				if not isDismissed then
+					DismissNotification()
+				end
+			end)
+		end
 	end)
 end
 
@@ -1072,6 +1075,14 @@ function library:Toast(ToastConfig)
 	local duration = (ToastConfig.Time or ToastConfig.Duration) or 2.5
 	local isDismissed = false
 
+	local accentColors = {
+		Info = Color3.fromRGB(52, 152, 219),
+		Success = Color3.fromRGB(46, 204, 113),
+		Warning = Color3.fromRGB(241, 196, 15),
+		Error = Color3.fromRGB(231, 76, 60)
+	}
+	local accentColor = accentColors[ToastConfig.Type] or accentColors.Info
+
 	local container = getToastContainer()
 
 	local toastFrame = Create("Frame", {
@@ -1098,7 +1109,7 @@ function library:Toast(ToastConfig)
 	})
 
 	local stroke = Create("UIStroke", {
-		Color = Color3.fromRGB(50, 50, 60),
+		Color = accentColor,
 		Thickness = 1,
 		Transparency = 1,
 		Parent = toastFrame
@@ -2447,6 +2458,7 @@ local function makeDropdown(option, parentContainer)
 		DropdownFrame.Visible = false
 		droFrame.AutomaticSize = Enum.AutomaticSize.None
 		droFrameParent.AutomaticSize = Enum.AutomaticSize.None
+		droLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	end
 
 	function option:Open()
@@ -2455,9 +2467,6 @@ local function makeDropdown(option, parentContainer)
 				otherDrop:Close()
 			end
 		end
-
-		droFrame.AutomaticSize = Enum.AutomaticSize.Y
-		droFrameParent.AutomaticSize = Enum.AutomaticSize.Y
 
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
 
@@ -2477,6 +2486,10 @@ local function makeDropdown(option, parentContainer)
 				dragDropFrame.Position = UDim2.fromOffset(targetX, targetY)
 			end)
 		else
+			droFrame.AutomaticSize = Enum.AutomaticSize.Y
+			droFrameParent.AutomaticSize = Enum.AutomaticSize.Y
+			droLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+
 			DropdownFrame.Position = UDim2.new(0, 0, 0, 26)
 			DropdownFrame.Visible = true
 		end
@@ -3120,6 +3133,7 @@ local function makeColorPicker(option, parentContainer)
 		ColorPickerFrame.Visible = false
 		colFrame.AutomaticSize = Enum.AutomaticSize.None
 		colFrameParent.AutomaticSize = Enum.AutomaticSize.None
+		colLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	end
 
 	function option:Open()
@@ -3130,9 +3144,6 @@ local function makeColorPicker(option, parentContainer)
 				end
 			end
 		end
-
-		colFrame.AutomaticSize = Enum.AutomaticSize.Y
-		colFrameParent.AutomaticSize = Enum.AutomaticSize.Y
 
 		if option.Floating and dragColFrame then
 			dragColFrame.Visible = true
@@ -3149,8 +3160,11 @@ local function makeColorPicker(option, parentContainer)
 
 				dragColFrame.Position = UDim2.fromOffset(targetX, targetY)
 			end)
-			dragColFrame.Position = UDim2.fromOffset(colFrame.AbsolutePosition.X, colFrame.AbsolutePosition.Y)
 		else
+			colFrame.AutomaticSize = Enum.AutomaticSize.Y
+			colFrameParent.AutomaticSize = Enum.AutomaticSize.Y
+			colLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+			
 			ColorPickerFrame.Visible = true
 		end
 	end
