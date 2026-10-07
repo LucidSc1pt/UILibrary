@@ -25,11 +25,11 @@ local library = {
 			UIWindow = Color3.fromRGB(0, 151, 230),
 			UIWindowBorder = Color3.fromRGB(0, 151, 230),
 
-			ElementDivider = Color3.fromRGB(60, 60, 70),
-			ElementDividerText = Color3.fromRGB(60, 60, 70),
+			ElementDivider = Color3.fromRGB(67, 74, 84),,
+			ElementDividerText = Color3.fromRGB(67, 74, 84),
 
-			TabDivider = Color3.fromRGB(60, 60, 70),
-			TabDividerText = Color3.fromRGB(60, 60, 70),
+			TabDivider = Color3.fromRGB(67, 74, 84),
+			TabDividerText = Color3.fromRGB(67, 74, 84),
 			TabBtnBackground = Color3.fromRGB(40, 148, 215),
 			TabBtnBackgroundSelect = Color3.fromRGB(0, 168, 255),
 
@@ -826,7 +826,7 @@ function library:Notification(NotificationConfig)
 			Size = UDim2.new(1, 0, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
-			ClipsDescendants = true,
+			ClipsDescendants = false,
 			Parent = NotificationHolder
 		})
 
@@ -1054,18 +1054,17 @@ function library:Toast(ToastConfig)
 	local toastFrame = Create("Frame", {
 		Parent = container,
 		Size = UDim2.fromOffset(0, 0),
-		AutomaticSize = Enum.AutomaticSize.X,
+		AutomaticSize = Enum.AutomaticSize.None,
 		BackgroundColor3 = library["Themes"]["Default"].WindowBackground,
-		BackgroundTransparency = 0,
+		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		ClipsDescendants = true
+		ClipsDescendants = false
 	})
 
 	local toastbtnFrame = Create("TextButton", {
 		Parent = toastFrame,
 		Size = UDim2.fromScale(1, 1),
 		AutomaticSize = Enum.AutomaticSize.X,
-		BackgroundColor3 = Color3.fromRGB(18, 18, 22),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0
 	})
@@ -1098,7 +1097,7 @@ function library:Toast(ToastConfig)
 
 	local iconLabel = Create("ImageLabel", {
 		AnchorPoint = Vector2.new(0,0.5),
-		Position = UDim2.new(0,0,0.5,0), -- brooo im stupid not adding the comas
+		Position = UDim2.new(0,0,0.5,0),
 		Size = UDim2.new(0, 16, 0, 16),
 		BackgroundTransparency = 1,
 		ImageColor3 = Color3.fromRGB(240, 240, 240),
@@ -1153,17 +1152,17 @@ function library:Toast(ToastConfig)
 	end
 
 	local tweenIn = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-	TweenService:Create(toastFrame, tweenIn, { BackgroundTransparency = 0.15 }):Play()
+	TweenService:Create(toastFrame, tweenIn, { BackgroundTransparency = 0 }):Play()
 	TweenService:Create(stroke, tweenIn, { Transparency = 0.4 }):Play()
 	if iconLabel then
 		TweenService:Create(iconLabel, tweenIn, { ImageTransparency = 0 }):Play()
 	end
 	TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
-	local SizeIn = TweenService:Create(textLabel, tweenIn, { Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40) })
+	local SizeIn = TweenService:Create(toastFrame, tweenIn, { Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40) })
 	SizeIn:Play()
 	SizeIn.Completed:Connect(function()
 		toastFrame.Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40)
-		toastFrame.AutomaticSize = Enum.AutomaticSize.None
+		toastFrame.AutomaticSize = Enum.AutomaticSize.X
 	end)
 	
 	toastbtnFrame.MouseButton1Click:Connect(DismissNotification)
@@ -2258,7 +2257,7 @@ local function makeDropdown(option, parentContainer)
 	end
 
 	local droFrameParent = Create("Frame", {
-		Parent = parent,
+		Parent = parentContainer,
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
 		Name = "_DropdownHolder_",
@@ -3163,6 +3162,7 @@ local function makeElementDivider(option, parentContainer)
 		Parent = divFrameParent,
 		Size = option.Size,
 		BackgroundColor3 = option.Color,
+		BorderSizePixel = 0,
 		Name = "Div",
 		ZIndex = 12 + zindex
 	})
@@ -3172,7 +3172,7 @@ local function makeElementDivider(option, parentContainer)
 			LayoutOrder = 1,
 			AnchorPoint = Vector2.new(0,0),
 			Name = "DivText",
-			Parent = boxFrameParent,
+			Parent = divFrameParent,
 			BackgroundTransparency = 1,
 			Position = UDim2.new(0, 0, 0, 0),
 			Size = UDim2.new(1, 0, 0, 5),
@@ -3229,7 +3229,7 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config = type(config) == "table" and config or {}
 		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Label"
 		config.XAlignment = (config.XAlignment or config.xAlignment or config.xalignment) or "Left"
-		config.Size = (config.Size or config.size) or UDim2.new(1,0,0,2)
+		config.Size = (config.Size or config.size) or UDim2.new(1,0,0,1)
 		config.Color = (config.Color or config.color) or library["Themes"][library.SelectedTheme].ElementDivider
 		config.TextColor = (config.TextColor or config.textColor or config.textcolor) or library["Themes"][library.SelectedTheme].ElementDividerText
 
