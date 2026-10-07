@@ -824,7 +824,7 @@ function library:Notification(NotificationConfig)
 
 		local NotificationParent = Create("Frame", {
 			Size = UDim2.new(1, 0, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.None,
+			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
 			Parent = NotificationHolder
@@ -1013,8 +1013,9 @@ function library:Notification(NotificationConfig)
 		SizeInTween:Play()
 
 		SizeInTween.Completed:Connect(function()
-			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
-			
+			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
+			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
+
 			if (typeof(NotificationConfig.Time) == "string" and NotificationConfig.Time == "inf") or NotificationConfig.Time == 0 then
 				ProgressBarParent:Destroy()
 			else
