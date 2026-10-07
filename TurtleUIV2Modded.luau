@@ -1016,12 +1016,16 @@ function library:Notification(NotificationConfig)
 		end
 		
 		NotificationParent.AutomaticSize = Enum.AutomaticSize.None
+		NotificationFrame.AutomaticSize = Enum.AutomaticSize.None
+		NotificationFrame.Size = UDim2.new(1,0,1,0)
 		SlideInTween:Play()
 		task.wait(0.25)
 		SizeInTween:Play()
 
 		SizeInTween.Completed:Connect(function()
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
+			NotificationFrame.AutomaticSize = Enum.AutomaticSize.Y
+			NotificationFrame.Size = UDim2.new(1,0,0,0)
 
 			if (typeof(NotificationConfig.Time) == "string" and NotificationConfig.Time == "inf") or NotificationConfig.Time == 0 then
 				ProgressBarParent:Destroy()
