@@ -25,7 +25,7 @@ local library = {
 			UIWindow = Color3.fromRGB(0, 151, 230),
 			UIWindowBorder = Color3.fromRGB(0, 151, 230),
 
-			ElementDivider = Color3.fromRGB(67, 74, 84),,
+			ElementDivider = Color3.fromRGB(67, 74, 84),
 			ElementDividerText = Color3.fromRGB(67, 74, 84),
 
 			TabDivider = Color3.fromRGB(67, 74, 84),
@@ -1125,7 +1125,7 @@ function library:Toast(ToastConfig)
 		TextTransparency = 1
 	})
 
-	local function DismissNotification()
+	local function DismissToast()
 		if isDismissed then return end
 		isDismissed = true
 
@@ -1161,7 +1161,6 @@ function library:Toast(ToastConfig)
 	local SizeIn = TweenService:Create(toastFrame, tweenIn, { Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40) })
 	SizeIn:Play()
 	SizeIn.Completed:Connect(function()
-		toastFrame.Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40)
 		toastFrame.AutomaticSize = Enum.AutomaticSize.X
 	end)
 	
@@ -1169,7 +1168,7 @@ function library:Toast(ToastConfig)
 
 	task.delay(duration, function()
 		if not isDismissed then
-			DismissNotification()
+			DismissToast()
 		end
 	end)
 end
