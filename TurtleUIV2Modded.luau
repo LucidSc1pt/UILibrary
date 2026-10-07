@@ -1011,25 +1011,23 @@ function library:Notification(NotificationConfig)
 		SizeIn:Play()
 		SizeIn.Completed:Connect(function()
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
+			if (typeof(NotificationConfig.Time) == "string" and NotificationConfig.Time == "inf") or NotificationConfig.Time == 0 then
+				ProgressBarParent:Destroy()
+			else
+				barTween:Play()
+
+				task.delay(NotificationConfig.Time, function()
+					if not isDismissed then
+						DismissNotification()
+					end
+				end)
+			end
 		end)
 		TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-			Position = UDim2.new(0, 0, 0, 0),
-			BackgroundTransparency = 0
+			Position = UDim2.new(0, 0, 0, 0)
 		}):Play()
 
 		closeNotifButton.MouseButton1Click:Connect(DismissNotification)
-
-		if (typeof(NotificationConfig.Time) == "string" and NotificationConfig.Time == "inf") or NotificationConfig.Time == 0 then
-			ProgressBarParent:Destroy()
-		else
-			barTween:Play()
-			
-			task.delay(NotificationConfig.Time, function()
-				if not isDismissed then
-					DismissNotification()
-				end
-			end)
-		end
 	end)
 end
 
@@ -1165,12 +1163,12 @@ function library:Toast(ToastConfig)
 		if iconLabel then
 			TweenService:Create(iconLabel, tweenOut, { ImageTransparency = 1 }):Play()
 		end
-		
+
 		toastFrame.Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40)
 		toastFrame.AutomaticSize = Enum.AutomaticSize.None
-		
+		task.wait(0.25)
 		local fadeOut = TweenService:Create(toastFrame, tweenOut, { BackgroundTransparency = 1 })
-		TweenService:Create(toastFrame, tweenOut, { Size = UDim2.new(0,0,0,0) }):Play()
+		TweenService:Create(toastFrame, tweenOut, { Size = UDim2.new(0,0,0,0), Position = UDim2.new(0,-50,0,0) }):Play()
 		fadeOut:Play()
 
 		fadeOut.Completed:Connect(function()
@@ -1187,17 +1185,16 @@ function library:Toast(ToastConfig)
 	local SizeIn = TweenService:Create(toastFrame, tweenIn, { Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40) })
 	SizeIn:Play()
 	SizeIn.Completed:Connect(function()
-		toastFrame.AutomaticSize = Enum.AutomaticSize.X
 		TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
+		toastFrame.AutomaticSize = Enum.AutomaticSize.X
+		task.delay(duration, function()
+			if not isDismissed then
+				DismissToast()
+			end
+		end)
 	end)
 	
 	toastbtnFrame.MouseButton1Click:Connect(DismissToast)
-
-	task.delay(duration, function()
-		if not isDismissed then
-			DismissToast()
-		end
-	end)
 end
 
 function library:Popup(config)
