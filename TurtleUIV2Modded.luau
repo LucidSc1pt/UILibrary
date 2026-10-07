@@ -835,7 +835,7 @@ function library:Notification(NotificationConfig)
 			Position = UDim2.new(1, 50, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundColor3 = library["Themes"]["Default"].WindowBackground,
-			BackgroundTransparency = 1,
+			BackgroundTransparency = 0,
 			Parent = NotificationParent
 		})
 
@@ -848,7 +848,7 @@ function library:Notification(NotificationConfig)
 			Parent = NotificationFrame,
 			Thickness = 1.2,
 			Color = accentColor,
-			Transparency = 1,
+			Transparency = 0,
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Enabled = true
 		})
@@ -906,7 +906,7 @@ function library:Notification(NotificationConfig)
 			ImageColor3 = Color3.fromRGB(240, 240, 240),
 			Name = "Icon",
 			LayoutOrder = 1,
-			ImageTransparency = 1,
+			ImageTransparency = 0,
 			Parent = textHolder
 		})
 
@@ -921,7 +921,7 @@ function library:Notification(NotificationConfig)
 		Title.TextWrapped = true
 		Title.TextXAlignment = Enum.TextXAlignment.Left
 		Title.Text = NotificationConfig.Title
-		Title.TextTransparency = 1
+		Title.TextTransparency = 0
 		Title.LayoutOrder = 2
 
 		if NotificationConfig.Image and (NotificationConfig.Image ~= nil and NotificationConfig.Image ~= "") then
@@ -951,7 +951,7 @@ function library:Notification(NotificationConfig)
 		ProgressBarParent.Parent = NotificationFrame
 		ProgressBarParent.Size = UDim2.new(1, 0, 0, 3)
 		ProgressBarParent.Position = UDim2.new(0, 0, 1, 5)
-		ProgressBarParent.BackgroundTransparency = 1
+		ProgressBarParent.BackgroundTransparency = 0
 		ProgressBarParent.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 		ProgressBarParent.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBarParent).CornerRadius = UDim.new(0, 3)
@@ -960,7 +960,7 @@ function library:Notification(NotificationConfig)
 		ProgressBar.Parent = ProgressBarParent
 		ProgressBar.Size = UDim2.new(1, 0, 1, 0)
 		ProgressBar.Position = UDim2.new(0, 0, 0, 0)
-		ProgressBar.BackgroundTransparency = 1
+		ProgressBar.BackgroundTransparency = 0
 		ProgressBar.BackgroundColor3 = accentColor
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
@@ -985,7 +985,7 @@ function library:Notification(NotificationConfig)
 			TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
 			TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
 			TweenService:Create(Content, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
-			TweenService:Create(ProgressBarParent, TweenInfo.new(0.1), {BackgroundTransparency = 1}):Play()
+			TweenService:Create(ProgressBarParent, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
 			TweenService:Create(ProgressBar, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
 			if Icon and Icon.Parent then
 				TweenService:Create(Icon, TweenInfo.new(0.3), {ImageTransparency = 1}):Play()
@@ -1006,6 +1006,8 @@ function library:Notification(NotificationConfig)
 			end)
 		end
 
+		local tweenIn = TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+
 		SizeIn:Play()
 		SizeIn.Completed:Connect(function()
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
@@ -1014,15 +1016,6 @@ function library:Notification(NotificationConfig)
 			Position = UDim2.new(0, 0, 0, 0),
 			BackgroundTransparency = 0
 		}):Play()
-
-		TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.3), {Transparency = 0}):Play()
-		TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
-		TweenService:Create(Content, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
-		TweenService:Create(ProgressBarParent, TweenInfo.new(0.1), {BackgroundTransparency = 0}):Play()
-		TweenService:Create(ProgressBar, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
-		if Icon and Icon.Parent then
-			TweenService:Create(Icon, TweenInfo.new(0.3), {ImageTransparency = 0}):Play()
-		end
 
 		closeNotifButton.MouseButton1Click:Connect(DismissNotification)
 
@@ -1195,9 +1188,9 @@ function library:Toast(ToastConfig)
 	SizeIn:Play()
 	SizeIn.Completed:Connect(function()
 		toastFrame.AutomaticSize = Enum.AutomaticSize.X
+		TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
 	end)
-	TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
-
+	
 	toastbtnFrame.MouseButton1Click:Connect(DismissToast)
 
 	task.delay(duration, function()
@@ -3152,7 +3145,7 @@ local function makeColorPicker(option, parentContainer)
 			task.defer(function()
 				if not ColorPickerFrame or not dragColFrame then return end
 
-				local dropAbs = ColorPickerFrame.AbsolutePosition
+				local dropAbs = ColorPicker.AbsolutePosition
 				local parentAbs = dragColFrame.Parent.AbsolutePosition
 
 				local targetX = dropAbs.X - parentAbs.X
