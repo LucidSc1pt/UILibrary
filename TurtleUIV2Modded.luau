@@ -25,11 +25,11 @@ local library = {
 			UIWindow = Color3.fromRGB(0, 151, 230),
 			UIWindowBorder = Color3.fromRGB(0, 151, 230),
 
-			ElementDivider = Color3.fromRGB(67, 74, 84),
-			ElementDividerText = Color3.fromRGB(67, 74, 84),
+			ElementDivider = Color3.fromRGB(97, 104, 114),
+			ElementDividerText = Color3.fromRGB(97, 104, 114),
 
-			TabDivider = Color3.fromRGB(67, 74, 84),
-			TabDividerText = Color3.fromRGB(67, 74, 84),
+			TabDivider = Color3.fromRGB(97, 104, 114),
+			TabDividerText = Color3.fromRGB(97, 104, 114),
 			TabBtnBackground = Color3.fromRGB(40, 148, 215),
 			TabBtnBackgroundSelect = Color3.fromRGB(0, 168, 255),
 
