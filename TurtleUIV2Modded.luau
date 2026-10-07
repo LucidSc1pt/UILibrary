@@ -808,7 +808,7 @@ function library:Notification(NotificationConfig)
 		NotificationConfig.Content = (NotificationConfig.Content or NotificationConfig.Desc or NotificationConfig.Description) or "Hello World"
 		NotificationConfig.Image = (NotificationConfig.Image or NotificationConfig.Icon) or 4384403532
 		NotificationConfig.Type = NotificationConfig.Type or "Info"
-		NotificationConfig.Time = ((NotificationConfig.Time or NotificationConfig.Duration) or (NotificationConfig.time or NotificationConfig.duration)) or 5
+		NotificationConfig.Time = ((NotificationConfig.Time or NotificationConfig.Duration) or (NotificationConfig.duration)) or 5
 		
 		local NotificationHolder = getNotificationContainer()
 		
@@ -964,11 +964,13 @@ function library:Notification(NotificationConfig)
 		ProgressBar.BackgroundColor3 = accentColor
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
+		
+		local tweenIn = TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
 		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
 			Size = UDim2.new(0, 0, 1, 0)
 		})
-		local SizeIn = TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+		local SizeInTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 			Size = UDim2.new(1, 0, NotificationFrame.AbsoluteSize.Y, 0)
 		})
 
@@ -1005,10 +1007,9 @@ function library:Notification(NotificationConfig)
 			end)
 		end
 
-		local tweenIn = TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-
-		SizeIn:Play()
-		SizeIn.Completed:Connect(function()
+		TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Position = UDim2.new(0, 0, 0, 0)} ):Play()
+		SizeInTween:Play()
+		SizeInTween.Completed:Connect(function()
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
 			if (typeof(NotificationConfig.Time) == "string" and NotificationConfig.Time == "inf") or NotificationConfig.Time == 0 then
 				ProgressBarParent:Destroy()
@@ -1022,8 +1023,7 @@ function library:Notification(NotificationConfig)
 				end)
 			end
 		end)
-		TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Position = UDim2.new(0, 0, 0, 0)} ):Play()
-
+		
 		closeNotifButton.MouseButton1Click:Connect(DismissNotification)
 	end)
 end
@@ -1082,7 +1082,7 @@ function library:Toast(ToastConfig)
 	})
 
 	local toastFrame = Create("Frame", {
-		Parent = toastFrameParent,
+		Parent = container,
 		Size = UDim2.fromOffset(0, 0),
 		AutomaticSize = Enum.AutomaticSize.None,
 		BackgroundColor3 = library["Themes"]["Default"].WindowBackground,
@@ -1170,12 +1170,10 @@ function library:Toast(ToastConfig)
 		end
 
 		toastFrame.Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40)
-		toastFrameParent.Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40)
 		toastFrame.AutomaticSize = Enum.AutomaticSize.None
-		toastFrameParent.AutomaticSize = Enum.AutomaticSize.None
 		task.wait(0.25)
 		local fadeOut = TweenService:Create(toastFrame, tweenOut, { BackgroundTransparency = 1 })
-		TweenService:Create(toastFrameParent, tweenOut, { Size = UDim2.new(0,0,0,0) }):Play()
+		TweenService:Create(toastFrame, tweenOut, { Size = UDim2.new(0,0,0,0) }):Play()
 		fadeOut:Play()
 
 		fadeOut.Completed:Connect(function()
@@ -1189,12 +1187,11 @@ function library:Toast(ToastConfig)
 	if iconLabel then
 		TweenService:Create(iconLabel, tweenIn, { ImageTransparency = 0 }):Play()
 	end
-	local SizeIn = TweenService:Create(toastFrameParent, tweenIn, { Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40) })
+	local SizeIn = TweenService:Create(toastFrame, tweenIn, { Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40) })
 	SizeIn:Play()
 	SizeIn.Completed:Connect(function()
 		TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
 		toastFrame.AutomaticSize = Enum.AutomaticSize.X
-		toastFrameParent.AutomaticSize = Enum.AutomaticSize.X
 		task.delay(duration, function()
 			if not isDismissed then
 				DismissToast()
