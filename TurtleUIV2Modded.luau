@@ -824,7 +824,7 @@ function library:Notification(NotificationConfig)
 
 		local NotificationParent = Create("Frame", {
 			Size = UDim2.new(1, 0, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.None,
+			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
 			Parent = NotificationHolder
@@ -967,11 +967,6 @@ function library:Notification(NotificationConfig)
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
 
-				-- ====================================================================
-		-- KODE DI BAWAH INI ADALAH PERBAIKAN UNTUK BAGIAN ANIMASI MASUK (IN-TWEEN)
-		-- ====================================================================
-
-		-- 1. Biarkan Roblox menghitung tinggi asli teks/konten terlebih dahulu
 		task.wait(0.05) 
 		local targetHeight = NotificationFrame.AbsoluteSize.Y
 
