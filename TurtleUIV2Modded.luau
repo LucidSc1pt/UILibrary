@@ -971,9 +971,13 @@ function library:Notification(NotificationConfig)
 			Position = UDim2.new(0, 0, 0, 0),
 			BackgroundTransparency = 0
 		}):Play()
-		TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+		local SizeIn = TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 			Size = UDim2.new(1, 0, NotificationFrame.AbsoluteSize.Y, 0)
-		}):Play()
+		})
+		SizeIn:Play()
+		SizeIn.Completed:Connect(function()
+			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
+		end)
 
 		TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.3), {Transparency = 0}):Play()
 		TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
@@ -1010,7 +1014,7 @@ function library:Notification(NotificationConfig)
 
 			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
 
-			task.wait(0.3)
+			task.wait(0.25)
 
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 
@@ -2295,7 +2299,7 @@ local function makeDropdown(option, parentContainer)
 	local droLayout = Instance.new("UIListLayout")
 	droLayout.FillDirection = Enum.FillDirection.Vertical
 	droLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	droLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	droLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	droLayout.Padding = UDim.new(0, 5)
 	droLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	droLayout.Parent = droFrame
@@ -2682,7 +2686,7 @@ local function makeColorPicker(option, parentContainer)
 	local colLayout = Instance.new("UIListLayout")
 	colLayout.FillDirection = Enum.FillDirection.Vertical
 	colLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	colLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	colLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	colLayout.Padding = UDim.new(0, 5)
 	colLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	colLayout.Parent = colFrame
@@ -3114,8 +3118,8 @@ local function makeColorPicker(option, parentContainer)
 			dragColFrame.Visible = false
 		end
 		ColorPickerFrame.Visible = false
-		droFrame.AutomaticSize = Enum.AutomaticSize.None
-		droFrameParent.AutomaticSize = Enum.AutomaticSize.None
+		colFrame.AutomaticSize = Enum.AutomaticSize.None
+		colFrameParent.AutomaticSize = Enum.AutomaticSize.None
 	end
 
 	function option:Open()
