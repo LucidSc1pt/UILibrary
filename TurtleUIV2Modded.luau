@@ -826,7 +826,7 @@ function library:Notification(NotificationConfig)
 			Size = UDim2.new(1, 0, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.None,
 			BackgroundTransparency = 1,
-			ClipsDescendants = true,
+			ClipsDescendants = false,
 			Parent = NotificationHolder
 		})
 
@@ -967,19 +967,29 @@ function library:Notification(NotificationConfig)
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
 
-		task.wait()
+				-- ====================================================================
+		-- KODE DI BAWAH INI ADALAH PERBAIKAN UNTUK BAGIAN ANIMASI MASUK (IN-TWEEN)
+		-- ====================================================================
 
+		-- 1. Biarkan Roblox menghitung tinggi asli teks/konten terlebih dahulu
+		task.wait(0.05) 
 		local targetHeight = NotificationFrame.AbsoluteSize.Y
+
+		NotificationParent.AutomaticSize = Enum.AutomaticSize.None
+		NotificationParent.Size = UDim2.new(1, 0, 0, 0)
+		
+		NotificationFrame.AutomaticSize = Enum.AutomaticSize.None
+		NotificationFrame.Size = UDim2.new(1, 0, 0, targetHeight)
 
 		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
 			Size = UDim2.new(0, 0, 1, 0)
 		})
 
-		local SizeInTween = TweenService:Create(NotificationParent, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+		local SizeInTween = TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
 			Size = UDim2.new(1, 0, targetHeight, 0)
 		})
 
-		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
+		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
 			Position = UDim2.new(0, 0, 0, 0) 
 		})
 
@@ -1015,17 +1025,12 @@ function library:Notification(NotificationConfig)
 			end)
 		end
 		
-		NotificationParent.AutomaticSize = Enum.AutomaticSize.None
-		NotificationFrame.AutomaticSize = Enum.AutomaticSize.None
-		NotificationFrame.Size = UDim2.new(1,0,1,0)
-		SlideInTween:Play()
-		task.wait(0.25)
 		SizeInTween:Play()
+		SlideInTween:Play()
 
 		SizeInTween.Completed:Connect(function()
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
 			NotificationFrame.AutomaticSize = Enum.AutomaticSize.Y
-			NotificationFrame.Size = UDim2.new(1,0,0,0)
 
 			if (typeof(NotificationConfig.Time) == "string" and NotificationConfig.Time == "inf") or NotificationConfig.Time == 0 then
 				ProgressBarParent:Destroy()
