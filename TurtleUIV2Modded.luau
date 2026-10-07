@@ -1550,7 +1550,7 @@ end
 local function makeGroupUI(option, parentContainer)
 	local groupFrame = Instance.new("Frame")
 	groupFrame.Name = option.Title .. "_Group"
-	groupFrame.Size = UDim2.new(1, 0, 0, 0)
+	groupFrame.Size = UDim2.new(1, 0, 0, 32)
 	groupFrame.AutomaticSize = Enum.AutomaticSize.Y
 	groupFrame.BackgroundColor3 = Color3.fromRGB(35, 39, 42)
 	groupFrame.BorderColor3 = Color3.fromRGB(54, 57, 63)
@@ -2279,7 +2279,7 @@ local function makeDropdown(option, parentContainer)
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
 		Name = "_DropdownHolder_",
-		AutomaticSize = Enum.AutomaticSize.Y,
+		AutomaticSize = Enum.AutomaticSize.None,
 		ZIndex = 12 + zindex
 	})
 
@@ -2288,7 +2288,7 @@ local function makeDropdown(option, parentContainer)
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundTransparency = 1,
 		Name = "",
-		AutomaticSize = Enum.AutomaticSize.Y,
+		AutomaticSize = Enum.AutomaticSize.None,
 		ZIndex = 12 + zindex
 	})
 
@@ -2441,6 +2441,8 @@ local function makeDropdown(option, parentContainer)
 			dragDropFrame.Visible = false
 		end
 		DropdownFrame.Visible = false
+		droFrame.AutomaticSize = Enum.AutomaticSize.None
+		droFrameParent.AutomaticSize = Enum.AutomaticSize.None
 	end
 
 	function option:Open()
@@ -2449,6 +2451,9 @@ local function makeDropdown(option, parentContainer)
 				otherDrop:Close()
 			end
 		end
+
+		droFrame.AutomaticSize = Enum.AutomaticSize.Y
+		droFrameParent.AutomaticSize = Enum.AutomaticSize.Y
 
 		TweenService:Create(DownSign, TweenInfo.new(0.25, Enum.EasingStyle.Quint), {Rotation = 90}):Play()
 
@@ -2655,7 +2660,7 @@ local function makeColorPicker(option, parentContainer)
 		Size = UDim2.new(1, 0, 0, 32),
 		BackgroundTransparency = 1,
 		Name = "_ColorPickerHolder_",
-		AutomaticSize = Enum.AutomaticSize.Y,
+		AutomaticSize = Enum.AutomaticSize.None,
 		ZIndex = 12 + zindex
 	})
 
@@ -2664,7 +2669,7 @@ local function makeColorPicker(option, parentContainer)
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundTransparency = 1,
 		Name = "",
-		AutomaticSize = Enum.AutomaticSize.Y,
+		AutomaticSize = Enum.AutomaticSize.None,
 		ZIndex = 12 + zindex
 	})
 
@@ -3109,6 +3114,8 @@ local function makeColorPicker(option, parentContainer)
 			dragColFrame.Visible = false
 		end
 		ColorPickerFrame.Visible = false
+		droFrame.AutomaticSize = Enum.AutomaticSize.None
+		droFrameParent.AutomaticSize = Enum.AutomaticSize.None
 	end
 
 	function option:Open()
@@ -3120,10 +3127,25 @@ local function makeColorPicker(option, parentContainer)
 			end
 		end
 
+		colFrame.AutomaticSize = Enum.AutomaticSize.Y
+		colFrameParent.AutomaticSize = Enum.AutomaticSize.Y
+
 		if option.Floating and dragColFrame then
-			dragColFrame.Position = UDim2.fromOffset(colFrame.AbsolutePosition.X, colFrame.AbsolutePosition.Y)
 			dragColFrame.Visible = true
 			ColorPickerFrame.Visible = true
+			
+			task.defer(function()
+				if not ColorPickerFrame or not dragColFrame then return end
+
+				local dropAbs = ColorPickerFrame.AbsolutePosition
+				local parentAbs = dragColFrame.Parent.AbsolutePosition
+
+				local targetX = dropAbs.X - parentAbs.X
+				local targetY = dropAbs.Y - parentAbs.Y
+
+				dragColFrame.Position = UDim2.fromOffset(targetX, targetY)
+			end)
+			dragColFrame.Position = UDim2.fromOffset(colFrame.AbsolutePosition.X, colFrame.AbsolutePosition.Y)
 		else
 			ColorPickerFrame.Visible = true
 		end
