@@ -835,7 +835,7 @@ function library:Notification(NotificationConfig)
 			Position = UDim2.new(1, 50, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundColor3 = library["Themes"]["Default"].WindowBackground,
-			BackgroundTransparency = 0,
+			BackgroundTransparency = 1,
 			Parent = NotificationParent
 		})
 
@@ -848,6 +848,7 @@ function library:Notification(NotificationConfig)
 			Parent = NotificationFrame,
 			Thickness = 1.2,
 			Color = accentColor,
+			Transparency = 1,
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Enabled = true
 		})
@@ -905,6 +906,7 @@ function library:Notification(NotificationConfig)
 			ImageColor3 = Color3.fromRGB(240, 240, 240),
 			Name = "Icon",
 			LayoutOrder = 1,
+			ImageTransparency = 1,
 			Parent = textHolder
 		})
 
@@ -919,6 +921,7 @@ function library:Notification(NotificationConfig)
 		Title.TextWrapped = true
 		Title.TextXAlignment = Enum.TextXAlignment.Left
 		Title.Text = NotificationConfig.Title
+		Title.TextTransparency = 1
 		Title.LayoutOrder = 2
 
 		if NotificationConfig.Image and (NotificationConfig.Image ~= nil and NotificationConfig.Image ~= "") then
@@ -939,6 +942,7 @@ function library:Notification(NotificationConfig)
 			TextSize = 12,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextWrapped = true,
+			TextTransparency = 1,
 			Text = NotificationConfig.Content
 		})
 
@@ -947,7 +951,7 @@ function library:Notification(NotificationConfig)
 		ProgressBarParent.Parent = NotificationFrame
 		ProgressBarParent.Size = UDim2.new(1, 0, 0, 3)
 		ProgressBarParent.Position = UDim2.new(0, 0, 1, 5)
-		ProgressBarParent.BackgroundTransparency = 0
+		ProgressBarParent.BackgroundTransparency = 1
 		ProgressBarParent.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 		ProgressBarParent.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBarParent).CornerRadius = UDim.new(0, 3)
@@ -956,14 +960,29 @@ function library:Notification(NotificationConfig)
 		ProgressBar.Parent = ProgressBarParent
 		ProgressBar.Size = UDim2.new(1, 0, 1, 0)
 		ProgressBar.Position = UDim2.new(0, 0, 0, 0)
-		ProgressBar.BackgroundTransparency = 0
+		ProgressBar.BackgroundTransparency = 1
 		ProgressBar.BackgroundColor3 = accentColor
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
 
+		NotificationParent.AutomaticSize = Enum.AutomaticSize.None
+
 		TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-			Position = UDim2.new(0, 0, 0, 0)
+			Position = UDim2.new(0, 0, 0, 0),
+			BackgroundTransparency = 0
 		}):Play()
+		TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+			Position = UDim2.new(1, 0, NotificationFrame.AbsoluteSize.Y, 0)
+		}):Play()
+
+		TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.3), {Transparency = 0}):Play()
+		TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+		TweenService:Create(Content, TweenInfo.new(0.3), {TextTransparency = 0}):Play()
+		TweenService:Create(ProgressBarParent, TweenInfo.new(0.1), {BackgroundTransparency = 0}):Play()
+		TweenService:Create(ProgressBar, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play()
+		if Icon and Icon.Parent then
+			TweenService:Create(Icon, TweenInfo.new(0.3), {ImageTransparency = 0}):Play()
+		end
 
 		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
 			Size = UDim2.new(0, 0, 1, 0)
@@ -1157,14 +1176,14 @@ function library:Toast(ToastConfig)
 	if iconLabel then
 		TweenService:Create(iconLabel, tweenIn, { ImageTransparency = 0 }):Play()
 	end
-	TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
 	local SizeIn = TweenService:Create(toastFrame, tweenIn, { Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40) })
 	SizeIn:Play()
 	SizeIn.Completed:Connect(function()
 		toastFrame.AutomaticSize = Enum.AutomaticSize.X
 	end)
-	
-	toastbtnFrame.MouseButton1Click:Connect(DismissNotification)
+	TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
+
+	toastbtnFrame.MouseButton1Click:Connect(DismissToast)
 
 	task.delay(duration, function()
 		if not isDismissed then
