@@ -942,7 +942,7 @@ function library:Notification(NotificationConfig)
 			TextSize = 12,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextWrapped = true,
-			TextTransparency = 1,
+			TextTransparency = 0,
 			Text = NotificationConfig.Content
 		})
 
@@ -979,8 +979,7 @@ function library:Notification(NotificationConfig)
 			barTween:Cancel()
 
 			TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
-				Position = UDim2.new(1, 50, 0, 0),
-				BackgroundTransparency = 1
+				Position = UDim2.new(1, 50, 0, 0)
 			}):Play()
 			TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
 			TweenService:Create(Title, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
@@ -1023,9 +1022,7 @@ function library:Notification(NotificationConfig)
 				end)
 			end
 		end)
-		TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-			Position = UDim2.new(0, 0, 0, 0)
-		}):Play()
+		TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Position = UDim2.new(0, 0, 0, 0)} ):Play()
 
 		closeNotifButton.MouseButton1Click:Connect(DismissNotification)
 	end)
@@ -1076,8 +1073,16 @@ function library:Toast(ToastConfig)
 
 	local container = getToastContainer()
 
-	local toastFrame = Create("Frame", {
+	local toastFrameParent = Create("Frame", {
 		Parent = container,
+		Size = UDim2.fromOffset(0, 0),
+		AutomaticSize = Enum.AutomaticSize.None,
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+	})
+
+	local toastFrame = Create("Frame", {
+		Parent = toastFrameParent,
 		Size = UDim2.fromOffset(0, 0),
 		AutomaticSize = Enum.AutomaticSize.None,
 		BackgroundColor3 = library["Themes"]["Default"].WindowBackground,
@@ -1165,10 +1170,12 @@ function library:Toast(ToastConfig)
 		end
 
 		toastFrame.Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40)
+		toastFrameParent.Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40)
 		toastFrame.AutomaticSize = Enum.AutomaticSize.None
+		toastFrameParent.AutomaticSize = Enum.AutomaticSize.None
 		task.wait(0.25)
 		local fadeOut = TweenService:Create(toastFrame, tweenOut, { BackgroundTransparency = 1 })
-		TweenService:Create(toastFrame, tweenOut, { Size = UDim2.new(0,0,0,0), Position = UDim2.new(0,-50,0,0) }):Play()
+		TweenService:Create(toastFrameParent, tweenOut, { Size = UDim2.new(0,0,0,0) }):Play()
 		fadeOut:Play()
 
 		fadeOut.Completed:Connect(function()
@@ -1182,11 +1189,12 @@ function library:Toast(ToastConfig)
 	if iconLabel then
 		TweenService:Create(iconLabel, tweenIn, { ImageTransparency = 0 }):Play()
 	end
-	local SizeIn = TweenService:Create(toastFrame, tweenIn, { Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40) })
+	local SizeIn = TweenService:Create(toastFrameParent, tweenIn, { Size = UDim2.new(0,toastbtnFrame.AbsoluteSize.X,0,40) })
 	SizeIn:Play()
 	SizeIn.Completed:Connect(function()
 		TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
 		toastFrame.AutomaticSize = Enum.AutomaticSize.X
+		toastFrameParent.AutomaticSize = Enum.AutomaticSize.X
 		task.delay(duration, function()
 			if not isDismissed then
 				DismissToast()
