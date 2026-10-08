@@ -1012,7 +1012,9 @@ function library:Notification(NotificationConfig)
 			end)
 		end
 
-		local SizeInTween = TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Size = UDim2.new(1, 0, 0, targetHeight) })
+		local tweenIn = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+
+		local SizeInTween = TweenService:Create(NotificationParent, tweenIn, { Size = UDim2.new(1, 0, 0, targetHeight) })
 
 		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
 			Position = UDim2.new(0, 0, 0, 0) 
@@ -1020,7 +1022,6 @@ function library:Notification(NotificationConfig)
 
 		SlideInTween:Play()
 		SizeInTween:Play()
-
 
 		SizeInTween.Completed:Connect(function()
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
