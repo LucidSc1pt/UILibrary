@@ -973,8 +973,8 @@ function library:Notification(NotificationConfig)
 		NotificationParent.Size = UDim2.new(1, 0, 0, 0)
 		NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 
-		--NotificationFrame.Size = UDim2.new(1, 0, 0, targetHeight)
-		NotificationFrame.AutomaticSize = Enum.AutomaticSize.Y
+		NotificationFrame.Size = UDim2.new(1, 0, 1, 0)
+		NotificationFrame.AutomaticSize = Enum.AutomaticSize.None
 
 		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
 			Size = UDim2.new(0, 0, 1, 0)
