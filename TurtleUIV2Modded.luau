@@ -824,7 +824,7 @@ function library:Notification(NotificationConfig)
 
 		local NotificationParent = Create("Frame", {
 			Size = UDim2.new(1, 0, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
+			AutomaticSize = Enum.AutomaticSize.None,
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
 			Parent = NotificationHolder
@@ -1018,12 +1018,24 @@ function library:Notification(NotificationConfig)
 			Position = UDim2.new(0, 0, 0, 0) 
 		})
 
-		SizeInTween:Play()
 		SlideInTween:Play()
+		SizeInTween:Play()
+
 
 		SizeInTween.Completed:Connect(function()
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
 			NotificationFrame.AutomaticSize = Enum.AutomaticSize.Y
+	
+			TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.2), {Transparency = 0}):Play()
+			TweenService:Create(Title, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
+			TweenService:Create(Content, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
+			TweenService:Create(ProgressBarParent, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
+			TweenService:Create(ProgressBar, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
+			if Icon and Icon.Parent then
+				TweenService:Create(Icon, TweenInfo.new(0.2), {ImageTransparency = 0}):Play()
+			end
+
+			task.wait(0.25)
 
 			if (typeof(NotificationConfig.Time) == "string" and NotificationConfig.Time == "inf") or NotificationConfig.Time == 0 then
 				ProgressBarParent:Destroy()
