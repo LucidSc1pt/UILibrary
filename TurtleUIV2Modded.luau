@@ -970,22 +970,14 @@ function library:Notification(NotificationConfig)
 		task.wait(0.05) 
 		local targetHeight = NotificationFrame.AbsoluteSize.Y
 
-		NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 		NotificationParent.Size = UDim2.new(1, 0, 0, 0)
-		
-		NotificationFrame.AutomaticSize = Enum.AutomaticSize.None
+		NotificationParent.AutomaticSize = Enum.AutomaticSize.None
+
 		NotificationFrame.Size = UDim2.new(1, 0, 0, targetHeight)
+		NotificationFrame.AutomaticSize = Enum.AutomaticSize.None
 
 		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
 			Size = UDim2.new(0, 0, 1, 0)
-		})
-
-		local SizeInTween = TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-			Size = UDim2.new(1, 0, targetHeight, 0)
-		})
-
-		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
-			Position = UDim2.new(0, 0, 0, 0) 
 		})
 
 		local function DismissNotification()
@@ -1019,7 +1011,13 @@ function library:Notification(NotificationConfig)
 				NotificationParent:Destroy()
 			end)
 		end
-		
+
+		local SizeInTween = TweenService:Create(NotificationParent, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Size = UDim2.new(1, 0, 0, targetHeight) })
+
+		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
+			Position = UDim2.new(0, 0, 0, 0) 
+		})
+
 		SizeInTween:Play()
 		SlideInTween:Play()
 
