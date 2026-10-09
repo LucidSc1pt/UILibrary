@@ -1569,8 +1569,7 @@ local function makeGroupUI(option, parentContainer)
 		Name = option.Title .. "_Group",
 		Size = UDim2.new(1, 0, 0, 32),
 		AutomaticSize = Enum.AutomaticSize.Y,
-		BackgroundColor3 = Color3.fromRGB(35, 39, 42),
-		BorderColor3 = Color3.fromRGB(54, 57, 63),
+		BackgroundTransparency = 1,
 		Parent = parentContainer
 	})
 
@@ -1851,7 +1850,7 @@ function makeLabel(option, parent)
 	local labelFrame = Create("Frame", {
 		Parent = labelFrameParent,
 		AutomaticSize = Enum.AutomaticSize.Y,
-		Size = UDim2.new(1, 0, 1, 0),
+		Size = UDim2.new(1, 0, 0, 0),
 		BackgroundTransparency = 1,
 		ZIndex = 12 + zindex,
 		Name = ""
@@ -1872,7 +1871,7 @@ function makeLabel(option, parent)
 		AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1,
 		Position = UDim2.new(0, 0, 0.5, 0),
-		Size = UDim2.new(1, 0, 1, 0),
+		Size = UDim2.new(1, 0, 0, 0),
 		Font = Enum.Font.SourceSans,
 		Text = option.Title,
 		TextColor3 = Color3.fromRGB(245, 246, 250),
@@ -1890,10 +1889,9 @@ function makeLabel(option, parent)
 
 	if typeof(option.Color) == "string" and option.Color == "Rainbow" then
 		spawn(function()
-			while Label.Parent do
+			while Label.Parent and task.wait(option.ColorTime) do
 				local hue = tick() % 5 / 5
 				Label.TextColor3 = Color3.fromHSV(hue, 1, 1)
-				task.wait()
 			end
 		end)
 	elseif option.Color then
@@ -2324,7 +2322,7 @@ local function makeDropdown(option, parentContainer)
 
 	local droFrameParent = Create("Frame", {
 		Parent = parentContainer,
-		Size = UDim2.new(1, 0, 0, 32),
+		Size = UDim2.new(1, 0, 0, 38),
 		BackgroundTransparency = 1,
 		Name = "_DropdownHolder_",
 		AutomaticSize = Enum.AutomaticSize.None,
@@ -2707,7 +2705,7 @@ end
 local function makeColorPicker(option, parentContainer)
 	local colFrameParent = Create("Frame", {
 		Parent = parentContainer,
-		Size = UDim2.new(1, 0, 0, 32),
+		Size = UDim2.new(1, 0, 0, 38),
 		BackgroundTransparency = 1,
 		Name = "_ColorPickerHolder_",
 		AutomaticSize = Enum.AutomaticSize.None,
@@ -3314,6 +3312,7 @@ local function injectElements(targetContainer, parentUI, winConfig)
 		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Label"
 		config.XAlignment = (config.XAlignment or config.xAlignment or config.xalignment) or "Left"
 		config.Color = (config.Color or config.color) or Color3.new(1, 1, 1)
+		config.ColorTime = (config.ColorTime or config.colorTime or config.colortime) or 0.01
 
 		return makeLabel(config, parentUI)
 	end
@@ -3640,7 +3639,7 @@ function library:CreateWindow(WinConfig)
 	})
 	AddThemeObject(SubHeaderText, "SubHeaderText", "TextColor3")
 
-	if not WinConfig.SubTitle and (WinConfig.SubTitle == nil and WinConfig.SubTitle == "") then
+	if WinConfig.SubTitle and (WinConfig.SubTitle == nil and WinConfig.SubTitle == "") then
 		HeaderText.Size = UDim2.new(1,0,1,0)
 		SubHeaderText:Destroy()
 	end
@@ -4018,7 +4017,7 @@ function library:CreateWindow(WinConfig)
 			BackgroundTransparency = 0,
 			BorderSizePixel = 0,
 			Position = UDim2.new(0,0,0,0),
-			Size = UDim2.new(0.25,0,0,30),
+			Size = (WinConfig.TabPosition ~= "Right" or WinConfig.TabPosition ~= "Left") and UDim2.new(0.25,0,0,30) or UDim2.new(1,0,0,30),
 			ZIndex = 8 + zindex,
 			Visible = true,
 			Active = true
@@ -4157,12 +4156,147 @@ function library:CreateWindow(WinConfig)
 		return tab
 	end
 
-	function window:AddTabDivider(TabDivConfig)
-		-- WIP
+	function window:AddTabDivider(config)
+		if (WinConfig.TabPosition ~= "Right" or WinConfig.TabPosition ~= "Left") and library.IsDebug then
+			warn("AddTabDivider will works when TabPosition setting value is 'Right' or 'Left'")
+			return
+		end
+
+		config = type(config) == "table" and config or {}
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Label"
+		config.XAlignment = (config.XAlignment or config.xAlignment or config.xalignment) or "Left"
+		config.Size = (config.Size or config.size) or UDim2.new(1,0,0,1)
+		config.Color = (config.Color or config.color) or library["Themes"][library.SelectedTheme].ElementDivider
+		config.TextColor = (config.TextColor or config.textColor or config.textcolor) or library["Themes"][library.SelectedTheme].ElementDividerText
+
+		local divFrameParent = Create("Frame", {
+			Parent = window.sidebarFrame,
+			Size = UDim2.new(1,0,0,2),
+			BackgroundTransparency = 1,
+			Name = "_TabDiv_",
+			AutomaticSize = Enum.AutomaticSize.Y,
+			ZIndex = 8 + zindex
+		})
+
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 5),
+			PaddingRight = UDim.new(0, 5),
+			PaddingBottom = UDim.new(0, 5),
+			PaddingTop = UDim.new(0, 5),
+			Parent = divFrameParent
+		})
+
+		local divParentLayout = Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Vertical,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Top,
+			Padding = UDim.new(0, 5),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			Parent = divFrameParent
+		})
+
+		local divFrame = Create("Frame", {
+			LayoutOrder = 2,
+			Parent = divFrameParent,
+			Size = config.Size,
+			BackgroundColor3 = config.Color,
+			BorderSizePixel = 0,
+			Name = "Div",
+			ZIndex = 8 + zindex
+		})
+
+		if config.Title and (config.Title ~= nil and config.Title ~= "") then
+			local Title = Create("TextLabel", {
+				LayoutOrder = 1,
+				AnchorPoint = Vector2.new(0,0),
+				Name = "DivText",
+				Parent = divFrameParent,
+				BackgroundTransparency = 1,
+				Position = UDim2.new(0, 0, 0, 0),
+				Size = UDim2.new(1, 0, 0, 5),
+				Font = Enum.Font.SourceSans,
+				Text = config.Title,
+				TextColor3 = config.TextColor,
+				TextSize = 16,
+				TextWrapped = true,
+				ZIndex = 8 + zindex,
+				TextXAlignment = Enum.TextXAlignment[config.XAlignment],
+				AutomaticSize = Enum.AutomaticSize.Y,
+				Active = false
+			})
+		end
+
+		return divFrameParent
 	end
 
-	function window:AddTabLabel(TabLabelConfig)
-		-- WIP
+	function window:AddTabLabel(config)
+		if (WinConfig.TabPosition ~= "Right" or WinConfig.TabPosition ~= "Left") and library.IsDebug then
+			warn("AddTabLabel will works when TabPosition setting value is 'Right' or 'Left'")
+			return
+		end
+
+		config = type(config) == "table" and config or {}
+		config.Title = ((config.Title or config.Name or config.Text) or (config.title or config.name or config.text)) or "Label"
+		config.XAlignment = (config.XAlignment or config.xAlignment or config.xalignment) or "Left"
+		config.Color = (config.Color or config.color) or Color3.new(1, 1, 1)
+		config.ColorTime = (config.ColorTime or config.colorTime or config.colortime) or 0.01
+
+		local labelFrameParent = Create("Frame", {
+			Parent = window.sidebarFrame,
+			Size = UDim2.new(1, 0, 0, 10),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			ZIndex = 8 + zindex,
+			Name = "_TabLabelHolder_"
+		})
+
+		local labelFrame = Create("Frame", {
+			Parent = labelFrameParent,
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Size = UDim2.new(1, 0, 0, 0),
+			BackgroundTransparency = 1,
+			ZIndex = 8 + zindex,
+			Name = ""
+		})
+
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 5),
+			PaddingRight = UDim.new(0, 5),
+			PaddingBottom = UDim.new(0, 5),
+			PaddingTop = UDim.new(0, 5),
+			Parent = labelFrame
+		})
+
+		local Label = Create("TextLabel", {
+			AnchorPoint = Vector2.new(0,0.5),
+			Name = "Label",
+			Parent = labelFrame,
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			Position = UDim2.new(0, 0, 0.5, 0),
+			Size = UDim2.new(1, 0, 0, 0),
+			Font = Enum.Font.SourceSans,
+			Text = config.Title,
+			TextColor3 = Color3.fromRGB(245, 246, 250),
+			TextSize = 16,
+			TextWrapped = true,
+			TextXAlignment = Enum.TextXAlignment[config.XAlignment],
+			ZIndex = 8 + zindex,
+			Active = false
+		})
+
+		if typeof(config.Color) == "string" and config.Color == "Rainbow" then
+			spawn(function()
+				while Label.Parent and task.wait(config.ColorTime) do
+					local hue = tick() % 5 / 5
+					Label.TextColor3 = Color3.fromHSV(hue, 1, 1)
+				end
+			end)
+		elseif config.Color then
+			Label.TextColor3 = config.Color
+		end
+
+		return labelFrameParent
 	end
 
 	if configSettings.Enabled and (configSettings.AutoLoadConfig and configSettings.AutoLoadConfig ~= nil) then
@@ -4171,7 +4305,7 @@ function library:CreateWindow(WinConfig)
 				library:LoadConfig(folderName, defaultFileName)
 				library:Notification({
 					Title = "Configuration",
-					Content = "Auto-loaded configuration for the game " .. game.GameId .. ".",
+					Content = "Auto-loaded configuration.",
 					Time = 5
 				})
 			end)
