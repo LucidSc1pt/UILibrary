@@ -831,7 +831,7 @@ function library:Notification(NotificationConfig)
 		})
 
 		local NotificationFrame = Create("Frame", {
-			Size = UDim2.new(1, 0, 0, 0),
+			Size = UDim2.new(1, 0, 1, 0),
 			Position = UDim2.new(1, 50, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundColor3 = library["Themes"]["Default"].WindowBackground,
@@ -967,20 +967,21 @@ function library:Notification(NotificationConfig)
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
 
-		task.wait(0.05) 
-		local targetHeight = NotificationFrame.AbsoluteSize.Y
-
-		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
-			Size = UDim2.new(0, 0, 1, 0)
-		})
-
+		task.wait(0.05)
 		local tweenIn = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
 		local SizeInTween = TweenService:Create(NotificationParent, tweenIn, { Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y) })
 
-		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
+		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
 			Position = UDim2.new(0, 0, 0, 0),
 			BackgroundTransparency = 0
+		})
+		local targetHeight = NotificationFrame.AbsoluteSize.Y
+
+		NotificationFrame.AutomaticSize = Enum.AutomaticSize.None
+
+		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
+			Size = UDim2.new(0, 0, 1, 0)
 		})
 
 		SizeInTween:Play()
