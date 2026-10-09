@@ -1574,7 +1574,7 @@ local function makeGroupUI(option, parentContainer)
 		Parent = parentContainer
 	})
 
-	local groupFrameParent_Padding = Create("UIPadding"), {
+	local groupFrameParent_Padding = Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
 		PaddingBottom = UDim.new(0, 5),
@@ -1841,7 +1841,8 @@ end
 function makeLabel(option, parent)
 	local labelFrameParent = Create("Frame", {
 		Parent = parent,
-		Size = UDim2.new(1, 0, 0, 28),
+		Size = UDim2.new(1, 0, 0, 10),
+		AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1,
 		ZIndex = 12 + zindex,
 		Name = "_LabelHolder_"
@@ -1849,6 +1850,7 @@ function makeLabel(option, parent)
 
 	local labelFrame = Create("Frame", {
 		Parent = labelFrameParent,
+		AutomaticSize = Enum.AutomaticSize.Y,
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundTransparency = 1,
 		ZIndex = 12 + zindex,
@@ -1867,6 +1869,7 @@ function makeLabel(option, parent)
 		AnchorPoint = Vector2.new(0,0.5),
 		Name = "Label",
 		Parent = labelFrame,
+		AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundTransparency = 1,
 		Position = UDim2.new(0, 0, 0.5, 0),
 		Size = UDim2.new(1, 0, 1, 0),
@@ -3233,6 +3236,8 @@ local function makeElementDivider(option, parentContainer)
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
 		Parent = divFrameParent
 	})
 
