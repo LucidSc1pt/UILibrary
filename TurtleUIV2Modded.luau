@@ -908,7 +908,7 @@ function library:Notification(NotificationConfig)
 			ImageColor3 = Color3.fromRGB(240, 240, 240),
 			Name = "Icon",
 			LayoutOrder = 1,
-			ImageTransparency = 0,
+			ImageTransparency = 1,
 			Parent = textHolder
 		})
 
@@ -923,7 +923,7 @@ function library:Notification(NotificationConfig)
 		Title.TextWrapped = true
 		Title.TextXAlignment = Enum.TextXAlignment.Left
 		Title.Text = NotificationConfig.Title
-		Title.TextTransparency = 0
+		Title.TextTransparency = 1
 		Title.LayoutOrder = 2
 
 		if NotificationConfig.Image and (NotificationConfig.Image ~= nil and NotificationConfig.Image ~= "") then
@@ -943,7 +943,7 @@ function library:Notification(NotificationConfig)
 			TextSize = 12,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextWrapped = true,
-			TextTransparency = 0,
+			TextTransparency = 1,
 			LayoutOrder = 2,
 			Text = NotificationConfig.Content
 		})
@@ -953,7 +953,7 @@ function library:Notification(NotificationConfig)
 		ProgressBarParent.Parent = NotificationFrame
 		ProgressBarParent.Size = UDim2.new(1, 0, 0, 3)
 		ProgressBarParent.Position = UDim2.new(0, 0, 1, 5)
-		ProgressBarParent.BackgroundTransparency = 0
+		ProgressBarParent.BackgroundTransparency = 1
 		ProgressBarParent.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 		ProgressBarParent.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBarParent).CornerRadius = UDim.new(0, 3)
@@ -962,7 +962,7 @@ function library:Notification(NotificationConfig)
 		ProgressBar.Parent = ProgressBarParent
 		ProgressBar.Size = UDim2.new(1, 0, 1, 0)
 		ProgressBar.Position = UDim2.new(0, 0, 0, 0)
-		ProgressBar.BackgroundTransparency = 0
+		ProgressBar.BackgroundTransparency = 1
 		ProgressBar.BackgroundColor3 = accentColor
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
@@ -1020,8 +1020,8 @@ function library:Notification(NotificationConfig)
 			Position = UDim2.new(0, 0, 0, 0) 
 		})
 
-		SlideInTween:Play()
 		SizeInTween:Play()
+		SlideInTween:Play()
 
 		SizeInTween.Completed:Connect(function()
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
@@ -1085,9 +1085,9 @@ function library:Toast(ToastConfig)
 		options = { Text = ToastConfig }
 	end
 
-	local text = (ToastConfig.Title or ToastConfig.Text or ToastConfig.Name) or "Notification"
-	local icon = (ToastConfig.Icon or ToastConfig.Image) or ""
-	local duration = (ToastConfig.Time or ToastConfig.Duration) or 2.5
+	local text = ((ToastConfig.Title or ToastConfig.Text or ToastConfig.Name) or (ToastConfig.title or ToastConfig.text or ToastConfig.name)) or "Notification"
+	local icon = ((ToastConfig.Icon or ToastConfig.Image or ToastConfig.Img) or (ToastConfig.icon or ToastConfig.image or ToastConfig.img)) or ""
+	local duration = ((ToastConfig.Time or ToastConfig.Duration) or (ToastConfig.time or ToastConfig.duration)) or 2.5
 	local isDismissed = false
 
 	local accentColors = {
@@ -1211,11 +1211,14 @@ function library:Toast(ToastConfig)
 	SizeIn.Completed:Connect(function()
 		TweenService:Create(textLabel, tweenIn, { TextTransparency = 0 }):Play()
 		toastFrame.AutomaticSize = Enum.AutomaticSize.X
-		task.delay(duration, function()
-			if not isDismissed then
-				DismissToast()
-			end
-		end)
+		if (typeof(duration) == "string" and duration == "inf") or duration == 0 then
+		else
+			task.delay(duration, function()
+				if not isDismissed then
+					DismissToast()
+				end
+			end)
+		end
 	end)
 	
 	toastbtnFrame.MouseButton1Click:Connect(DismissToast)
