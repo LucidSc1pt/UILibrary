@@ -824,7 +824,7 @@ function library:Notification(NotificationConfig)
 
 		local NotificationParent = Create("Frame", {
 			Size = UDim2.new(1, 0, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.None,
+			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundTransparency = 1,
 			ClipsDescendants = false,
 			Parent = NotificationHolder
@@ -967,24 +967,15 @@ function library:Notification(NotificationConfig)
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
 
-		task.wait(0.05)
-		local tweenIn = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-
-		local SizeInTween = TweenService:Create(NotificationParent, tweenIn, { Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y) })
-
 		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
 			Position = UDim2.new(0, 0, 0, 0),
 			BackgroundTransparency = 0
 		})
-		local targetHeight = NotificationFrame.AbsoluteSize.Y
-
-		NotificationFrame.AutomaticSize = Enum.AutomaticSize.None
 
 		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
 			Size = UDim2.new(0, 0, 1, 0)
 		})
 
-		SizeInTween:Play()
 		SlideInTween:Play()
 
 		local function DismissNotification()
@@ -993,12 +984,9 @@ function library:Notification(NotificationConfig)
 
 			barTween:Cancel()
 
-			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
+			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 
-			TweenService:Create(NotificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
-				Position = UDim2.new(1, 50, 0, 0)
-			}):Play()
 			TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.2), {Transparency = 1}):Play()
 			TweenService:Create(Title, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
 			TweenService:Create(Content, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
@@ -1010,6 +998,10 @@ function library:Notification(NotificationConfig)
 
 			task.wait(0.25)
 
+			TweenService:Create(NotificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+				Position = UDim2.new(1, 50, 0, 0),
+				BackgroundTransparency = 1
+			}):Play()
 			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
 				Size = UDim2.new(1, 0, 0, 0)
 			})
@@ -1019,9 +1011,7 @@ function library:Notification(NotificationConfig)
 			end)
 		end
 
-		SizeInTween.Completed:Connect(function()
-			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
-	
+		SlideInTween.Completed:Connect(function()
 			TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.2), {Transparency = 0}):Play()
 			TweenService:Create(Title, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
 			TweenService:Create(Content, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
