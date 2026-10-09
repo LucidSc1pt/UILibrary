@@ -800,7 +800,7 @@ local function getNotificationContainer()
 	end
 	return container
 end
---[[
+
 function library:Notification(NotificationConfig)
 	task.spawn(function()
 		NotificationConfig = NotificationConfig or {}
@@ -967,7 +967,7 @@ function library:Notification(NotificationConfig)
 		ProgressBar.BorderSizePixel = 0
 		Instance.new("UICorner", ProgressBar).CornerRadius = UDim.new(0, 3)
 
-		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
+		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
 			Position = UDim2.new(0, 0, 0, 0),
 			BackgroundTransparency = 0
 		})
@@ -987,6 +987,10 @@ function library:Notification(NotificationConfig)
 			NotificationParent.Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y)
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.None
 
+			TweenService:Create(NotificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
+				Position = UDim2.new(1, 50, 0, 0),
+				BackgroundTransparency = 1
+			}):Play()
 			TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.2), {Transparency = 1}):Play()
 			TweenService:Create(Title, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
 			TweenService:Create(Content, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
@@ -998,11 +1002,7 @@ function library:Notification(NotificationConfig)
 
 			task.wait(0.25)
 
-			TweenService:Create(NotificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
-				Position = UDim2.new(1, 50, 0, 0),
-				BackgroundTransparency = 1
-			}):Play()
-			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
+			local shrinkTween = TweenService:Create(NotificationParent, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
 				Size = UDim2.new(1, 0, 0, 0)
 			})
 			shrinkTween:Play()
@@ -1037,176 +1037,6 @@ function library:Notification(NotificationConfig)
 		end)
 		
 		closeNotifButton.MouseButton1Click:Connect(DismissNotification)
-	end)
-end
-]]
-function library:Notification(NotificationConfig)
-	task.spawn(function()
-		NotificationConfig = NotificationConfig or {}
-		local titleText = (NotificationConfig.Title or NotificationConfig.Name or NotificationConfig.Text) or "Notification"
-		local contentText = (NotificationConfig.Content or NotificationConfig.Desc or NotificationConfig.Description) or "Hello World"
-		local iconId = (NotificationConfig.Image or NotificationConfig.Icon) or 4384403532
-		local notifType = NotificationConfig.Type or "Info"
-		local duration = ((NotificationConfig.Time or NotificationConfig.Duration) or NotificationConfig.duration) or 5
-
-		local accentColors = {
-			Info = Color3.fromRGB(52, 152, 219),
-			Success = Color3.fromRGB(46, 204, 113),
-			Warning = Color3.fromRGB(241, 196, 15),
-			Error = Color3.fromRGB(231, 76, 60)
-		}
-		local accentColor = accentColors[notifType] or accentColors.Info
-
-		local NotificationHolder = getNotificationContainer()
-
-		local Wrapper = Instance.new("Frame")
-		Wrapper.Name = "NotifWrapper"
-		Wrapper.Size = UDim2.new(1, 0, 0, 0)
-		Wrapper.BackgroundTransparency = 1
-		Wrapper.ClipsDescendants = true
-		Wrapper.Parent = NotificationHolder
-
-		local Card = Instance.new("CanvasGroup")
-		Card.Name = "NotifCard"
-		Card.Size = UDim2.new(1, 0, 0, 0)
-		Card.AutomaticSize = Enum.AutomaticSize.Y
-		Card.Position = UDim2.new(1, 40, 0, 0)
-		Card.GroupTransparency = 1
-		Card.BackgroundColor3 = library["Themes"]["Default"].WindowBackground or Color3.fromRGB(30, 30, 35)
-		Card.BorderSizePixel = 0
-		Card.Parent = Wrapper
-
-		local Corner = Instance.new("UICorner")
-		Corner.CornerRadius = UDim.new(0, 8)
-		Corner.Parent = Card
-
-		local Stroke = Instance.new("UIStroke")
-		Stroke.Color = accentColor
-		Stroke.Thickness = 1.2
-		Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		Stroke.Parent = Card
-
-		local Padding = Instance.new("UIPadding")
-		Padding.PaddingTop = UDim.new(0, 10)
-		Padding.PaddingBottom = UDim.new(0, 12)
-		Padding.PaddingLeft = UDim.new(0, 12)
-		Padding.PaddingRight = UDim.new(0, 12)
-		Padding.Parent = Card
-
-		local Header = Instance.new("Frame")
-		Header.Size = UDim2.new(1, 0, 0, 20)
-		Header.BackgroundTransparency = 1
-		Header.Parent = Card
-
-		local Icon = Instance.new("ImageLabel")
-		Icon.Size = UDim2.new(0, 20, 0, 20)
-		Icon.Position = UDim2.new(0, 0, 0, 0)
-		Icon.BackgroundTransparency = 1
-		Icon.ImageColor3 = Color3.fromRGB(240, 240, 240)
-		Icon.Parent = Header
-
-		local hasIcon = iconId and iconId ~= ""
-		if hasIcon then
-			applyIcon(Icon, iconId)
-		else
-			Icon.Visible = false
-		end
-
-		local Title = Instance.new("TextLabel")
-		Title.Size = UDim2.new(1, hasIcon and -50 or -24, 1, 0)
-		Title.Position = UDim2.new(0, hasIcon and 26 or 0, 0, 0)
-		Title.BackgroundTransparency = 1
-		Title.Font = Enum.Font.GothamBold
-		Title.Text = titleText
-		Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-		Title.TextSize = 13
-		Title.TextXAlignment = Enum.TextXAlignment.Left
-		Title.TextTruncate = Enum.TextTruncate.AtEnd
-		Title.Parent = Header
-
-		local CloseBtn = Instance.new("ImageButton")
-		CloseBtn.Size = UDim2.new(0, 18, 0, 18)
-		CloseBtn.Position = UDim2.new(1, 0, 0, 0)
-		CloseBtn.AnchorPoint = Vector2.new(1, 0)
-		CloseBtn.BackgroundTransparency = 1
-		CloseBtn.Image = "rbxassetid://7072725342"
-		CloseBtn.ImageColor3 = Color3.fromRGB(180, 180, 180)
-		CloseBtn.Parent = Header
-
-		local Content = Instance.new("TextLabel")
-		Content.Size = UDim2.new(1, 0, 0, 0)
-		Content.Position = UDim2.new(0, 0, 0, 26)
-		Content.AutomaticSize = Enum.AutomaticSize.Y
-		Content.BackgroundTransparency = 1
-		Content.Font = Enum.Font.GothamSemibold
-		Content.Text = contentText
-		Content.TextColor3 = Color3.fromRGB(200, 200, 205)
-		Content.TextSize = 12
-		Content.TextWrapped = true
-		Content.TextXAlignment = Enum.TextXAlignment.Left
-		Content.Parent = Card
-
-		local BarBG = Instance.new("Frame")
-		BarBG.Size = UDim2.new(1, 24, 0, 2)
-		BarBG.Position = UDim2.new(0, -12, 1, 12)
-		BarBG.AnchorPoint = Vector2.new(0, 1)
-		BarBG.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
-		BarBG.BorderSizePixel = 0
-		BarBG.Parent = Card
-
-		local Bar = Instance.new("Frame")
-		Bar.Size = UDim2.new(1, 0, 1, 0)
-		Bar.BackgroundColor3 = accentColor
-		Bar.BorderSizePixel = 0
-		Bar.Parent = BarBG
-
-		task.defer(function()
-			local targetHeight = Card.AbsoluteSize.Y
-
-			TweenService:Create(Wrapper, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-				Size = UDim2.new(1, 0, 0, targetHeight)
-			}):Play()
-
-			TweenService:Create(Card, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-				Position = UDim2.new(0, 0, 0, 0),
-				GroupTransparency = 0
-			}):Play()
-
-			if duration > 0 and duration ~= "inf" then
-				TweenService:Create(Bar, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
-					Size = UDim2.new(0, 0, 1, 0)
-				}):Play()
-			else
-				BarBG.Visible = false
-			end
-		end)
-
-		local isDismissed = false
-		local function Dismiss()
-			if isDismissed then return end
-			isDismissed = true
-
-			TweenService:Create(Card, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.In), {
-				Position = UDim2.new(1, 40, 0, 0),
-				GroupTransparency = 1
-			}):Play()
-
-			task.wait(0.12)
-
-			local collapse = TweenService:Create(Wrapper, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), {
-				Size = UDim2.new(1, 0, 0, 0)
-			})
-			collapse:Play()
-			collapse.Completed:Connect(function()
-				Wrapper:Destroy()
-			end)
-		end
-
-		CloseBtn.MouseButton1Click:Connect(Dismiss)
-
-		if duration > 0 and duration ~= "inf" then
-			task.delay(duration, Dismiss)
-		end
 	end)
 end
 
@@ -1735,13 +1565,31 @@ local function createKeyWindow(keySettings, folderName, onSuccess, onCancel)
 end
 
 local function makeGroupUI(option, parentContainer)
-	local groupFrame = Instance.new("Frame")
-	groupFrame.Name = option.Title .. "_Group"
-	groupFrame.Size = UDim2.new(1, 0, 0, 32)
-	groupFrame.AutomaticSize = Enum.AutomaticSize.Y
-	groupFrame.BackgroundColor3 = Color3.fromRGB(35, 39, 42)
-	groupFrame.BorderColor3 = Color3.fromRGB(54, 57, 63)
-	groupFrame.Parent = parentContainer
+	local groupFrameParent = Create("Frame", {
+		Name = option.Title .. "_Group",
+		Size = UDim2.new(1, 0, 0, 32),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundColor3 = Color3.fromRGB(35, 39, 42),
+		BorderColor3 = Color3.fromRGB(54, 57, 63),
+		Parent = parentContainer
+	})
+
+	local groupFrameParent_Padding = Create("UIPadding"), {
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
+		Parent = groupFrameParent
+	})
+
+	local groupFrame = Create("Frame", {
+		Name = "",
+		Size = UDim2.new(1, 0, 0, 32),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundColor3 = Color3.fromRGB(35, 39, 42),
+		BorderColor3 = Color3.fromRGB(54, 57, 63),
+		Parent = groupFrameParent
+	})
 
 	local groupCorner = Instance.new("UICorner")
 	groupCorner.CornerRadius = UDim.new(0, 6)
@@ -1820,12 +1668,6 @@ local function makeGroupUI(option, parentContainer)
 	contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	contentLayout.Padding = UDim.new(0, 5)
 	contentLayout.Parent = contentHolder
-
-	local contentPadding = Instance.new("UIPadding")
-	contentPadding.PaddingLeft = UDim.new(0, 5)
-	contentPadding.PaddingRight = UDim.new(0, 5)
-	contentPadding.PaddingBottom = UDim.new(0, 5)
-	contentPadding.Parent = contentHolder
 
 	if option.Collapsible then
 		local arrow = Instance.new("ImageLabel")
@@ -1938,6 +1780,8 @@ function makeButton(option, parent)
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
 		Parent = btnFrame
 	})
 
@@ -2011,6 +1855,14 @@ function makeLabel(option, parent)
 		Name = ""
 	})
 
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 5),
+		PaddingRight = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
+		Parent = labelFrame
+	})
+
 	local Label = Create("TextLabel", {
 		AnchorPoint = Vector2.new(0,0.5),
 		Name = "Label",
@@ -2069,6 +1921,8 @@ function makeToggle(option, parent)
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
 		Parent = togFrame
 	})
 
@@ -2197,6 +2051,8 @@ function makeBox(option, parent)
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
 		Parent = boxFrame
 	})
 
@@ -2292,6 +2148,8 @@ function makeSlider(option, parent)
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
 		Parent = sliFrame
 	})
 
@@ -2482,7 +2340,7 @@ local function makeDropdown(option, parentContainer)
 	local droLayout = Instance.new("UIListLayout")
 	droLayout.FillDirection = Enum.FillDirection.Vertical
 	droLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	droLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	droLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 	droLayout.Padding = UDim.new(0, 5)
 	droLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	droLayout.Parent = droFrame
@@ -2490,6 +2348,8 @@ local function makeDropdown(option, parentContainer)
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
 		Parent = droFrame
 	})
 
@@ -2630,7 +2490,6 @@ local function makeDropdown(option, parentContainer)
 		DropdownFrame.Visible = false
 		droFrame.AutomaticSize = Enum.AutomaticSize.None
 		droFrameParent.AutomaticSize = Enum.AutomaticSize.None
-		droLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	end
 
 	function option:Open()
@@ -2660,7 +2519,6 @@ local function makeDropdown(option, parentContainer)
 		else
 			droFrame.AutomaticSize = Enum.AutomaticSize.Y
 			droFrameParent.AutomaticSize = Enum.AutomaticSize.Y
-			droLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
 			DropdownFrame.Position = UDim2.new(0, 0, 0, 26)
 			DropdownFrame.Visible = true
@@ -2865,13 +2723,15 @@ local function makeColorPicker(option, parentContainer)
 	Create("UIPadding", {
 		PaddingLeft = UDim.new(0, 5),
 		PaddingRight = UDim.new(0, 5),
+		PaddingBottom = UDim.new(0, 5),
+		PaddingTop = UDim.new(0, 5),
 		Parent = colFrame
 	})
 
 	local colLayout = Instance.new("UIListLayout")
 	colLayout.FillDirection = Enum.FillDirection.Vertical
 	colLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	colLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	colLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 	colLayout.Padding = UDim.new(0, 5)
 	colLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	colLayout.Parent = colFrame
@@ -3305,7 +3165,6 @@ local function makeColorPicker(option, parentContainer)
 		ColorPickerFrame.Visible = false
 		colFrame.AutomaticSize = Enum.AutomaticSize.None
 		colFrameParent.AutomaticSize = Enum.AutomaticSize.None
-		colLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	end
 
 	function option:Open()
@@ -3320,7 +3179,7 @@ local function makeColorPicker(option, parentContainer)
 		if option.Floating and dragColFrame then
 			dragColFrame.Visible = true
 			ColorPickerFrame.Visible = true
-			
+
 			task.defer(function()
 				if not ColorPickerFrame or not dragColFrame then return end
 
@@ -3335,8 +3194,7 @@ local function makeColorPicker(option, parentContainer)
 		else
 			colFrame.AutomaticSize = Enum.AutomaticSize.Y
 			colFrameParent.AutomaticSize = Enum.AutomaticSize.Y
-			colLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-			
+
 			ColorPickerFrame.Visible = true
 		end
 	end
