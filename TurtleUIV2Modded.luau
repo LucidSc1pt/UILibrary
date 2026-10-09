@@ -835,7 +835,7 @@ function library:Notification(NotificationConfig)
 			Position = UDim2.new(1, 50, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			BackgroundColor3 = library["Themes"]["Default"].WindowBackground,
-			BackgroundTransparency = 0,
+			BackgroundTransparency = 1,
 			Parent = NotificationParent
 		})
 
@@ -970,15 +970,21 @@ function library:Notification(NotificationConfig)
 		task.wait(0.05) 
 		local targetHeight = NotificationFrame.AbsoluteSize.Y
 
-		NotificationParent.Size = UDim2.new(1, 0, 0, 0)
-		NotificationParent.AutomaticSize = Enum.AutomaticSize.None
-
-		NotificationFrame.Size = UDim2.new(1, 0, 1, 0)
-		NotificationFrame.AutomaticSize = Enum.AutomaticSize.None
-
 		local barTween = TweenService:Create(ProgressBar, TweenInfo.new(NotificationConfig.Time, Enum.EasingStyle.Linear), {
 			Size = UDim2.new(0, 0, 1, 0)
 		})
+
+		local tweenIn = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+
+		local SizeInTween = TweenService:Create(NotificationParent, tweenIn, { Size = UDim2.new(1, 0, 0, NotificationFrame.AbsoluteSize.Y) })
+
+		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
+			Position = UDim2.new(0, 0, 0, 0),
+			BackgroundTransparency = 0
+		})
+
+		SizeInTween:Play()
+		SlideInTween:Play()
 
 		local function DismissNotification()
 			if isDismissed then return end
@@ -1012,20 +1018,8 @@ function library:Notification(NotificationConfig)
 			end)
 		end
 
-		local tweenIn = TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-
-		local SizeInTween = TweenService:Create(NotificationParent, tweenIn, { Size = UDim2.new(1, 0, 0, targetHeight) })
-
-		local SlideInTween = TweenService:Create(NotificationFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { 
-			Position = UDim2.new(0, 0, 0, 0) 
-		})
-
-		SizeInTween:Play()
-		SlideInTween:Play()
-
 		SizeInTween.Completed:Connect(function()
 			NotificationParent.AutomaticSize = Enum.AutomaticSize.Y
-			NotificationFrame.AutomaticSize = Enum.AutomaticSize.Y
 	
 			TweenService:Create(NotificationFrame_Stroke, TweenInfo.new(0.2), {Transparency = 0}):Play()
 			TweenService:Create(Title, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
